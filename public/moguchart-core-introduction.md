@@ -14,7 +14,7 @@ slide: false
 ignorePublish: false
 ---
 
-![demo-light.png](../images/moguchart-core-introduction/demo-light.png)
+![demo-light.png](https://raw.githubusercontent.com/hiro-murakami/qiita-content/main/images/moguchart-core-introduction/demo-light.png)
 
 ## はじめに
 
@@ -224,7 +224,7 @@ chart.addEventListener('task-update', (e) => {
 })
 ```
 
-![drag-and-drop.gif](../images/moguchart-core-introduction/drag-and-drop.gif)
+![drag-and-drop.gif](https://raw.githubusercontent.com/hiro-murakami/qiita-content/main/images/moguchart-core-introduction/drag-and-drop.gif)
 
 ### 📐 依存関係線
 
@@ -242,7 +242,7 @@ const task = {
 
 接続線のスタイルは `curve`（ベジェ曲線）と `orthogonal`（直角折れ線・角丸）から選択できます。
 
-![dependencies.gif](../images/moguchart-core-introduction/dependencies.gif)
+![dependencies.gif](https://raw.githubusercontent.com/hiro-murakami/qiita-content/main/images/moguchart-core-introduction/dependencies.gif)
 
 ### 🎨 テーマ＆カスタムカラー
 
@@ -259,7 +259,7 @@ const option = {
 
 `ThemeColorPalette` では **30 以上のカラートークン** をオーバーライドでき、ブランドカラーに合わせた細かなカスタマイズが可能です。
 
-![demo-dark.png](../images/moguchart-core-introduction/demo-dark.png)
+![demo-dark.png](https://raw.githubusercontent.com/hiro-murakami/qiita-content/main/images/moguchart-core-introduction/demo-dark.png)
 
 ### 🏁 マイルストーン
 
@@ -276,7 +276,7 @@ option.calendar.milestones = [
 ]
 ```
 
-![milestone.gif](../images/moguchart-core-introduction/milestone.gif)
+![milestone.gif](https://raw.githubusercontent.com/hiro-murakami/qiita-content/main/images/moguchart-core-introduction/milestone.gif)
 
 ### 📍 マーカー
 
@@ -299,7 +299,7 @@ const row = {
 }
 ```
 
-![marker.png](../images/moguchart-core-introduction/marker.png)
+![marker.png](https://raw.githubusercontent.com/hiro-murakami/qiita-content/main/images/moguchart-core-introduction/marker.png)
 
 ### 🖌️ タスクバーの塗りつぶしパターン
 
@@ -327,7 +327,7 @@ const task = {
 | **月単位**   | `pxPerMonth: 120`                 | 年単位のロードマップ               |
 | **時間単位** | `pxPerDay: 960`, `showTime: true` | シフト管理・細かなスケジューリング |
 
-![view-mode.gif](../images/moguchart-core-introduction/view-mode.gif)
+![view-mode.gif](https://raw.githubusercontent.com/hiro-murakami/qiita-content/main/images/moguchart-core-introduction/view-mode.gif)
 
 ### 🖋️ カスタムレンダリング
 
