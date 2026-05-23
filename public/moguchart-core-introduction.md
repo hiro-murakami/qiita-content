@@ -14,7 +14,7 @@ slide: false
 ignorePublish: false
 ---
 
-![demo-light.png](https://qiita-image-store.s3.ap-northeast-1.amazonaws.com/0/2275937/b85e58c1-73b4-4e7f-b325-766d25d67ef4.png)
+![demo-light.png](../images/moguchart-core-introduction/demo-light.png)
 
 ## はじめに
 
@@ -224,7 +224,7 @@ chart.addEventListener('task-update', (e) => {
 })
 ```
 
-![drag-and-drop.gif](https://qiita-image-store.s3.ap-northeast-1.amazonaws.com/0/2275937/7b9ed249-37ab-48f5-87fa-29af73ddf84f.gif)
+![drag-and-drop.gif](../images/moguchart-core-introduction/drag-and-drop.gif)
 
 ### 📐 依存関係線
 
@@ -241,7 +241,8 @@ const task = {
 ```
 
 接続線のスタイルは `curve`（ベジェ曲線）と `orthogonal`（直角折れ線・角丸）から選択できます。
-![dependencies.gif](https://qiita-image-store.s3.ap-northeast-1.amazonaws.com/0/2275937/0f327144-8b23-4abc-85b9-e4fc587b0d50.gif)
+
+![dependencies.gif](../images/moguchart-core-introduction/dependencies.gif)
 
 ### 🎨 テーマ＆カスタムカラー
 
@@ -257,7 +258,8 @@ const option = {
 ```
 
 `ThemeColorPalette` では **30 以上のカラートークン** をオーバーライドでき、ブランドカラーに合わせた細かなカスタマイズが可能です。
-![demo-dark.png](https://qiita-image-store.s3.ap-northeast-1.amazonaws.com/0/2275937/21ca5d1a-e34e-4d00-badd-6900b1af1a90.png)
+
+![demo-dark.png](../images/moguchart-core-introduction/demo-dark.png)
 
 ### 🏁 マイルストーン
 
@@ -274,7 +276,7 @@ option.calendar.milestones = [
 ]
 ```
 
-![milestone.gif](https://qiita-image-store.s3.ap-northeast-1.amazonaws.com/0/2275937/032e1d86-9bf3-42ad-8f12-af0579328b68.gif)
+![milestone.gif](../images/moguchart-core-introduction/milestone.gif)
 
 ### 📍 マーカー
 
@@ -297,7 +299,7 @@ const row = {
 }
 ```
 
-![marker.png](https://qiita-image-store.s3.ap-northeast-1.amazonaws.com/0/2275937/a34bb1b3-68da-438d-822a-c8d5ec026314.png)
+![marker.png](../images/moguchart-core-introduction/marker.png)
 
 ### 🖌️ タスクバーの塗りつぶしパターン
 
@@ -325,7 +327,7 @@ const task = {
 | **月単位**   | `pxPerMonth: 120`                 | 年単位のロードマップ               |
 | **時間単位** | `pxPerDay: 960`, `showTime: true` | シフト管理・細かなスケジューリング |
 
-![view-mode.gif](https://qiita-image-store.s3.ap-northeast-1.amazonaws.com/0/2275937/aab2646f-c2e0-42df-8b85-91af936c7eda.gif)
+![view-mode.gif](../images/moguchart-core-introduction/view-mode.gif)
 
 ### 🖋️ カスタムレンダリング
 
@@ -391,18 +393,25 @@ await chart.exportImage('pdf', { download: true, filename: 'gantt' })
 
 Lit の Reactive Properties を活用し、`rows` や `option` が変更されると自動的に再レンダリングされます。仮想スクロールにより、画面外の要素はDOMに描画されないため、大量データでも軽快に動作します。
 
-## 今後のロードマップ
+## 📱 moguchart-core を使ったアプリケーション「MoguChart」
 
-- npm への公開（現在準備中）
-- リソースビュー（リソース軸でのタスク表示）
-- ガントチャート ↔ テーブルの連動
-- より詳細なドキュメントサイト
+moguchart-core は汎用ライブラリとして開発していますが、実は **このライブラリを活用した本格的なプロジェクト管理アプリケーション「MoguChart」** も並行して開発しています。
+
+MoguChart は Vue.js + Vuetify をベースに、moguchart-core のガントチャートコンポーネントを中心に据えた Web アプリケーションです。タスク管理・チーム共有・リアルタイム同期など、実務で使える機能を備えています。
+
+👉 **MoguChart の詳細は別記事で紹介しています！**
+
+<!-- TODO: 記事公開後にURLを差し替えてください -->
+
+https://qiita.com/hiro-murakami/items/xxxxxxx
+
+ライブラリ単体の機能に興味を持っていただけた方は、ぜひアプリケーション側の記事もご覧ください 🙌
 
 ## おわりに
 
 moguchart-core は、**「フレームワークに縛られず、高機能なガントチャートを手軽に組み込みたい」** という自分自身のニーズから生まれたライブラリです。
 
-まだ v0.0.1 の段階ですが、コア機能はかなり充実しています。フィードバックや Issue、Pull Request を歓迎しています！
+まだ公開開始したばかりですが、コア機能はかなり充実しています。フィードバックや Issue、Pull Request を歓迎しています！
 
 https://github.com/hiro-murakami/moguchart-core
 
