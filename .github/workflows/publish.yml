@@ -40,7 +40,7 @@ jobs:
             # 置換対象のパス文字列を構築
             # 記事内の表記が ../images/moguchart-core-introduction/foo.png の場合を想定
             old_path="../images/$article_id/"
-            new_path="https://raw.githubusercontent.com/もぐさんのGitHubID/リポジトリ名/main/images/$article_id/"
+            new_path="https://raw.githubusercontent.com/hiro-murakami/qiita-content/main/images/$article_id/"
             
             # 置換を実行（sedのデリミタを変更）
             sed -i "s|($old_path|($new_path|g" "$md_file"
