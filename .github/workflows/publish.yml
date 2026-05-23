@@ -24,15 +24,29 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Update image paths for each article
+      - name: Replace local image paths
         run: |
-          # 記事ファイル(.md)をループ処理
-          find public -name "*.md" | while read -r md_file; do
-            # 記事名を取得 (例: public/article1.md -> article1)
-            article_name=$(basename "$md_file" .md)
+          # 記事フォルダ内の .md ファイルを全て処理
+          # フォルダ構成: public/*.md に対して画像が ../images/記事フォルダ/ 
+          
+          for md_file in public/*.md; do
+            [ -e "$md_file" ] || continue
             
-            # 記事内の相対パス(../images/article1/...) をGitHubの公開URLへ置換
-            sed -i "s|(\../images/$article_name/| (https://raw.githubusercontent.com/hiro-murakami/qiita-content/main/images/$article_name/|g" "$md_file"
+            # ファイル名から記事ID（フォルダ名）を取得
+            article_id=$(basename "$md_file" .md)
+            
+            echo "Processing $md_file (Article ID: $article_id)"
+            
+            # 置換対象のパス文字列を構築
+            # 記事内の表記が ../images/moguchart-core-introduction/foo.png の場合を想定
+            old_path="../images/$article_id/"
+            new_path="https://raw.githubusercontent.com/もぐさんのGitHubID/リポジトリ名/main/images/$article_id/"
+            
+            # 置換を実行（sedのデリミタを変更）
+            sed -i "s|($old_path|($new_path|g" "$md_file"
+            
+            # 確認用：置換後の記事内の該当行を表示
+            grep -E "https://raw" "$md_file" || echo "No match found for $article_id"
           done
 
       - uses: increments/qiita-cli/actions/publish@v1
