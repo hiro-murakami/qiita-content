@@ -31,8 +31,8 @@ jobs:
             # 記事名を取得 (例: public/article1.md -> article1)
             article_name=$(basename "$md_file" .md)
             
-            # 記事内の相対パス(./images/article1/...) をGitHubの公開URLへ置換
-            sed -i "s|(\./images/$article_name/| (https://raw.githubusercontent.com/hiro-murakami/qiita-content/main/images/$article_name/|g" "$md_file"
+            # 記事内の相対パス(../images/article1/...) をGitHubの公開URLへ置換
+            sed -i "s|(\../images/$article_name/| (https://raw.githubusercontent.com/hiro-murakami/qiita-content/main/images/$article_name/|g" "$md_file"
           done
 
       - uses: increments/qiita-cli/actions/publish@v1
