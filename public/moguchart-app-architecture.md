@@ -27,9 +27,9 @@ ignorePublish: false
 本記事では、MoguChart の全体アーキテクチャと、個人開発で得た知見をまとめます。
 
 :::note info
-アプリケーションとしての機能詳細やUXへのこだわりについては、別記事「[無料で使えるWebガントチャート「MoguChart」を作った ─ 個人開発で追求した"ちょうどいい"プロジェクト管理UX](https://qiita.com/hiro-murakami/private/bfdaf141de040cb387b9)」をご覧ください。
+アプリケーションとしての機能詳細やUXへのこだわりについては、別記事「[無料で使えるWebガントチャート「MoguChart」を作った ─ 個人開発で追求した"ちょうどいい"プロジェクト管理UX](https://qiita.com/hiroyuki_m/private/bfdaf141de040cb387b9)」をご覧ください。
 
-また、ガントチャート描画ライブラリ「moguchart-core」の機能や導入方法については、別記事「[フレームワークに縛られないガントチャートを作った — Web Components製「moguchart-core」の紹介](https://qiita.com/hiro-murakami/private/0e4859951a9f652c26c3)」で紹介しています。
+また、ガントチャート描画ライブラリ「moguchart-core」の機能や導入方法については、別記事「[フレームワークに縛られないガントチャートを作った — Web Components製「moguchart-core」の紹介](https://qiita.com/hiroyuki_m/private/0e4859951a9f652c26c3)」で紹介しています。
 :::
 
 ## MoguChart とは
