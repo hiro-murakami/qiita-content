@@ -14,6 +14,8 @@ slide: false
 ignorePublish: false
 ---
 
+![top.png](https://raw.githubusercontent.com/hiro-murakami/qiita-content/main/images/moguchart-app-ux/top.png)
+
 ## TL;DR
 
 - ブラウザだけで使えるガントチャートWebアプリ **「MoguChart」** を個人開発しました
