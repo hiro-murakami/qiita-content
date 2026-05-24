@@ -1,13 +1,15 @@
 ---
-title: 個人開発で本格ガントチャートWebアプリ「MoguChart」を作った話 ─ 自作Web Components × Vue 3 × Firebase のアーキテクチャ全解剖
+title: >-
+  個人開発で本格ガントチャートWebアプリ「MoguChart」を作った話 ─ 自作Web Components × Vue 3 × Firebase
+  のアーキテクチャ全解剖
 tags:
   - Vue.js
-  - Firebase
   - WebComponents
+  - Firebase
   - 個人開発
   - ガントチャート
 private: true
-updated_at: '2026-05-24T14:40:23+09:00'
+updated_at: '2026-05-24T14:32:15+09:00'
 id: d1d2b644890e49b796e7
 organization_url_name: null
 slide: false
