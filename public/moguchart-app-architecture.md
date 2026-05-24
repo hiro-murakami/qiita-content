@@ -7,8 +7,8 @@ tags:
   - 個人開発
   - ガントチャート
 private: true
-updated_at: ''
-id: null
+updated_at: '2026-05-24T14:40:23+09:00'
+id: d1d2b644890e49b796e7
 organization_url_name: null
 slide: false
 ignorePublish: false
@@ -23,6 +23,12 @@ ignorePublish: false
 そこで、**ガントチャートの描画エンジンから自作する** という道を選び、Web アプリケーション **「MoguChart」** を開発しました。
 
 本記事では、MoguChart の全体アーキテクチャと、個人開発で得た知見をまとめます。
+
+:::note info
+アプリケーションとしての機能詳細やUXへのこだわりについては、別記事「[無料で使えるWebガントチャート「MoguChart」を作った ─ 個人開発で追求した"ちょうどいい"プロジェクト管理UX](https://qiita.com/hiro-murakami/private/bfdaf141de040cb387b9)」をご覧ください。
+
+また、ガントチャート描画ライブラリ「moguchart-core」の機能や導入方法については、別記事「[フレームワークに縛られないガントチャートを作った — Web Components製「moguchart-core」の紹介](https://qiita.com/hiro-murakami/private/0e4859951a9f652c26c3)」で紹介しています。
+:::
 
 ## MoguChart とは
 
@@ -392,9 +398,5 @@ MoguChart は、**ガントチャートのコアエンジン（Web Components）
 
 ---
 
-:::note info
-**MoguChart のコアライブラリ**
-`@mogura/moguchart-core` は npm で公開予定です。ガントチャートを自分のプロジェクトに組み込みたい方はぜひお試しください。
-:::
 
 ご質問やフィードバックがありましたら、コメントでお気軽にどうぞ！
