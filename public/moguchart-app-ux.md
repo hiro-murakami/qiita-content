@@ -67,6 +67,8 @@ MoguChart では、プロジェクト作成時に**表示の粒度**を選べま
 
 「右クリックメニュー」と「ダブルクリックで編集」の2つさえ覚えれば、ほぼすべての操作にアクセスできます。
 
+<img src="https://raw.githubusercontent.com/hiro-murakami/qiita-content/main/images/moguchart-app-ux/drag-and-drop.gif" width="400" alt="drag-and-drop.gif">
+
 #### 右クリックメニュー
 
 チャートの空白エリアやタスクバーを右クリックすると、その場所に応じたコンテキストメニューが表示されます。
@@ -107,13 +109,16 @@ MoguChart では、プロジェクト作成時に**表示の粒度**を選べま
 
 タスクごとに 0〜100% の進捗率を設定でき、バー上にプログレスバーとして表示されます。毎日の朝会で「今どこまで進んでる？」の確認がチャートを見るだけで済みます。
 
+<img src="https://raw.githubusercontent.com/hiro-murakami/qiita-content/main/images/moguchart-app-ux/progress-bar.png" width="200" alt="progress-bar.png">
+
 ### 6. 🔗 依存関係の矢印表示
 
 「タスクBはタスクAが完了してから」という依存関係を、矢印付きの曲線で可視化できます。
 
 - バーの端にある接続ハンドルをドラッグして、依存先のタスクにドロップ
 - 右→左方向の依存関係は**S字カーブ**で自動的に見やすく描画
-- 矢印のサイズも調整可能
+
+<img src="https://raw.githubusercontent.com/hiro-murakami/qiita-content/main/images/moguchart-app-ux/relation.gif" width="200" alt="relation.gif">
 
 ### 7. 🔒 「うっかり操作」を防ぐ機能
 

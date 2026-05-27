@@ -232,7 +232,7 @@ chart.addEventListener('task-update', (e) => {
 })
 ```
 
-![drag-and-drop.gif](https://raw.githubusercontent.com/hiro-murakami/qiita-content/main/images/moguchart-core-introduction/drag-and-drop.gif)
+<img src="https://raw.githubusercontent.com/hiro-murakami/qiita-content/main/images/moguchart-core-introduction/drag-and-drop.gif" width="700" alt="drag-and-drop.gif">
 
 既存のタスクバーの変更だけでなく、ガントチャートの外から新規のタスクバーをドラッグして追加することも可能です。
 
