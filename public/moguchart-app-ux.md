@@ -6,7 +6,7 @@ tags:
   - Vue.js
   - 個人開発
   - ガントチャート
-private: true
+private: false
 updated_at: '2026-05-30T09:49:31+09:00'
 id: bfdaf141de040cb387b9
 organization_url_name: null
@@ -336,9 +336,9 @@ MoguChart は3段階の権限モデルで、チームでの運用を想定して
 ガントチャートの描画エンジン（`@mogura/moguchart-core`）はフレームワーク非依存の Web Components として別途開発しています。Vue だけでなく React や Angular でも使えるので、「自分のアプリにガントチャートを組み込みたい」という方にも活用いただけます。
 
 :::note info
-技術的なアーキテクチャの詳細は、別記事「[個人開発で本格ガントチャートWebアプリ「MoguChart」を作った話 ─ 自作Web Components × Vue 3 × Firebase のアーキテクチャ全解剖](https://qiita.com/hiroyuki_m/private/d1d2b644890e49b796e7)」で解説しています。
+技術的なアーキテクチャの詳細は、別記事「[個人開発で本格ガントチャートWebアプリ「MoguChart」を作った話 ─ 自作Web Components × Vue 3 × Firebase のアーキテクチャ全解剖](https://qiita.com/hiroyuki_m/items/d1d2b644890e49b796e7)」で解説しています。
 
-また、ガントチャート描画ライブラリの詳細については、別記事「[フレームワークに縛られないガントチャートを作った — Web Components製「moguchart-core」の紹介](https://qiita.com/hiroyuki_m/private/0e4859951a9f652c26c3)」をご覧ください。
+また、ガントチャート描画ライブラリの詳細については、別記事「[フレームワークに縛られないガントチャートを作った — Web Components製「moguchart-core」の紹介](https://qiita.com/hiroyuki_m/items/0e4859951a9f652c26c3)」をご覧ください。
 :::
 
 ## おわりに
