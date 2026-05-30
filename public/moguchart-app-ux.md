@@ -85,6 +85,8 @@ MoguChart では、プロジェクト作成時に**表示の粒度**を選べま
 
 プロジェクトごとにカラーパレットを定義し、各パレットに**名前**を付けられます。「進行中」「レビュー待ち」「完了」のように意味のある名前を付ければ、チーム内でバーの色の意味が統一されます。
 
+<img src="https://raw.githubusercontent.com/hiro-murakami/qiita-content/main/images/moguchart-app-ux/color-palette.gif" width="400" alt="color-palette.gif">
+
 #### パターン（13種類）
 
 タスクバーの背景に重ねるパターンを設定できます。
