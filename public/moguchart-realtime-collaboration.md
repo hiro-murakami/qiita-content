@@ -1,15 +1,14 @@
 ---
-title: >-
-  ガントチャートWebアプリにリアルタイム共同編集を実装した話 ─ Firestore × Vue 3 で実現するプレゼンス・イベント同期アーキテクチャ
+title: ガントチャートWebアプリにリアルタイム共同編集を実装した話 ─ Firestore × Vue 3 で実現するプレゼンス・イベント同期アーキテクチャ
 tags:
   - Vue.js
   - Firebase
-  - Firestore
-  - リアルタイム
   - 個人開発
+  - リアルタイム
+  - Firestore
 private: true
-updated_at: ''
-id: null
+updated_at: '2026-06-13T08:53:49+09:00'
+id: 9664fa9018efc06059f2
 organization_url_name: null
 slide: false
 ignorePublish: false
