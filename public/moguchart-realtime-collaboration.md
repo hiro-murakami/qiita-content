@@ -6,13 +6,15 @@ tags:
   - 個人開発
   - リアルタイム
   - Firestore
-private: true
+private: false
 updated_at: '2026-06-13T08:53:49+09:00'
 id: 9664fa9018efc06059f2
 organization_url_name: null
 slide: false
 ignorePublish: false
 ---
+
+![top.png](https://raw.githubusercontent.com/hiro-murakami/qiita-content/main/images/moguchart-realtime-collaboration/top.png)
 
 ## はじめに
 
@@ -402,6 +404,8 @@ const cleanupOldEditEvents = async () => {
 - 編集イベント発行後（非同期・非ブロッキング）
 
 ## ③ アクティビティログ
+
+<img src="https://raw.githubusercontent.com/hiro-murakami/qiita-content/main/images/moguchart-realtime-collaboration/update-notification.gif" width="400" alt="color-palette.gif">
 
 ### 変更履歴の可視化
 
