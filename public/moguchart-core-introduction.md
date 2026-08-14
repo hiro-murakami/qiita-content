@@ -7,11 +7,13 @@ tags:
   - OSS
   - ガントチャート
 private: false
-updated_at: '2026-05-30T20:53:41+09:00'
+updated_at: '2026-08-15T08:30:00+09:00'
 id: 0e4859951a9f652c26c3
 organization_url_name: null
 slide: false
 ignorePublish: false
+posting_campaign_uuid: null
+agreed_posting_campaign_term: false
 ---
 
 ![demo-light.png](https://raw.githubusercontent.com/hiro-murakami/qiita-content/main/images/moguchart-core-introduction/demo-light.png)
@@ -44,10 +46,13 @@ Custom Elements（`<gantt-chart>`）として動作するため、**Vue、React�
 | **フレームワーク非依存**   | Web Components (Custom Elements) として実装。どの環境でも動作                      |
 | **仮想スクロール**         | 大量のタスク・行でもスムーズなパフォーマンス                                       |
 | **豊富なインタラクション** | D&D でのタスク移動（行間移動対応）、リサイズ、行の並び替え、複数選択＆一括ドラッグ |
-| **依存関係の可視化**       | タスク間の依存を矢印付きの曲線（S字カーブ / 直角折れ線）で描画                     |
-| **柔軟な表示モード**       | 日 / 週 / 月 / 時間単位の切り替え、ズームレベル調整                                |
-| **テーマ対応**             | ライト / ダーク / システム連動 + カスタムカラーテーマ                              |
+| **依存関係＆クリティカルパス** | タスク間の依存を矢印付きの曲線/直角線で描画。クリティカルパス（最長経路）の自動ハイライト |
+| **スムーズなズーム**       | Ctrl/Cmd + ホイールズーム、全体を画面に収める `zoomToFit()` メソッド              |
+| **キーボード操作**         | 矢印キーでのナビゲーション、Shift+矢印での移動、Deleteキーでのタスク削除           |
+| **柔軟な表示モード**       | 日 / 週 / 月 / 時間単位の切り替え、等幅月表示モード                                |
+| **テーマ対応**             | ライト / ダーク / システム連動 + 30項目以上のカスタムカラーテーマ                  |
 | **高度なカスタマイズ**     | バー、行ヘッダー、ツールチップ、カレンダーセルなどの描画を関数でオーバーライド可能 |
+| **エクスポート機能**       | PNG 画像や PDF としての高解像度エクスポート（複数ページ分割対応）                  |
 | **日本語対応**             | ロケール機能内蔵（日本語・英語）、祝日判定ロジックのカスタマイズ対応               |
 | **ライセンス**             | MIT                                                                                |
 
@@ -92,6 +97,7 @@ moguchart-core は **「商用ライブラリに迫る機能性を、MIT ライ�
 
 - **Web Components ネイティブ** — React/Vue ラッパーではなく、Custom Elements そのもの
 - **仮想スクロール** — 数百〜数千行でも軽快
+- **直感的な操作感** — スムーズなD&D、ホイールズーム、キーボードショートカット
 - **日本語ファースト** — ロケール、祝日判定（`@holiday-jp/holiday_jp`）を標準搭載
 
 ## インストール
@@ -154,6 +160,12 @@ pnpm add @mogura/moguchart-core
       pxPerDay: 30,
       showCurrentTime: true,
     },
+    zoom: {
+      enabled: true, // Ctrl + ホイールズームを有効化
+    },
+    dependency: {
+      showCriticalPath: true, // クリティカルパスをハイライト
+    },
     theme: 'system',
   })
 </script>
@@ -200,6 +212,9 @@ export default function GanttDemo() {
       pxPerDay: 30,
       showCurrentTime: true,
     },
+    zoom: {
+      enabled: true,
+    },
     theme: 'system',
   }
 
@@ -220,15 +235,15 @@ export default function GanttDemo() {
 
 ## 機能ハイライト
 
-### 🎯 タスクのドラッグ＆ドロップ
+### 🎯 タスクのドラッグ＆ドロップ＆複数選択操作
 
 タスクバーをドラッグして日程変更。行をまたいだ移動にも対応しています。
-`Ctrl`（Mac: `Cmd`）+ クリックで複数選択し、一括移動も可能です。（横方向のみ）
+`Ctrl`（Mac: `Cmd`）+ クリックで複数選択し、一括ドラッグ移動（行をまたぐ垂直移動にも対応）が可能です。
 
 ```javascript
 chart.addEventListener('task-update', (e) => {
-  const { id, start, end, targetRowId, mode } = e.detail
-  console.log(`タスク ${id} を ${start} 〜 ${end} に移動`)
+  const { id, start, end, targetRowId, mode, selectedTaskIds } = e.detail
+  console.log(`タスク ${id} を ${start} 〜 ${end} に移動 (移動先: ${targetRowId})`)
 })
 ```
 
@@ -238,7 +253,7 @@ chart.addEventListener('task-update', (e) => {
 
 <img src="https://raw.githubusercontent.com/hiro-murakami/qiita-content/main/images/moguchart-core-introduction/task-template.gif" width="500" alt="task-template.gif">
 
-### 📐 依存関係線
+### 📐 依存関係線 ＆ ⚡ クリティカルパス自動検出
 
 タスクの `dependencies` に依存先のIDを指定するだけで、矢印付きの接続線が描画されます。
 
@@ -252,9 +267,62 @@ const task = {
 }
 ```
 
-接続線のスタイルは `curve`（ベジェ曲線）と `orthogonal`（直角折れ線・角丸）から選択できます。
+接続線のスタイルは `orthogonal`（直角折れ線・角丸、デフォルト）と `curve`（ベジェ曲線）から選択できます。また、タスクバーの端にある接続ポイント（コネクター）からドラッグして視覚的に依存関係を作成することもできます。
+
+さらに、`dependency.showCriticalPath: true` を有効にすると、**依存関係ネットワークから全体の遅延に直結する最長経路（クリティカルパス）を自動計算し、該当するバーと接続線を赤色でハイライト** します！
+
+```javascript
+const option = {
+  dependency: {
+    lineStyle: 'orthogonal',   // 'orthogonal' | 'curve'
+    showArrows: true,
+    showConnectors: true,      // ドラッグで依存作成可能
+    showCriticalPath: true,    // クリティカルパスをハイライト
+  },
+}
+```
 
 ![dependencies.gif](https://raw.githubusercontent.com/hiro-murakami/qiita-content/main/images/moguchart-core-introduction/dependencies.gif)
+
+### 🔍 スムーズなズーム操作＆自動フィット
+
+`zoom.enabled: true` を設定するだけで、チャート上で **`Ctrl`（Mac: `Cmd`）+ マウスホイールによる直感的なズームイン・ズームアウト** が可能になります（カーソル位置を中心に拡大縮小）。
+
+また、JavaScript メソッドからズームを自在に制御できます。
+
+```javascript
+const chart = document.querySelector('gantt-chart')
+
+// 全タスクが表示領域に収まるようにズーム倍率を自動計算＆スクロール
+chart.zoomToFit()
+
+// 指定したピクセル幅（pxPerDay）にズーム
+chart.zoomTo(60)
+
+// オプション設定時の元のスケールにリセット
+chart.resetZoom()
+```
+
+### ⌨️ キーボード操作
+
+ガントチャートにフォーカスがある状態で、キーボードだけでタスクの選択・移動・削除が行えます。
+
+| キー | 動作 |
+| :--- | :--- |
+| `←` `→` | 前後のタスクへフォーカス移動 |
+| `↑` `↓` | 前後の行へフォーカス移動 |
+| `Enter` / `Space` | フォーカス中のタスクを選択 |
+| `Ctrl/Cmd + Enter` | 選択状態をトグル（複数選択） |
+| `Shift + ←` `→` | 選択中のタスクを左右に移動 |
+| `Delete` / `Backspace` | `task-delete` イベントを発火（タスク削除） |
+| `Escape` | 選択・フォーカスを解除 |
+
+```javascript
+chart.addEventListener('task-delete', (e) => {
+  const { taskId, task } = e.detail
+  console.log(`タスク ${task.name} (${taskId}) の削除要求`)
+})
+```
 
 ### 🎨 テーマ＆カスタムカラー
 
@@ -264,6 +332,7 @@ const option = {
   customTheme: {
     bg: '#1a1a2e',
     currentTimeLine: '#ff6b6b',
+    criticalPath: '#ef4444',
     saturday: '#1e3a5f',
   },
 }
@@ -290,9 +359,11 @@ option.calendar.milestones = [
 
 ![milestone.gif](https://raw.githubusercontent.com/hiro-murakami/qiita-content/main/images/moguchart-core-introduction/milestone.gif)
 
-### 📍 マーカー
+### 📍 マーカー（行内目印）の進化
 
-各行のタイムライン上に三角形アイコンとラベルで目印を表示。レビュー期限や重要な日付のマークに便利です。
+各行のタイムライン上に三角形アイコンやラベルで目印を表示。
+同じ行内でマーカーが重なった場合は **自動的にマルチレーン配置** されるため、文字が被る心配がありません。
+フォントサイズ（`xs`〜`xl`）の指定や、ダブルクリック・右クリックイベント、選択中マーカーのパルスアニメーションにも対応しています。
 
 ```javascript
 const row = {
@@ -302,9 +373,10 @@ const row = {
   markers: [
     {
       id: 'marker-1',
-      name: 'レビュー期限',
+      name: '中間レビュー',
       date: new Date('2025-06-15'),
       type: 'triangle-down',
+      fontSize: 'sm', // 'xs' | 'sm' | 'md' | 'lg' | 'xl'
       color: '#ef4444',
     },
   ],
@@ -336,20 +408,25 @@ const task = {
 | :----------- | :-------------------------------- | :--------------------------------- |
 | **日単位**   | `pxPerDay: 48`                    | 通常のプロジェクト管理             |
 | **週単位**   | `showWeeks: true`, `pxPerDay: 12` | 中長期の俯瞰                       |
-| **月単位**   | `pxPerMonth: 120`                 | 年単位のロードマップ               |
+| **月単位**   | `pxPerMonth: 120`                 | 年単位のロードマップ（等幅表示）   |
 | **時間単位** | `pxPerDay: 960`, `showTime: true` | シフト管理・細かなスケジューリング |
 
 ![view-mode.gif](https://raw.githubusercontent.com/hiro-murakami/qiita-content/main/images/moguchart-core-introduction/view-mode.gif)
 
-### 🖋️ カスタムレンダリング
+### 🖋️ 高度なカスタムレンダリング
 
-タスクバー・行ヘッダー・ツールチップ・カレンダーセル・背景セルの描画を関数でオーバーライドでき、HTML（Lit の `TemplateResult`）を自由に返せます。
+タスクバー・行ヘッダー・ツールチップ・カレンダーセル・行背景セル・**行ヘッダー用ツールチップ** などの描画を関数でオーバーライドでき、HTML文字列や Lit の `TemplateResult` を自由に返せます。
 
 ```javascript
 const option = {
   customRendering: {
+    // タスクバーの内部表示
     barContent: (task) => `<strong>${task.name}</strong>`,
+    // 行ヘッダーの表示
     rowHeaderContent: (row) => `<div>${row.name}<br/><small>${row.id}</small></div>`,
+    // 行ヘッダーにホバーしたときのツールチップ
+    rowHeaderTooltip: (row) => `${row.name} (タスク数: ${row.tasks.length})`,
+    // タスクのツールチップ
     tooltip: (task) => `${task.name}: ${task.start.toLocaleDateString()} 〜`,
   },
 }
@@ -371,14 +448,30 @@ const option = {
 }
 ```
 
-### 📤 画像/PDF エクスポート
+### 📤 高解像度 画像/PDF エクスポート
 
 チャートを PNG 画像や PDF として書き出すメソッドを内蔵しています（`html2canvas-pro` / `jspdf` を利用）。
+`splitHeight` を指定すると、行の途中で切れないよう境界に合わせて **ページ分割されたPDF** を簡単に出力できます。
 
 ```javascript
 const chart = document.querySelector('gantt-chart')
+// PNG 画像ダウンロード
 await chart.exportImage('png', { download: true, filename: 'gantt' })
-await chart.exportImage('pdf', { download: true, filename: 'gantt' })
+// 複数ページ分割 PDF ダウンロード
+await chart.exportImage('pdf', { download: true, filename: 'gantt', splitHeight: 1200 })
+```
+
+### 🛠️ 便利なパブリックメソッド
+
+```javascript
+// 指定タスクを選択してその位置まで自動スクロール
+chart.selectTask('t-1')
+
+// マウス座標（clientX, clientY）から該当する行IDと日付を取得（hitTest）
+const hit = chart.hitTest(e.clientX, e.clientY)
+if (hit) {
+  console.log(`行: ${hit.rowId}, 日時: ${hit.date}`)
+}
 ```
 
 ## アーキテクチャ
@@ -386,20 +479,21 @@ await chart.exportImage('pdf', { download: true, filename: 'gantt' })
 ```
 @mogura/moguchart-core
 ├── components/
-│   ├── gantt-chart.ts          # メインコンポーネント (Custom Element)
-│   ├── gantt-calendar.ts       # カレンダーヘッダー
-│   ├── gantt-bar.ts            # タスクバー
-│   ├── gantt-row.ts            # 行コンポーネント
-│   ├── gantt-row-background.ts # 行背景（土日祝ハイライト）
-│   ├── gantt-chart-dependency-path.ts  # 依存関係線の描画
-│   ├── gantt-chart-export.ts   # PNG/PDF エクスポート
-│   └── gantt-chart-styles.ts   # CSS スタイル定義
+│   ├── gantt-chart.ts                 # メインコンポーネント (Custom Element)
+│   ├── gantt-calendar.ts              # カレンダーヘッダー
+│   ├── gantt-bar.ts                   # タスクバー
+│   ├── gantt-row.ts                   # 行コンポーネント (マーカー・レーン配置)
+│   ├── gantt-row-background.ts        # 行背景（土日祝ハイライト）
+│   ├── gantt-chart-dependency-path.ts # 依存関係線の描画 (S字・直角・クリティカルパス)
+│   ├── gantt-chart-export.ts          # PNG/PDF エクスポート
+│   └── gantt-chart-styles.ts          # CSS スタイル定義
 └── core/
-    ├── types.ts    # 全型定義（650行超の充実したTypeScript型）
-    ├── theme.ts    # テーマカラーパレット
-    ├── patterns.ts # バーパターン（SVG背景生成）
-    ├── i18n.ts     # ロケール定義
-    ├── utils.ts    # ユーティリティ関数
+    ├── types.ts         # 全型定義（700行超の充実したTypeScript型）
+    ├── critical-path.ts # クリティカルパス自動計算ロジック
+    ├── theme.ts         # テーマカラーパレット
+    ├── patterns.ts      # バーパターン（SVG背景生成）
+    ├── i18n.ts          # ロケール定義
+    ├── utils.ts         # ユーティリティ関数
     └── constants.ts
 ```
 
@@ -421,7 +515,9 @@ https://qiita.com/hiroyuki_m/items/bfdaf141de040cb387b9
 
 moguchart-core は、**「フレームワークに縛られず、高機能なガントチャートを手軽に組み込みたい」** という自分自身のニーズから生まれたライブラリです。
 
-まだ公開開始したばかりですが、コア機能はかなり充実しています。フィードバックや Issue、Pull Request を歓迎しています！
+直近のアップデートにより、クリティカルパスの自動ハイライトやスムーズなホイールズーム、キーボード操作、高解像度PDFエクスポートなど、実用的な機能が一段と揃いました。
+
+フィードバックや Issue、Pull Request を大歓迎しています！
 
 https://github.com/hiro-murakami/moguchart-core
 

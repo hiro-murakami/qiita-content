@@ -9,11 +9,13 @@ tags:
   - 個人開発
   - ガントチャート
 private: false
-updated_at: '2026-05-30T20:53:41+09:00'
+updated_at: '2026-08-15T08:30:00+09:00'
 id: d1d2b644890e49b796e7
 organization_url_name: null
 slide: false
 ignorePublish: false
+posting_campaign_uuid: null
+agreed_posting_campaign_term: false
 ---
 
 ## はじめに
@@ -24,125 +26,142 @@ ignorePublish: false
 
 そこで、**ガントチャートの描画エンジンから自作する** という道を選び、Web アプリケーション **「MoguChart」** を開発しました。
 
-本記事では、MoguChart の全体アーキテクチャと、個人開発で得た知見をまとめます。
+本記事では、MoguChart の全体アーキテクチャと、個人開発で得た知見・技術的な工夫を余すところなくまとめます。
 
 :::note info
 アプリケーションとしての機能詳細やUXへのこだわりについては、別記事「[無料で使えるWebガントチャート「MoguChart」を作った ─ 個人開発で追求した"ちょうどいい"プロジェクト管理UX](https://qiita.com/hiroyuki_m/items/bfdaf141de040cb387b9)」をご覧ください。
 
 また、ガントチャート描画ライブラリ「moguchart-core」の機能や導入方法については、別記事「[フレームワークに縛られないガントチャートを作った — Web Components製「moguchart-core」の紹介](https://qiita.com/hiroyuki_m/items/0e4859951a9f652c26c3)」で紹介しています。
 
-また、アプリケーションのソースコードは GitHub リポジトリ [hiro-murakami/moguchart-app](https://github.com/hiro-murakami/moguchart-app) で公開しています。
+アプリケーションのソースコードは GitHub リポジトリ [hiro-murakami/moguchart-app](https://github.com/hiro-murakami/moguchart-app) で公開しています。
 :::
 
 ## MoguChart とは
 
-MoguChart は、**Web ブラウザ上で動作するガントチャート管理アプリケーション**です。
+MoguChart は、**Web ブラウザ上で動作する高機能ガントチャート管理アプリケーション**です。
 
 ### 主な特徴
 
 | 機能 | 説明 |
 |---|---|
-| 🖱️ ドラッグ＆ドロップ | タスクの移動・リサイズ・行間移動・複数選択一括操作 |
-| 📅 3つの表示モード | 時間単位 / 日単位 / 月単位 |
-| 🔗 依存関係の可視化 | タスク間の依存関係を矢印付き曲線（S字カーブ）で表示 |
-| 🎨 高度なカスタマイズ | カラーパレット、パターン、枠線、バー影 |
-| 🏁 マイルストーン＆マーカー | プロジェクトの節目を可視化 |
-| 👥 リアルタイム共同編集 | 複数ユーザーでの同時編集（プレゼンス表示） |
-| 📤 エクスポート | PDF / CSV / Excel |
-| 📸 スナップショット | プロジェクト状態の保存・復元 |
-| 🌓 テーマ切り替え | ライト / ダーク / システム連動 |
-| 🔒 権限管理 | オーナー / 編集者 / 閲覧者 |
+| 🖱️ **ドラッグ＆ドロップ** | タスクの移動・リサイズ・行間移動・複数選択一括操作 |
+| 📅 **4つの表示モード** | 時間単位 / 日単位 / 週単位 / 月単位（等幅表示・最長100年対応） |
+| 🔗 **依存関係＆クリティカルパス** | 矢印付き曲線（S字）/直角線での可視化、最長遅延チェーンの自動ハイライト |
+| 🔍 **直感的なズーム** | Ctrl/Cmd + マウスホイールでの拡大縮小、自動フィット |
+| 🖼️ **画像添付＆クリップボード連携** | タスク・行への画像添付、クリップボード貼り付け（Ctrl+V）、D&Dアップロード、自動圧縮、ライトボックス表示 |
+| 🏁 **マイルストーン＆マーカー** | 縦線マイルストーン ＋ 行ごとの個別日時マーカー（マルチレーン自動配置） |
+| 👥 **リアルタイム共同編集** | 複数ユーザーでの同時編集、プレゼンス・アクティビティログ表示 |
+| 🔑 **外部連携 REST API** | APIキー認証、レートリミット付きREST API、GASテンプレート、OpenAPI仕様 |
+| 🌐 **公開閲覧モード** | 一般公開フラグによる未ログインユーザーの安全な閲覧共有 |
+| 💬 **多層コメント機能** | プロジェクト / 行 / タスクごとのスレッドコメント |
+| 📤 **エクスポート** | PDF（複数ページ分割対応） / PNG / CSV / Excel |
+| 📸 **スナップショット** | プロジェクト状態の保存・復元・バックアップJSON入出力 |
+| 🌓 **テーマ切り替え** | ライト / ダーク / システム連動 ＋ 30項目以上のカラーカスタマイズ |
+| 🔒 **きめ細かな権限管理** | オーナー / 編集者 / 閲覧者ロールによるアクセス制御 |
 
 ## アーキテクチャ全体図
 
 ```mermaid
 flowchart TB
-    subgraph Client ["クライアント"]
+    subgraph Client ["クライアント (Browser)"]
         subgraph Frontend ["Vue 3 + Vuetify 4 (Frontend)"]
-            Pinia["Pinia (Store)"]
-            Router["Router"]
-            Custom["Custom Components<br>(34+ダイアログ)"]
+            Pinia["Pinia (State Store)"]
+            Router["Vue Router"]
+            Custom["Custom Components<br>(50+ コンポーネント)"]
+            Draggable["ドラッグ可能ダイアログ<br>画像自動圧縮 (Canvas)"]
         end
 
-        Core["@mogura/moguchart-core<br>(Lit Web Component)<br>・仮想スクロール<br>・ドラッグ＆ドロップ<br>・カレンダー描画"]
+        Core["@mogura/moguchart-core<br>(Lit Web Component)<br>・仮想スクロール<br>・D&D / 行間移動<br>・クリティカルパス計算<br>・ホイールズーム"]
 
         Frontend --> Core
     end
 
-    subgraph Firebase ["Firebase"]
-        Hosting["Hosting<br>(SPA配信)"]
-        Functions["Functions<br>(API Server)"]
-        Firestore["Firestore<br>(プレゼンス/イベント)"]
-        Auth["Auth<br>(認証)"]
-        Prisma["Prisma ORM"]
-        Storage["Storage<br>(ファイル管理)"]
-        MySQL[("MySQL<br>(メインDB)")]
+    subgraph External ["外部システム連携"]
+        GAS["Google Apps Script<br>(Spreadsheet連携)"]
+        ThirdParty["外部アプリ / CI/CD"]
+    end
+
+    subgraph Firebase ["Firebase & GCP Infrastructure"]
+        Hosting["Firebase Hosting<br>(SPA配信 / CDN)"]
+        Functions["Cloud Functions v6<br>(API & 外部REST API)"]
+        Firestore["Firestore<br>(プレゼンス / 編集イベント)"]
+        Auth["Firebase Auth<br>(Google / ゲスト認証)"]
+        Storage["Firebase Storage<br>(添付画像 / バックアップ)"]
+        SecretMgr["Secret Manager<br>(機密情報管理)"]
+        Prisma["Prisma ORM 7<br>(MariaDB adapter)"]
+        MySQL[("MySQL Database<br>(メインリレーショナルDB)")]
 
         Functions --> Prisma
         Prisma --> MySQL
+        Functions --> Storage
     end
 
-    Client -->|"Firebase SDK / Cloud Functions API"| Firebase
+    Client -->|"Firebase Web SDK (Auth / Firestore)"| Firebase
+    Client -->|"Cloud Functions API (HTTPS)"| Functions
+    External -->|"REST API (X-API-Key 認証 / RateLimit)"| Functions
 ```
 
 ## 技術スタック
 
 ### フロントエンド
 
+| 技術 | バージョン | 用途 |
+|---|---|---|
+| **Vue 3** | ^3.5 | メイン UI フレームワーク（Composition API, `<script setup>`） |
+| **Vuetify 4** | ^4.0 | Material Design コンポーネントライブラリ |
+| **Pinia** | ^3.0 | アプリケーション状態管理（ユーザー、プロジェクト） |
+| **Vue Router** | ^4.6 | クライアントサイドルーティング（公開閲覧対応） |
+| **TypeScript** | ^5.9 | 型安全性 |
+| **Vite** | ^8.0 | 高速ビルド＆開発環境 |
+
+### コア描画エンジン（自作 Web Component）
+
+| 技術 | バージョン | 用途 |
+|---|---|---|
+| **@mogura/moguchart-core** | ^0.9.0 | Lit ベースのガントチャート描画エンジン |
+| **Lit** | ^3.3 | Web Components 基盤 |
+| **html2canvas-pro** + **jspdf** | - | 高解像度 PNG / 分割 PDF エクスポート |
+| **@holiday-jp/holiday_jp** | - | 日本の祝日自動判定 |
+
+### バックエンド ＆ データベース
+
+| 技術 | バージョン | 用途 |
+|---|---|---|
+| **Firebase Cloud Functions** | ^6.3 | サーバーレス API（Node.js 24） |
+| **Express** | ^5.2 | REST API ルーティング ＆ レートリミット処理 |
+| **Prisma ORM** | ^7.4 | 型安全なデータベース ORM（MariaDB adapter） |
+| **MySQL** | - | メインリレーショナルデータベース |
+| **Firebase Auth** | - | Google 認証 ＆ ゲストログイン（匿名認証＋TTL） |
+| **Firestore** | - | リアルタイムプレゼンス・編集イベント配信 |
+| **Firebase Storage** | - | タスク・行の添付画像、バックアップデータ保管 |
+
+### インフラ ＆ 開発運用
+
 | 技術 | 用途 |
 |---|---|
-| **Vue 3** (Composition API) | メイン UI フレームワーク |
-| **Vuetify 4** | Material Design コンポーネントライブラリ |
-| **Pinia** | 状態管理 |
-| **Vue Router** | SPA ルーティング |
-| **TypeScript** | 型安全性 |
-| **Vite** | ビルドツール |
-
-### コアライブラリ（自作）
-
-| 技術 | 用途 |
-|---|---|
-| **Lit** | Web Components 基盤 |
-| **dayjs** | 日付操作 |
-| **html2canvas-pro** + **jspdf** | PDF エクスポート |
-| **@holiday-jp/holiday_jp** | 日本の祝日判定 |
-
-### バックエンド
-
-| 技術 | 用途 |
-|---|---|
-| **Firebase Cloud Functions** | API サーバー |
-| **Prisma ORM** (MariaDB adapter) | データベースアクセス |
-| **MySQL** | メインデータベース |
-| **Firebase Auth** | 認証（Google / ゲスト） |
-| **Firestore** | リアルタイムプレゼンス・編集イベント |
-| **Firebase Storage** | ファイルストレージ |
-
-### インフラ
-
-| 技術 | 用途 |
-|---|---|
-| **Firebase Hosting** | SPA 配信・CDN |
-| **pnpm workspace** | モノレポ管理 |
-| **Google Cloud Secret Manager** | 環境変数管理 |
+| **Firebase Hosting** | SPA 静的配信 ＆ CDN キャッシュ |
+| **Google Cloud Secret Manager** | 環境変数・接続文字列のセキュア管理 |
+| **pnpm workspace (pnpm 11)** | フロント・バックエンドの一元モノレポ管理 |
+| **Terraform** | GCP / Firebase インフラのコード化 (IaC) |
+| **OpenAPI 3.1** | 外部 REST API の仕様定義 |
 
 ## なぜ Web Components でガントチャートを自作したのか
 
 ### 既存ライブラリの課題
 
-ガントチャートの OSS ライブラリはいくつかありますが、以下の点で不満がありました：
+ガントチャートのライブラリは世の中に存在しますが、以下の点で導入に踏み切れませんでした：
 
-1. **特定フレームワークに依存** — React 用、Vue 用とそれぞれ別のライブラリが必要
-2. **カスタマイズ性の限界** — タスクバーの描画やインタラクションを自由に変えられない
-3. **パフォーマンス** — 大量タスクでのスクロールが重い
-4. **メンテナンス状況** — 更新が止まっているものが多い
+1. **特定フレームワークへの依存** — React 用や Vue 用で別れており、移行や将来の技術選定に制約がかかる
+2. **カスタマイズ性の限界** — タスクバー内の複雑な表現（画像サムネイル、複数行ラベル、影、パターン等）を自由にいじれない
+3. **パフォーマンス** — 数百タスクを超えると DOM 要素が膨大になり、スクロールがカクつく
+4. **ライセンスとコスト** — 実用的な商用ライブラリは年間数十万円と個人・小規模チームには高価
 
 ### Web Components を選んだ理由
 
-**フレームワーク非依存**であることが最大の動機です。
+**「Custom Elements」というブラウザ標準仕様に準拠することで、フレームワーク非依存で普遍的に利用できること**が最大の動機です。
 
 ```html
-<!-- どのフレームワークでも同じタグで使える -->
+<!-- Vue でも React でも バニラ HTML でも同じタグで動く -->
 <gantt-chart
   .rows="${rows}"
   .option="${option}"
@@ -150,17 +169,17 @@ flowchart TB
 ></gantt-chart>
 ```
 
-Lit を選択したのは、Web Components の標準仕様に沿いつつ、リアクティブなプロパティ管理やテンプレートリテラルの恩恵を受けられるためです。
+Lit を選択したことで、軽量（オーバーヘッド最小限）かつリアクティブなプロパティ管理、SVG レンダリングの柔軟性を両立できました。
 
 ### コアライブラリ `@mogura/moguchart-core` の設計
 
-描画エンジンは別リポジトリ（`moguchart-core`）として切り出し、npm パッケージとして公開しています。
+描画エンジンは独立リポジトリ（`moguchart-core`）として切り出し、npm パッケージとして公開しています。
 
 ```bash
 npm install @mogura/moguchart-core
 ```
 
-アプリ側からは `link:` で参照し、開発中は変更を即座に反映できるようにしています：
+アプリ側からはモノレポ内でローカル参照（`link:`）し、コアエンジンの修正がアプリ側に即時反映される開発体験を構築しています：
 
 ```json
 {
@@ -170,80 +189,94 @@ npm install @mogura/moguchart-core
 }
 ```
 
-#### コアの主な実装内容
-
-- **仮想スクロール**: 画面に見える範囲だけを描画し、大量の行・タスクでも60FPSを維持
-- **カレンダー描画**: 日/週/月/時間単位の切り替え、祝日表示、現在時刻ライン
-- **ドラッグ＆ドロップ**: タスクの移動・リサイズ・行間移動・複数選択
-- **依存関係線**: S字カーブでの矢印描画、右→左方向の自動折り返し
-- **テーマシステム**: ライト/ダーク/カスタムテーマの CSS Custom Properties ベース
+#### コアエンジンの主な責務
+- **仮想スクロール**: 表示領域のみを動的に DOM 描画し、大量データでも 60FPS を維持
+- **カレンダー描画**: 時間/日/週/月（最長100年）の等幅カレンダー、祝日ハイライト、現在時刻インジケーター
+- **インタラクション**: タスクの移動・期間リサイズ・行間移動・複数選択一括ドラッグ
+- **依存関係＆クリティカルパス**: S字ベジェ曲線 / 直角折れ線、最長遅延チェーンの自動算出
+- **ズーム機能**: マウスホイールによる滑らかな拡大縮小
+- **テーマ機構**: CSS Custom Properties ベースのカラーシステム
 
 ## モノレポ構成
 
-アプリ側は pnpm workspace を使ったモノレポ構成にしています。
+アプリ全体は pnpm workspace を使ったモノレポ構成で管理しています。
 
 ```
 moguchart-app/
 ├── packages/
-│   ├── frontend/          # Vue 3 + Vuetify 4 フロントエンド
+│   ├── frontend/                # Vue 3 + Vuetify 4 フロントエンド
 │   │   ├── src/
-│   │   │   ├── components/  # 34+ の Vue コンポーネント
-│   │   │   ├── composables/ # Vue Composable 関数
-│   │   │   ├── modules/     # ユーティリティ・カスタムレンダリング
-│   │   │   ├── stores/      # Pinia ストア
-│   │   │   ├── views/       # ガントチャートビュー
-│   │   │   └── firebase.ts  # Firebase 初期化
+│   │   │   ├── components/      # 50+ の Vue コンポーネント・ダイアログ
+│   │   │   ├── composables/     # 状態・操作用 Composable 関数
+│   │   │   ├── directives/      # ドラッグ移動等のカスタムディレクティブ
+│   │   │   ├── modules/         # カスタムレンダリング・画像圧縮・エクスポート
+│   │   │   ├── stores/          # Pinia ストア（user, project）
+│   │   │   ├── views/           # ガントチャートビュー（公開閲覧対応）
+│   │   │   └── firebase.ts      # Firebase 初期化
 │   │   └── package.json
-│   └── functions/         # Firebase Cloud Functions バックエンド
+│   └── functions/               # Firebase Cloud Functions バックエンド
 │       ├── src/
-│       │   └── index.ts     # API エンドポイント
+│       │   ├── api/             # 外部向け REST API (Express)
+│       │   ├── generated/prisma # Prisma Client
+│       │   └── index.ts         # Cloud Functions エントリポイント
 │       ├── prisma/
-│       │   ├── schema.prisma # DB スキーマ定義
-│       │   └── seed.ts       # シードデータ
+│       │   ├── schema.prisma    # MySQL スキーマ定義
+│       │   ├── migrations/      # マイグレーション履歴
+│       │   └── seed.ts          # シードデータ
 │       └── package.json
-├── firebase.json          # Firebase 設定
-├── firestore.rules        # Firestore セキュリティルール
-├── storage.rules          # Storage セキュリティルール
-└── pnpm-workspace.yaml    # モノレポ設定
+├── docs/
+│   ├── openapi.yaml             # REST API OpenAPI 3.1 仕様書
+│   ├── gas-template/            # Google Apps Script 連携スクリプト
+│   └── samples/                 # サンプルプロジェクト JSON
+├── terraform/                   # GCP/Firebase インフラ定義
+├── firebase.json                # Firebase 設定
+├── firestore.rules              # Firestore セキュリティルール
+├── storage.rules                # Storage セキュリティルール
+└── pnpm-workspace.yaml          # モノレポ設定
 ```
 
-フロントエンドとバックエンドを同一リポジトリで管理することで、**型定義の共有**やデプロイの一元化が容易になります。
+フロントエンドとバックエンドが同一リポジトリにあるため、**Prisma から生成される型定義や DTO の共有**が容易になり、型不一致による不具合を排除できます。
 
 ## データベース設計
 
 ### なぜ Firestore ではなく MySQL を選んだのか
 
-Firebase を使っているのに、メインDBは MySQL (Prisma ORM 経由) という構成を採用しています。
+Firebase を利用しながらも、メインデータベースには MySQL（Prisma ORM 経由）を採用しています。
 
 **理由**:
-- ガントチャートのデータは**リレーショナルな構造**（プロジェクト → 行 → タスク → コメント）
-- 複雑なクエリやトランザクションが必要
-- Prisma の型安全なデータアクセスを利用したい
+1. ガントチャートは**階層的でリレーショナルな構造**（プロジェクト → 行 → タスク → 依存関係・コメント・画像）を持つため、RDB の方が整合性を保ちやすい
+2. 行の並び順変更やタスクの一括更新、プロジェクトの複製などを**単一のトランザクション**でアトミックに処理したい
+3. Prisma の型安全なクエリビルダーにより、保守性とリファクタリング耐性を最大化できる
 
 **Firestore はリアルタイム機能に特化**:
-- プレゼンス情報（誰がオンラインか）
-- 編集イベントのリアルタイム配信
+- リアルタイムプレゼンス（オンライン状態・カーソル位置）
+- 他ユーザーの編集通知イベント配信
 
 ```prisma
-// データモデルの概要
+// schema.prisma の抜粋
+
 model Project {
-  id        String     @id @default(uuid())
+  id        String     @id @default(uuid()) @db.Char(36)
   name      String
-  start     DateTime
-  end       DateTime
-  attribute Json       @default("{}")  // 柔軟な拡張属性
-  authority Json       @default("{}")  // 権限情報
+  start     DateTime   @db.DateTime(3)
+  end       DateTime   @db.DateTime(3)
+  attribute Json       @default("{}")  // カラーパレット、ラベル定義、表示設定
+  public    Boolean    @default(false) // 一般公開フラグ
+  authority Json       @default("{}")  // メンバー権限（owner, editor, viewer）
   rows      GanttRow[]
   comments  Comment[]
 }
 
 model GanttRow {
   id        Int         @id @default(autoincrement())
-  projectId String
+  projectId String      @db.Char(36)
   name      String
   order     Int         @default(0)
+  visible   Boolean     @default(true)
+  attribute Json        @default("{}")  // 行ラベル、添付画像メタデータ等
+  project   Project     @relation(fields: [projectId], references: [id], onDelete: Cascade)
   tasks     GanttTask[]
-  project   Project     @relation(...)
+  comments  Comment[]
 }
 
 model GanttTask {
@@ -252,96 +285,96 @@ model GanttTask {
   name      String
   start     DateTime
   end       DateTime
-  attribute Json      @default("{}")  // ラベル、色、パターン等
-  row       GanttRow  @relation(...)
+  attribute Json      @default("{}")  // 色、パターン、進捗率、依存先、添付画像等
+  row       GanttRow  @relation(fields: [rowId], references: [id], onDelete: Cascade)
+  comments  Comment[]
+}
+
+model Comment {
+  id        Int        @id @default(autoincrement())
+  taskId    Int?
+  rowId     Int?
+  projectId String?    @db.Char(36)
+  content   String     @db.Text
+  createdBy String?    @default("system")
+  createdAt DateTime?  @default(now()) @db.Timestamp(3)
+  task      GanttTask? @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  row       GanttRow?  @relation(fields: [rowId], references: [id], onDelete: Cascade)
+  project   Project?   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+}
+
+model ApiKey {
+  id         String    @id @default(uuid()) @db.Char(36)
+  key        String    @unique @db.VarChar(64)
+  name       String    @db.VarChar(255)
+  email      String
+  scope      String    @default("read-write") @db.VarChar(20)
+  active     Boolean   @default(true)
+  lastUsedAt DateTime? @db.Timestamp(3)
+  createdAt  DateTime  @default(now()) @db.Timestamp(3)
 }
 ```
 
-**ポイント: `attribute` カラムの活用**
+### 💡 設計のポイント: `Json` 属性カラムの活用
 
-スキーマを頻繁に変更せずに柔軟な属性を追加できるよう、`Json` 型の `attribute` カラムを各テーブルに持たせています。カラーパレット、パターン、枠線スタイル、ラベルなど、UI側で拡張が多い属性をここに格納しています。
+UI の機能拡張（バーの影、枠線、グラデーション、進捗率、ラベル、マーカー、添付画像リストなど）を素早く追加できるよう、各テーブルに `attribute Json` カラムを持たせています。
 
-## Firebase の使い分け
+これにより、**DB マイグレーションを都度走らせることなくフロントエンド主導で新しいプロパティを追加**でき、爆速な機能追加と安定性を両立しています。
 
-MoguChart では Firebase の各サービスを**適材適所**で使い分けています。
+## 外部連携 REST API ＆ セキュリティ
+
+MoguChart は単なる画面操作にとどまらず、スプレッドシートや外部システムと連携できる **REST API** を提供しています。
 
 ```
-Firebase Auth     → 認証（Google ログイン / ゲストログイン）
-Cloud Functions   → API サーバー（Prisma 経由で MySQL にアクセス）
-Firestore         → リアルタイム機能のみ（プレゼンス・編集イベント）
-Firebase Hosting  → SPA の配信
-Firebase Storage  → ファイル管理（バックアップ等）
+Client / GAS / CI  ──( X-API-Key: mk_... )──>  Express REST API (Cloud Functions)
+                                                        │
+                                          ┌─────────────┴─────────────┐
+                                          ▼                           ▼
+                                    Rate Limiter                Prisma / MySQL
+                               (60 req/min, Sliding Window)
 ```
 
-### Firestore セキュリティルール
+1. **APIキー認証 (`X-API-Key`)**:
+   - `read` / `read-write` のスコープ制御
+   - WebUI 上でのキー発行・一覧確認・無効化
+2. **レートリミット保護**:
+   - 1分あたり 60 リクエストのスライディングウィンドウカウンター
+   - 超過時は `429 Too Many Requests` と `Retry-After` を返却
+3. **Google Apps Script (GAS) 連携**:
+   - スプレッドシートのカスタムメニューからワンクリックでガントチャートのプロジェクト・タスク一覧を同期取得
+4. **OpenAPI 3.1 仕様書**:
+   - `docs/openapi.yaml` を同梱し、クライアントコードの自動生成やドキュメント参照が可能
 
-リアルタイム機能部分のルールは必要最小限に設計しています：
+## フロントエンド実装のこだわり
 
-```javascript
-rules_version = '2';
+### 1. 50以上のコンポーネントによる丁寧なUI設計
 
-service cloud.firestore {
-  match /databases/{database}/documents {
-    // プレゼンス: 認証済みユーザーは読み取り可、自分のドキュメントのみ書き込み可
-    match /projects/{projectId}/presence/{userId} {
-      allow read: if request.auth != null;
-      allow write: if request.auth != null
-        && (request.auth.token.email == userId
-            || request.auth.uid == userId);
-    }
+画面をブロック単位・ダイアログ単位でモジュール化し、複雑化を防いでいます。
 
-    // 編集イベント: 認証済みなら作成・読み取り可、更新不可（append-only）
-    match /projects/{projectId}/editEvents/{eventId} {
-      allow read: if request.auth != null;
-      allow create: if request.auth != null;
-      allow delete: if request.auth != null;
-      allow update: if false;
-    }
-  }
-}
-```
+- **メイン画面**: `GanttChartView.vue`（Web Component を内包しイベントを中継）
+- **画像管理**: `ImageManageDialog.vue`（D&Dアップロード、クリップボード貼り付け、サムネイル、ライトボックス）
+- **マーカー管理**: `MarkerFormDialog.vue`、`MarkerContextMenu.vue`
+- **外部連携**: `ApiKeyManageDialog.vue`
+- **操作系**: `TaskFormDialog.vue`、`SlideScheduleDialog.vue`、`SnapshotListDialog.vue`
 
-## フロントエンドの設計
+### 2. ダイアログのドラッグ移動（`v-draggable-dialog`）
 
-### コンポーネント設計
+タスク編集やコメント投稿を行う際、**ダイアログが背後のガントチャートを隠してしまわないよう、タイトルバーを掴んで自由に移動できるカスタムディレクティブ**を実装しています。
 
-34以上のVueコンポーネントを開発しています。主要なものを紹介します：
+### 3. クリップボード貼り付け ＆ 自動画像圧縮
 
-| カテゴリ | コンポーネント | 説明 |
-|---|---|---|
-| **メインビュー** | `GanttChartView` | ガントチャート表示・操作の中核 |
-| **プロジェクト管理** | `ProjectListDialog` | プロジェクト一覧・検索・アーカイブ |
-| | `ProjectDetailDialog` | プロジェクト詳細設定（カラーパレット、ラベル等） |
-| | `ProjectDuplicateDialog` | プロジェクト複製（ステッパー形式） |
-| **タスク操作** | `TaskFormDialog` | タスク作成・編集フォーム |
-| | `TaskDetailDialog` | タスク詳細表示 |
-| | `TaskTemplateDialog` | タスクテンプレート管理 |
-| **コラボレーション** | `ProjectCommentPanel` | プロジェクトコメントサイドバー |
-| | `CollaborationActivityLog` | 共同編集アクティビティログ |
-| **表示制御** | `DisplaySettingsMenu` | テーマ・バー高さ・影・読み取り専用 |
-| | `ZoomControls` | ズームレベル調整 |
+画像を添付する際、スクリーンショットをコピーしてダイアログ上で `Ctrl+V`（`⌘+V`）を押すだけで貼り付け・アップロードが完了します。
+また、5MB を超える画像は **ブラウザ側で HTML Canvas を用いて最大 1920px・最適 JPEG 品質に自動リサイズ・圧縮** してから Firebase Storage に送信するため、通信量とストレージ容量を最小限に抑えています。
 
-### カスタムレンダリング
+### 4. 集中管理されたカスタムレンダリング
 
-`ganttChartCustomRendering.ts` (約35KB) で、ガントチャートのタスクバー・行ヘッダー・ツールチップなどのカスタム描画ロジックを集中管理しています。Web Components の slot やコールバックを活用して、コアライブラリの描画をアプリ固有の表現にカスタマイズしています。
+`ganttChartCustomRendering.ts` にて、タスクバー内部の描画（進捗バー、ラベル、画像バッジ、影）、行ヘッダーのツールチップ、祝日背景などを一括定義し、Web Component 側に注入しています。
 
-### 状態管理 (Pinia)
+## 開発を支える運用・自動化の仕組み
 
-```typescript
-// ユーザーストア: 認証状態・テーマ設定・バージョン管理
-const userStore = useUserStore()
+### 1. バージョン同期の自動化 (`scripts/sync-version.mjs`)
 
-// プロジェクトストア: 現在開いているプロジェクトの状態
-const projectStore = useProjectStore()
-```
-
-Firebase Auth のリスナーを Pinia ストアで管理し、認証状態の変化をリアクティブに UI に反映しています。
-
-## 開発で工夫した点
-
-### 1. バージョン同期の自動化
-
-モノレポ内のバージョン番号を一元管理するスクリプトを用意しています：
+ルートの `package.json` のバージョン（例: `0.9.0`）を、フロント・バックエンド・ドキュメントへビルド前に自動同期します。
 
 ```json
 {
@@ -352,55 +385,37 @@ Firebase Auth のリスナーを Pinia ストアで管理し、認証状態の�
 }
 ```
 
-`dev` や `build` の前に自動実行されるため、バージョンのずれが発生しません。
+### 2. Secret Manager による安全な環境変数注入
 
-### 2. 環境変数の安全な管理
+ローカル開発や CI 環境で機密情報を `.env` に直書きしてコミットするリスクを防ぐため、Google Cloud Secret Manager から自動フェッチするスクリプトを用意しています。
 
-Google Cloud Secret Manager からの自動取得スクリプトを用意し、機密情報をリポジトリに含めない設計にしています：
+### 3. ゲストログインと自動クリーンアップ
 
-```json
-{
-  "scripts": {
-    "setup:env": "pnpm -r run setup:env"
-  }
-}
-```
+ユーザー登録なしですぐに全機能を試せる「ゲストログイン」を提供。ゲストユーザーのデータやプレゼンス情報は、Cloud Functions の定期実行タスク（スケジュール関数）によって自動クリーンアップされます。
 
-### 3. ゲストログイン
+### 4. Terraform によるインフラ管理
 
-Googleアカウントがなくても気軽に試せるよう、**ゲストログイン機能**を実装しました。ゲストユーザーのデータは約24時間後に自動削除されます。
+Firebase プロジェクト、GCP サービスアカウント、Secret Manager、Storage バケットなどのインフラ設定を `terraform/` 配下でコード管理（IaC）しています。
 
-### 4. リリースノートの自動表示
+## 開発の振り返りと学び
 
-バージョンアップ後の初回ログイン時にリリースノートダイアログを自動表示し、ユーザーに新機能を伝えています：
-
-```typescript
-// バージョンアップ時にリリースノートを自動表示
-watch(versionUpdated, (updated) => {
-  if (updated) {
-    showReleaseNotes.value = true
-  }
-})
-```
-
-## 開発の振り返り
-
-### 個人開発で学んだこと
-
-1. **コアロジックの切り出しは早めに** — Web Components として切り出したことで、コアの変更がアプリに波及しにくくなった
-2. **Json カラムの柔軟性** — UI 側の頻繁な属性追加にマイグレーションなしで対応できた
-3. **Firebase + MySQL のハイブリッド** — リアルタイム機能とRDBの良いとこ取りができた
-4. **モノレポの恩恵** — フロント・バックの型定義共有でバグが激減
+1. **コア描画エンジンとアプリの分離が最大の成功要因**
+   ガントチャートの描画・D&D・仮想スクロールなどの低レイヤーを Web Component（Lit）として疎結合にしたことで、アプリ側の Vue 3 / Vuetify のバージョンアップやリファクタリングが極めて安全に行えました。
+2. **リレーショナル DB (Prisma) ＋ JSON カラムの相性の良さ**
+   整合性が必要なリレーション（Project - Row - Task - Comment）は RDB で堅牢に守りつつ、UI 固有の多彩な属性は JSON カラムで柔軟に扱うハイブリッド設計が、個人開発のスピード感を劇的に高めました。
+3. **REST API と GAS 連携による実用性の向上**
+   WebUI だけでなく REST API とスプレッドシート連携を提供したことで、「既存の業務データを取り込む」「他ツールと連携する」といった実用性が一気に広がりました。
 
 ## まとめ
 
-MoguChart は、**ガントチャートのコアエンジン（Web Components）** と **フル機能の Web アプリケーション（Vue 3 + Firebase）** の2層構造で設計しています。
+MoguChart は、**「Web Components 製の軽量描画エンジン」** と **「Vue 3 ＋ Firebase ＋ MySQL による堅牢なフルスタック Web アプリ」** という2層構造で成り立っています。
 
-コアライブラリ `@mogura/moguchart-core` はフレームワーク非依存なので、Vue だけでなく React や Angular でも利用できます。
-
-個人開発でも、適切なアーキテクチャ設計を最初に行うことで、継続的な機能追加がスムーズに進むことを実感しました。
+個人開発であっても、最初から適切な境界（コア分離・モノレポ・型共有・IaC）を敷いておくことで、機能追加を重ねても破綻せず、楽しく開発を継続できています。
 
 ---
 
+GitHub リポジトリでもコードを公開していますので、ぜひチェックしてみてください 🙌
 
-ご質問やフィードバックがありましたら、コメントでお気軽にどうぞ！
+- [moguchart-core (ガントチャート描画エンジン)](https://github.com/hiro-murakami/moguchart-core)
+- [moguchart-app (Web アプリケーション)](https://github.com/hiro-murakami/moguchart-app)
+- [オンラインデモ / アプリケーション](https://moguchart.web.app)

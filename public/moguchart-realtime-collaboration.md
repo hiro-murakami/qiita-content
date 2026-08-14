@@ -12,6 +12,8 @@ id: 9664fa9018efc06059f2
 organization_url_name: null
 slide: false
 ignorePublish: false
+posting_campaign_uuid: null
+agreed_posting_campaign_term: false
 ---
 
 ![top.png](https://raw.githubusercontent.com/hiro-murakami/qiita-content/main/images/moguchart-realtime-collaboration/top.png)

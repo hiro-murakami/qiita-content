@@ -1,4 +1,7 @@
 {
+  "scripts": {
+    "preview": "qiita preview"
+  },
   "devDependencies": {
     "@qiita/qiita-cli": "^1.8.0"
   }
