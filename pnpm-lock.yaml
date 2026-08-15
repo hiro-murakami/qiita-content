@@ -9,7 +9,7 @@ importers:
   .:
     devDependencies:
       '@qiita/qiita-cli':
-        specifier: ^1.8.0
+        specifier: ^1.10.0
         version: 1.10.0
 
 packages:
