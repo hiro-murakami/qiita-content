@@ -7,7 +7,7 @@ tags:
   - OSS
   - ガントチャート
 private: false
-updated_at: '2026-08-15T08:28:20+09:00'
+updated_at: '2026-08-29T09:14:00+09:00'
 id: 0e4859951a9f652c26c3
 organization_url_name: null
 slide: false
@@ -22,7 +22,7 @@ agreed_posting_campaign_term: false
 
 プロジェクト管理ツールを自作しようとしたとき、こんな経験はありませんか？
 
-- 既存のガントチャートライブラリが **特定のフレームワーク（React / Vue / Angular）に依存** していて、技術選定に制約が出る
+- 既存のガントチャートライブラリが **特定のフレームワーク（React / Vue / Angular / Svelte）に依存** していて、技術選定に制約が出る
 - 高機能な商用ライブラリは **ライセンス料が高く**、個人や小規模チームでは導入しにくい
 - 無料の軽量ライブラリは **機能が不足** していて、実用レベルのUIが作れない
 
@@ -41,20 +41,22 @@ Custom Elements（`<gantt-chart>`）として動作するため、**Vue、React�
 
 ### 主な特徴
 
-| カテゴリ                   | 内容                                                                               |
-| :------------------------- | :--------------------------------------------------------------------------------- |
-| **フレームワーク非依存**   | Web Components (Custom Elements) として実装。どの環境でも動作                      |
-| **仮想スクロール**         | 大量のタスク・行でもスムーズなパフォーマンス                                       |
-| **豊富なインタラクション** | D&D でのタスク移動（行間移動対応）、リサイズ、行の並び替え、複数選択＆一括ドラッグ |
-| **依存関係＆クリティカルパス** | タスク間の依存を矢印付きの曲線/直角線で描画。クリティカルパス（最長経路）の自動ハイライト |
-| **スムーズなズーム**       | Ctrl/Cmd + ホイールズーム、全体を画面に収める `zoomToFit()` メソッド              |
-| **キーボード操作**         | 矢印キーでのナビゲーション、Shift+矢印での移動、Deleteキーでのタスク削除           |
-| **柔軟な表示モード**       | 日 / 週 / 月 / 時間単位の切り替え、等幅月表示モード                                |
-| **テーマ対応**             | ライト / ダーク / システム連動 + 30項目以上のカスタムカラーテーマ                  |
-| **高度なカスタマイズ**     | バー、行ヘッダー、ツールチップ、カレンダーセルなどの描画を関数でオーバーライド可能 |
-| **エクスポート機能**       | PNG 画像や PDF としての高解像度エクスポート（複数ページ分割対応）                  |
-| **日本語対応**             | ロケール機能内蔵（日本語・英語）、祝日判定ロジックのカスタマイズ対応               |
-| **ライセンス**             | MIT                                                                                |
+| カテゴリ | 内容 |
+| :--- | :--- |
+| **フレームワーク非依存** | Web Components (Custom Elements) として実装。どの環境でも動作 |
+| **仮想スクロール** | 大量のタスク・行でもスムーズで軽快なパフォーマンス |
+| **豊富なインタラクション** | D&D でのタスク移動（行間移動・同一行内制限対応）、リサイズ、行の並び替え、複数選択＆一括ドラッグ |
+| **ミニマップ（鳥瞰ビュー）** | 全体プレビュー、ビューポートパン操作、ドラッグ移動、リサイズ、透過率調整、折りたたみ対応 |
+| **依存関係＆クリティカルパス** | タスク間の依存を矢印付きの曲線/直角線で描画。最長経路（クリティカルパス）の自動ハイライト |
+| **スムーズなズーム** | Ctrl/Cmd + ホイールズーム、全体を画面に収める `zoomToFit()` メソッド |
+| **誤操作防止・ガード** | 行移動の縦方向制限（`enableCrossRowMove`）、チャート領域外ドラッグ時の自動キャンセル |
+| **キーボード操作** | 矢印キーでのナビゲーション、Shift+矢印での移動、Deleteキーでのタスク削除 |
+| **柔軟な表示モード** | 日 / 週 / 月 / 時間単位の切り替え、等幅月表示モード（最大100年スパン対応） |
+| **テーマ対応** | ライト / ダーク / システム連動 + 30項目以上のカスタムカラーテーマ |
+| **高度なカスタマイズ** | バー、行ヘッダー、ツールチップ、カレンダーセルなどの描画を関数でオーバーライド可能 |
+| **エクスポート機能** | PNG 画像や PDF としての高解像度エクスポート（複数ページ分割・スクロール位置保持対応） |
+| **日本語対応** | ロケール機能内蔵（日本語・英語）、祝日判定ロジックのカスタマイズ対応 |
+| **ライセンス** | MIT |
 
 ## 開発のきっかけ
 
@@ -97,8 +99,8 @@ moguchart-core は **「商用ライブラリに迫る機能性を、MIT ライ�
 
 - **Web Components ネイティブ** — React/Vue ラッパーではなく、Custom Elements そのもの
 - **仮想スクロール** — 数百〜数千行でも軽快
-- **直感的な操作感** — スムーズなD&D、ホイールズーム、キーボードショートカット
-- **日本語ファースト** — ロケール、祝日判定（`@holiday-jp/holiday_jp`）を標準搭載
+- **直感的な操作感** — スムーズなD&D、ホイールズーム、ミニマップ連携、キーボードショートカット
+- **日本語ファースト** — ロケール、祝日判定を標準サポート
 
 ## インストール
 
@@ -166,12 +168,17 @@ pnpm add @mogura/moguchart-core
     dependency: {
       showCriticalPath: true, // クリティカルパスをハイライト
     },
+    minimap: {
+      enabled: true, // ミニマップ（鳥瞰ビュー）を表示
+      width: 240,
+      opacity: 0.85,
+    },
     theme: 'system',
   })
 </script>
 
 <template>
-  <div style="height: 400px;">
+  <div style="height: 500px;">
     <gantt-chart :rows="rows" :option="option" />
   </div>
 </template>
@@ -215,6 +222,11 @@ export default function GanttDemo() {
     zoom: {
       enabled: true,
     },
+    minimap: {
+      enabled: true,
+      width: 240,
+      opacity: 0.85,
+    },
     theme: 'system',
   }
 
@@ -226,7 +238,7 @@ export default function GanttDemo() {
   }, [])
 
   return (
-    <div style={{ height: '400px' }}>
+    <div style={{ height: '500px' }}>
       <gantt-chart ref={chartRef} />
     </div>
   )
@@ -235,21 +247,73 @@ export default function GanttDemo() {
 
 ## 機能ハイライト
 
-### 🎯 タスクのドラッグ＆ドロップ＆複数選択操作
+### 🗺️ ミニマップ（Overview Minimap）
 
-タスクバーをドラッグして日程変更。行をまたいだ移動にも対応しています。
-`Ctrl`（Mac: `Cmd`）+ クリックで複数選択し、一括ドラッグ移動（行をまたぐ垂直移動にも対応）が可能です。
+ガントチャート全体のタスク配置・マイルストーン・現在時刻線を鳥瞰できるフローティング小窓型のミニマップです。
+
+- **ビューポートナビゲーション**: ミニマップ内の半透明フレーム（現在の表示領域）をドラッグしてスクロール（パン）したり、任意の位置をクリックして瞬時にジャンプ移動できます。
+- **ドラッグリサイズ ＆ ドラッグ移動**: 端のリサイズハンドルで拡大・縮小（アスペクト比維持対応）、タイトルバーのドラッグで自由な位置へ移動できます。
+- **自動アンカー ＆ はみ出し防止**: 右下基準座標（`right`, `bottom`）で管理され、親要素のリサイズ時にも安定して表示位置を自動追従します。
+- **透過率（不透明度）調整**: `opacity`（`0.1`〜`1.0`）を設定可能。半透明で背面のタスクを見通せ、ホバー時や操作時には自動で 1.0 に戻ります。
+- **折りたたみ（最小化）**: 最小化ボタンでコンパクトなアイコンへ折りたためます。
 
 ```javascript
+const chart = document.querySelector('gantt-chart')
+
+chart.option = {
+  // ...
+  minimap: {
+    enabled: true,
+    width: 240,
+    preserveAspectRatio: true,
+    resizable: true,
+    position: { right: 16, bottom: 16 }, // 初期位置（右下基準 px）
+    opacity: 0.85, // 不透明度 (0.1 〜 1.0)
+  },
+}
+
+// 各種イベントリスナー
+chart.addEventListener('minimap-resize', (e) => {
+  const { width, height, position } = e.detail
+  console.log(`Minimap resized: ${width}x${height}`, position)
+})
+
+chart.addEventListener('minimap-move', (e) => {
+  const { right, bottom } = e.detail
+  console.log(`Minimap moved to: right=${right}, bottom=${bottom}`)
+})
+
+chart.addEventListener('minimap-collapse', (e) => {
+  const { collapsed } = e.detail
+  console.log(`Minimap collapsed: ${collapsed}`)
+})
+```
+
+### 🎯 タスクのドラッグ＆ドロップ ＆ 行間移動制御
+
+タスクバーをドラッグして日程変更。行をまたいだ移動（上下移動）にも対応しています。
+`Ctrl`（Mac: `Cmd`）+ クリックで複数選択し、一括ドラッグ移動（垂直移動含む）が可能です。
+
+さらに、`enableCrossRowMove: false` を指定することで、**「同一行内でのみ日付移動を許可し、他の行への移動を禁止する」** といった制御も簡単に行えます。
+
+```javascript
+const option = {
+  enableCrossRowMove: false, // 行間移動を禁止（横方向の日程移動のみに制限）
+}
+
 chart.addEventListener('task-update', (e) => {
-  const { id, start, end, targetRowId, mode, selectedTaskIds } = e.detail
+  const { id, start, end, targetRowId, mode, selectedTaskIds, isCancel } = e.detail
+  if (isCancel) {
+    console.log('ドラッグ操作がキャンセルされました')
+    return
+  }
   console.log(`タスク ${id} を ${start} 〜 ${end} に移動 (移動先: ${targetRowId})`)
 })
 ```
 
 <img src="https://raw.githubusercontent.com/hiro-murakami/qiita-content/main/images/moguchart-core-introduction/drag-and-drop.gif" width="700" alt="drag-and-drop.gif">
 
-既存のタスクバーの変更だけでなく、ガントチャートの外から新規のタスクバーをドラッグして追加することも可能です。
+ガントチャートの外部から新規タスクバーをドラッグ＆ドロップして配置することも可能です。
 
 <img src="https://raw.githubusercontent.com/hiro-murakami/qiita-content/main/images/moguchart-core-introduction/task-template.gif" width="500" alt="task-template.gif">
 
@@ -334,6 +398,8 @@ const option = {
     currentTimeLine: '#ff6b6b',
     criticalPath: '#ef4444',
     saturday: '#1e3a5f',
+    minimapBg: '#16213e',
+    minimapViewport: 'rgba(255, 255, 255, 0.15)',
   },
 }
 ```
@@ -359,11 +425,11 @@ option.calendar.milestones = [
 
 ![milestone.gif](https://raw.githubusercontent.com/hiro-murakami/qiita-content/main/images/moguchart-core-introduction/milestone.gif)
 
-### 📍 マーカー（行内目印）の進化
+### 📍 マーカー（行内目印）
 
-各行のタイムライン上に三角形アイコンやラベルで目印を表示。
+各行のタイムライン上に三角形アイコンやラベルで目印を表示できます。
 同じ行内でマーカーが重なった場合は **自動的にマルチレーン配置** されるため、文字が被る心配がありません。
-フォントサイズ（`xs`〜`xl`）の指定や、ダブルクリック・右クリックイベント、選択中マーカーのパルスアニメーションにも対応しています。
+フォントサイズ（`xs`〜`xl`）の指定や、ダブルクリック（`marker-dblclick`）・右クリック（`marker-contextmenu`）イベント、選択中マーカーのパルスアニメーションにも対応しています。
 
 ```javascript
 const row = {
@@ -404,11 +470,11 @@ const task = {
 
 ### 📅 表示モードの切り替え
 
-| モード       | 設定                              | 用途                               |
-| :----------- | :-------------------------------- | :--------------------------------- |
-| **日単位**   | `pxPerDay: 48`                    | 通常のプロジェクト管理             |
-| **週単位**   | `showWeeks: true`, `pxPerDay: 12` | 中長期の俯瞰                       |
-| **月単位**   | `pxPerMonth: 120`                 | 年単位のロードマップ（等幅表示）   |
+| モード | 設定 | 用途 |
+| :--- | :--- | :--- |
+| **日単位** | `pxPerDay: 48` | 通常のプロジェクト管理 |
+| **週単位** | `showWeeks: true`, `pxPerDay: 12` | 中長期の俯瞰 |
+| **月単位** | `pxPerMonth: 120` | 年単位のロードマップ（等幅表示・最大100年） |
 | **時間単位** | `pxPerDay: 960`, `showTime: true` | シフト管理・細かなスケジューリング |
 
 ![view-mode.gif](https://raw.githubusercontent.com/hiro-murakami/qiita-content/main/images/moguchart-core-introduction/view-mode.gif)
@@ -432,26 +498,29 @@ const option = {
 }
 ```
 
-### 🌐 ロケール＆祝日
+### 🌐 ロケール＆祝日判定
 
-日本語/英語のビルトインロケールを切り替えるだけでなく、カスタムロケールも定義できます。
+日本語/英語のビルトインロケールを切り替えるだけでなく、カスタムロケールや祝日判定関数の注入に対応しています。
 
 ```javascript
 import { enLocale } from '@mogura/moguchart-core'
-import * as holiday_jp from '@holiday-jp/holiday_jp'
 
 const option = {
   locale: enLocale,
   calendar: {
-    isHoliday: holiday_jp.isHoliday, // 日本の祝日をハイライト
+    isHoliday: (date) => {
+      // 独自の祝日・休業日判定ロジック
+      return checkCustomHoliday(date)
+    },
   },
 }
 ```
 
 ### 📤 高解像度 画像/PDF エクスポート
 
-チャートを PNG 画像や PDF として書き出すメソッドを内蔵しています（`html2canvas-pro` / `jspdf` を利用）。
-`splitHeight` を指定すると、行の途中で切れないよう境界に合わせて **ページ分割されたPDF** を簡単に出力できます。
+チャートを PNG 画像や PDF として書き出すメソッドを内蔵しています（`html2canvas-pro` / `jspdf` を利用）。Shadow DOM 内の描画コンテナを直接キャプチャするため正確に出力でき、エクスポート実行時も現在のスクロール位置が保持・復元されます。
+
+`splitHeight` を指定すると、行の途中で切れないよう境界に合わせて **複数ページに分割されたPDF** を簡単に出力できます。
 
 ```javascript
 const chart = document.querySelector('gantt-chart')
@@ -480,6 +549,7 @@ if (hit) {
 @mogura/moguchart-core
 ├── components/
 │   ├── gantt-chart.ts                 # メインコンポーネント (Custom Element)
+│   ├── gantt-minimap.ts               # ミニマップ（Overview Minimap）
 │   ├── gantt-calendar.ts              # カレンダーヘッダー
 │   ├── gantt-bar.ts                   # タスクバー
 │   ├── gantt-row.ts                   # 行コンポーネント (マーカー・レーン配置)
@@ -488,7 +558,7 @@ if (hit) {
 │   ├── gantt-chart-export.ts          # PNG/PDF エクスポート
 │   └── gantt-chart-styles.ts          # CSS スタイル定義
 └── core/
-    ├── types.ts         # 全型定義（700行超の充実したTypeScript型）
+    ├── types.ts         # 全型定義（充実したTypeScript型）
     ├── critical-path.ts # クリティカルパス自動計算ロジック
     ├── theme.ts         # テーマカラーパレット
     ├── patterns.ts      # バーパターン（SVG背景生成）
@@ -503,11 +573,13 @@ Lit の Reactive Properties を活用し、`rows` や `option` が変更され�
 
 moguchart-core は汎用ライブラリとして開発していますが、実は **このライブラリを活用した本格的なプロジェクト管理アプリケーション「MoguChart」** も並行して開発しています。
 
-MoguChart は Vue.js + Vuetify をベースに、moguchart-core のガントチャートコンポーネントを中心に据えた Web アプリケーションです。タスク管理・チーム共有・リアルタイム同期など、実務で使える機能を備えています。
+MoguChart は Vue 3 + Vuetify 4 をベースに、moguchart-core のガントチャートコンポーネントを中心に据えた Web アプリケーションです。ドラッグ＆ドロップ操作・リアルタイム共同編集・画像添付・権限管理など、実務で使える豊富な機能を備えています。
 
-👉 **MoguChart の詳細は別記事で紹介しています！**
+👉 **MoguChart アプリケーションの詳細は別記事で紹介しています！**
 
-https://qiita.com/hiroyuki_m/items/bfdaf141de040cb387b9
+- **UX・機能詳細**: [無料で使えるWebガントチャート「MoguChart」を作った ─ 個人開発で追求した"ちょうどいい"プロジェクト管理UX](https://qiita.com/hiroyuki_m/items/bfdaf141de040cb387b9)
+- **全体アーキテクチャ**: [個人開発で本格ガントチャートWebアプリ「MoguChart」を作った話 ─ 自作Web Components × Vue 3 × Firebase のアーキテクチャ全解剖](https://qiita.com/hiroyuki_m/items/d1d2b644890e49b796e7)
+- **リアルタイム共同編集**: [ガントチャートWebアプリにリアルタイム共同編集を実装した話 ─ Firestore × Vue 3 で実現するプレゼンス・イベント同期アーキテクチャ](https://qiita.com/hiroyuki_m/items/9664fa9018efc06059f2)
 
 ライブラリ単体の機能に興味を持っていただけた方は、ぜひアプリケーション側の記事もご覧ください 🙌
 
@@ -515,7 +587,7 @@ https://qiita.com/hiroyuki_m/items/bfdaf141de040cb387b9
 
 moguchart-core は、**「フレームワークに縛られず、高機能なガントチャートを手軽に組み込みたい」** という自分自身のニーズから生まれたライブラリです。
 
-直近のアップデートにより、クリティカルパスの自動ハイライトやスムーズなホイールズーム、キーボード操作、高解像度PDFエクスポートなど、実用的な機能が一段と揃いました。
+v0.11.0 ではミニマップ機能の追加をはじめ、行間移動制御（誤操作防止）、クリティカルパスの自動ハイライト、スムーズなホイールズーム、高解像度エクスポートなど、商用ライブラリに匹敵する実用的な機能が一段と揃いました。
 
 フィードバックや Issue、Pull Request を大歓迎しています！
 
