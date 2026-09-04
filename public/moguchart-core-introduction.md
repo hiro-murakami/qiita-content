@@ -7,7 +7,7 @@ tags:
   - OSS
   - ガントチャート
 private: false
-updated_at: '2026-08-29T09:18:04+09:00'
+updated_at: '2026-09-05T07:49:00+09:00'
 id: 0e4859951a9f652c26c3
 organization_url_name: null
 slide: false
@@ -45,8 +45,10 @@ Custom Elements（`<gantt-chart>`）として動作するため、**Vue、React�
 | :--- | :--- |
 | **フレームワーク非依存** | Web Components (Custom Elements) として実装。どの環境でも動作 |
 | **仮想スクロール** | 大量のタスク・行でもスムーズで軽快なパフォーマンス |
+| **矩形範囲選択** | チャート背景ドラッグによる複数タスク一括選択（ラバーバンド選択、AABB交差判定、Shift/Ctrl/Cmdでの累積追加選択、オートスクロール対応） |
+| **タスク進捗管理** | バー内進捗インジケーター描画、ハンドル操作による直感的ドラッグ編集（スナップ・Escキャンセル対応）、進捗ラベル表示、進捗率計算ユーティリティ |
 | **豊富なインタラクション** | D&D でのタスク移動（行間移動・同一行内制限対応）、リサイズ、行の並び替え、複数選択＆一括ドラッグ |
-| **ミニマップ（鳥瞰ビュー）** | 全体プレビュー、ビューポートパン操作、ドラッグ移動、リサイズ、透過率調整、折りたたみ対応 |
+| **ミニマップ（鳥瞰ビュー）** | 全体プレビュー、ビューポートパン操作、ドラッグ移動、リサイズ、透過率調整、折りたたみ、タスク進捗率の濃淡自動反映 |
 | **依存関係＆クリティカルパス** | タスク間の依存を矢印付きの曲線/直角線で描画。最長経路（クリティカルパス）の自動ハイライト |
 | **スムーズなズーム** | Ctrl/Cmd + ホイールズーム、全体を画面に収める `zoomToFit()` メソッド |
 | **誤操作防止・ガード** | 行移動の縦方向制限（`enableCrossRowMove`）、チャート領域外ドラッグ時の自動キャンセル |
@@ -99,7 +101,7 @@ moguchart-core は **「商用ライブラリに迫る機能性を、MIT ライ�
 
 - **Web Components ネイティブ** — React/Vue ラッパーではなく、Custom Elements そのもの
 - **仮想スクロール** — 数百〜数千行でも軽快
-- **直感的な操作感** — スムーズなD&D、ホイールズーム、ミニマップ連携、キーボードショートカット
+- **直感的な操作感** — スムーズなD&D、矩形範囲選択、進捗ドラッグ編集、ホイールズーム、ミニマップ連携、キーボードショートカット
 - **日本語ファースト** — ロケール、祝日判定を標準サポート
 
 ## インストール
@@ -128,6 +130,7 @@ pnpm add @mogura/moguchart-core
           name: 'API設計',
           start: new Date('2025-06-01'),
           end: new Date('2025-06-10'),
+          progress: 100, // 進捗率 (0〜100)
           style: 'background-color: #60a5fa',
         },
         {
@@ -135,6 +138,7 @@ pnpm add @mogura/moguchart-core
           name: '実装',
           start: new Date('2025-06-10'),
           end: new Date('2025-06-25'),
+          progress: 45,
           style: 'background-color: #34d399',
           dependencies: ['t-1'], // t-1 に依存
         },
@@ -149,6 +153,7 @@ pnpm add @mogura/moguchart-core
           name: 'UIデザイン',
           start: new Date('2025-06-05'),
           end: new Date('2025-06-15'),
+          progress: 80,
           style: 'background-color: #f472b6',
         },
       ],
@@ -167,6 +172,15 @@ pnpm add @mogura/moguchart-core
     },
     dependency: {
       showCriticalPath: true, // クリティカルパスをハイライト
+    },
+    progress: {
+      enabled: true,
+      editable: true, // ドラッグによる進捗率編集を有効化
+      showLabel: true, // 進捗ラベル (例: "45%") を表示
+      snapStep: 5, // 5%刻みスナップ
+    },
+    selection: {
+      marquee: true, // 矩形範囲選択（ラバーバンド選択）を有効化
     },
     minimap: {
       enabled: true, // ミニマップ（鳥瞰ビュー）を表示
@@ -206,6 +220,7 @@ export default function GanttDemo() {
           name: 'API設計',
           start: new Date('2025-06-01'),
           end: new Date('2025-06-10'),
+          progress: 100,
           style: 'background-color: #60a5fa',
         },
       ],
@@ -221,6 +236,14 @@ export default function GanttDemo() {
     },
     zoom: {
       enabled: true,
+    },
+    progress: {
+      enabled: true,
+      editable: true,
+      showLabel: true,
+    },
+    selection: {
+      marquee: true,
     },
     minimap: {
       enabled: true,
@@ -247,6 +270,85 @@ export default function GanttDemo() {
 
 ## 機能ハイライト
 
+### 🔲 矩形範囲選択（ラバーバンド選択 / Marquee Selection）
+
+ガントチャートの日付グリッド領域（空白背景）をマウスでドラッグすることで、矩形選択ボックス（ラバーバンド）を表示し、交差・囲まれた複数のタスクバーを一括選択できます。
+
+- **リアルタイム交差判定**: AABB（Axis-Aligned Bounding Box）判定により、ドラッグ操作中に交差したタスクバーがリアルタイムにハイライト選択されます
+- **追加選択（累積選択）**: `Shift`、`Ctrl`、または `Cmd` キーを押しながらドラッグすることで、既存の選択状態を保持したまま追加で範囲選択が可能です
+- **オートスクロール**: ドラッグ中にチャート端に近づくと、画面外に広がるタスクへ向かって自動的にスクロールします
+- **誤操作防止**: 4px未満のマウス移動は通常のクリック（選択解除）として扱い、誤った矩形選択の発生を防ぎます
+- **一括操作との連携**: 選択された複数タスクは、そのまま一括ドラッグ移動、キーボード移動（`Shift + 左右矢印`）、一括削除（`Delete` キー）と完全に連動します
+
+```javascript
+const chart = document.querySelector('gantt-chart')
+
+chart.option = {
+  // ...
+  selection: {
+    marquee: true,          // 矩形範囲選択を有効化 (デフォルト: true)
+    borderColor: '#3b82f6', // 選択枠線の色 (未指定時はテーマ色)
+    backgroundColor: 'rgba(59, 130, 246, 0.15)', // 選択背景色
+  },
+}
+
+// 選択変更イベントリスナー
+chart.addEventListener('bar-selection-change', (e) => {
+  const { selectedIds } = e.detail
+  console.log('選択されたタスクID一覧:', selectedIds)
+})
+```
+
+### 📊 タスク進捗管理 ＆ インタラクティブドラッグ編集
+
+各タスクの `progress` プロパティ（`0` 〜 `100`）を設定することで、タスクバー上に進捗状況を視覚的に表示できます。
+さらに、`editable: true` を有効にすると、進捗バー端のハンドルをドラッグしてマウス操作だけで直感的に進捗率を変更できるようになります。
+
+- **インジケータースタイル**: バー全体を塗りつぶす `full`（デフォルト）のほか、バー下部に帯状に表示する `bottom`、上部に表示する `top` から選択可能
+- **インタラクティブなハンドル編集**: 進捗バー右端のハンドルをドラッグして進捗率を変更。ホバー・ドラッグ時にはハンドルが拡大表示されます
+- **スナップ＆キャンセル**: `snapStep`（例: 5%刻み）で数値をキリよくスナップ。ドラッグ中に `Escape` キーを押すと即座にキャンセルされ元の進捗率にロールバックします
+- **進捗ラベルの表示**: `showLabel: true` で進捗率（例: "45%"）を表示。配置位置（`inside`, `right`, `left`, `center`）やカスタムフォーマッタ（`labelFormatter`）も柔軟に指定可能
+- **進捗計算ユーティリティ関数**: 単純平均や期間加重平均（タスク期間に応じた重み付け計算）を算出するヘルパー関数を標準エクスポート
+
+```javascript
+import {
+  clampProgress,
+  calculateRowProgress,
+  calculateWeightedRowProgress,
+  calculateProjectProgress,
+} from '@mogura/moguchart-core'
+
+const chart = document.querySelector('gantt-chart')
+
+chart.option = {
+  // ...
+  progress: {
+    enabled: true,         // 進捗表示を有効化 (デフォルト: true)
+    editable: true,        // ドラッグによる進捗率編集を有効化 (デフォルト: false)
+    showLabel: true,       // 進捗ラベル (例: "45%") を表示
+    labelPosition: 'inside', // 'inside' | 'right' | 'left' | 'center'
+    snapStep: 5,           // 5%刻みでスナップ (デフォルト: 1)
+    indicatorPosition: 'full', // 'full' | 'bottom' | 'top'
+    color: '#3b82f6',      // 進捗バーの色
+  },
+}
+
+// 進捗変更イベント
+chart.addEventListener('task-progress-change', (e) => {
+  const { task, progress, originalProgress, cancelled } = e.detail
+  if (cancelled) {
+    console.log(`タスク ${task.name} の進捗変更がキャンセルされました`)
+    return
+  }
+  console.log(`タスク ${task.name}: ${originalProgress}% → ${progress}%`)
+})
+
+// 行・プロジェクト全体の進捗率を計算
+const rowSimpleAvg = calculateRowProgress(row)          // 行内タスクの単純平均
+const rowWeightedAvg = calculateWeightedRowProgress(row) // 期間による加重平均
+const projectProgress = calculateProjectProgress(rows)   // プロジェクト全体の期間加重平均
+```
+
 ### 🗺️ ミニマップ（Overview Minimap）
 
 ガントチャート全体のタスク配置・マイルストーン・現在時刻線を鳥瞰できるフローティング小窓型のミニマップです。
@@ -256,6 +358,7 @@ export default function GanttDemo() {
 - **自動アンカー ＆ はみ出し防止**: 右下基準座標（`right`, `bottom`）で管理され、親要素のリサイズ時にも安定して表示位置を自動追従します。
 - **透過率（不透明度）調整**: `opacity`（`0.1`〜`1.0`）を設定可能。半透明で背面のタスクを見通せ、ホバー時や操作時には自動で 1.0 に戻ります。
 - **折りたたみ（最小化）**: 最小化ボタンでコンパクトなアイコンへ折りたためます。
+- **進捗状況の自動反映**: 各タスクの進捗率がミニマップ上のバーにも濃淡として自動的に描画され、全体の進捗状況を一目で鳥瞰できます。
 
 ```javascript
 const chart = document.querySelector('gantt-chart')
@@ -377,9 +480,11 @@ chart.resetZoom()
 | `↑` `↓` | 前後の行へフォーカス移動 |
 | `Enter` / `Space` | フォーカス中のタスクを選択 |
 | `Ctrl/Cmd + Enter` | 選択状態をトグル（複数選択） |
-| `Shift + ←` `→` | 選択中のタスクを左右に移動 |
-| `Delete` / `Backspace` | `task-delete` イベントを発火（タスク削除） |
-| `Escape` | 選択・フォーカスを解除 |
+| `Shift + ←` `→` | 選択中のタスク（複数選択・矩形選択を含む）を左右に移動 |
+| `Delete` / `Backspace` | `task-delete` イベントを発火（選択中タスクの削除要求） |
+| `Escape` | 選択・フォーカスを解除 / ドラッグ操作のキャンセル |
+
+矩形範囲選択（ラバーバンド選択）や `Ctrl/Cmd + クリック` で複数選択したタスクも、`Shift + 矢印キー` でまとめて一括移動したり、`Delete` キーでまとめて削除要求イベントを発行できます。
 
 ```javascript
 chart.addEventListener('task-delete', (e) => {
@@ -400,6 +505,10 @@ const option = {
     saturday: '#1e3a5f',
     minimapBg: '#16213e',
     minimapViewport: 'rgba(255, 255, 255, 0.15)',
+    taskProgress: '#3b82f6',              // 進捗バーのハイライト色
+    taskProgressHandle: '#60a5fa',        // 進捗ドラッグハンドルの色
+    selectionMarqueeBorder: '#3b82f6',    // 矩形選択ボックスの枠線色
+    selectionMarqueeBg: 'rgba(59, 130, 246, 0.2)', // 矩形選択ボックスの背景色
   },
 }
 ```
@@ -587,7 +696,7 @@ MoguChart は Vue 3 + Vuetify 4 をベースに、moguchart-core のガントチ
 
 moguchart-core は、**「フレームワークに縛られず、高機能なガントチャートを手軽に組み込みたい」** という自分自身のニーズから生まれたライブラリです。
 
-v0.11.0 ではミニマップ機能の追加をはじめ、行間移動制御（誤操作防止）、クリティカルパスの自動ハイライト、スムーズなホイールズーム、高解像度エクスポートなど、商用ライブラリに匹敵する実用的な機能が一段と揃いました。
+v0.12.0 では、ガントバーの矩形範囲選択（ラバーバンド選択）機能や、タスク進捗率の視覚的表示・直感的なドラッグ編集、進捗率計算ユーティリティ関数をはじめ、ミニマップ機能、クリティカルパスの自動ハイライト、スムーズなホイールズーム、高解像度エクスポートなど、商用ライブラリに匹敵する実用的な機能が一段と揃いました。
 
 フィードバックや Issue、Pull Request を大歓迎しています！
 
