@@ -708,6 +708,6 @@ https://github.com/hiro-murakami/moguchart-core
 
 - [デモサイト](https://moguchart-core.vercel.app)
 - [GitHub リポジトリ](https://github.com/hiro-murakami/moguchart-core)
-- [API リファレンス（日本語）](https://github.com/hiro-murakami/moguchart-core/blob/main/doc/API.ja.md)
+- [API リファレンス（日本語）](https://github.com/hiro-murakami/moguchart-core/blob/develop/doc/API.ja.md)
 - [Lit 公式サイト](https://lit.dev/)
 - [Web Components - MDN](https://developer.mozilla.org/ja/docs/Web/API/Web_components)
