@@ -7,7 +7,7 @@ tags:
   - 個人開発
   - ガントチャート
 private: false
-updated_at: '2026-09-13T15:00:26+09:00'
+updated_at: "2026-09-13T15:00:26+09:00"
 id: bfdaf141de040cb387b9
 organization_url_name: null
 slide: false
@@ -16,7 +16,7 @@ posting_campaign_uuid: null
 agreed_posting_campaign_term: false
 ---
 
-![top.png](https://raw.githubusercontent.com/hiro-murakami/qiita-content/main/images/moguchart-app-ux/top.png)
+![top.png](https://raw.githubusercontent.com/hiro-murakami/qiita-content/main/images/moguchart-app-ux/top-2.png)
 
 ## TL;DR
 
