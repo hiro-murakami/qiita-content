@@ -30,6 +30,8 @@ agreed_posting_campaign_term: false
 
 https://github.com/hiro-murakami/moguchart-core
 
+そしてこの度、実務レベルのプロジェクト管理に不可欠な **WBS（階層ツリー構造・行の開閉）** と **サマリータスク（自動集計・描画）** を全面サポートし、メジャーバージョン **v1.0.0** を正式リリースしました！🎉
+
 デモサイトも公開していますので、実際に動く様子をぜひお試しください！
 https://moguchart-core.vercel.app
 
@@ -44,14 +46,19 @@ Custom Elements（`<gantt-chart>`）として動作するため、**Vue、React�
 | カテゴリ | 内容 |
 | :--- | :--- |
 | **フレームワーク非依存** | Web Components (Custom Elements) として実装。どの環境でも動作 |
+| **WBS（階層ツリー構造）** | `parentId` による無制限の親子階層（大工程 ＞ 中工程 ＞ 詳細タスク）、インデント表示、開閉トグル（▶/▼）、展開・折りたたみ対応 |
+| **サマリータスク自動計算** | 配下全タスクの最小開始日〜最大終了日、期間加重平均進捗率を自動集計して山型ブラケットバーを描画。通常タスクとの2段共存描画対応 |
+| **安全な階層並び替え** | 親行ドラッグ移動時の子孫行ブロック一体追従移動、循環参照を未然に防止するドロップ判定ロジック（`canDropRow`） |
 | **仮想スクロール** | 大量のタスク・行でもスムーズで軽快なパフォーマンス |
 | **矩形範囲選択** | チャート背景ドラッグによる複数タスク一括選択（ラバーバンド選択、AABB交差判定、Shift/Ctrl/Cmdでの累積追加選択、オートスクロール対応） |
 | **タスク進捗管理** | バー内進捗インジケーター描画、ハンドル操作による直感的ドラッグ編集（スナップ・Escキャンセル対応）、進捗ラベル表示、進捗率計算ユーティリティ |
 | **豊富なインタラクション** | D&D でのタスク移動（行間移動・同一行内制限対応）、リサイズ、行の並び替え、複数選択＆一括ドラッグ |
 | **ミニマップ（鳥瞰ビュー）** | 全体プレビュー、ビューポートパン操作、ドラッグ移動、リサイズ、透過率調整、折りたたみ、タスク進捗率の濃淡自動反映 |
 | **依存関係＆クリティカルパス** | タスク間の依存を矢印付きの曲線/直角線で描画。最長経路（クリティカルパス）の自動ハイライト |
+| **表示倍率＆フォント連動** | `fontScale` オプションと CSS 変数 `--moguchart-font-scale` によるチャート全体の文字サイズ・ヘッダー・バーの連動拡大縮小 |
+| **スクロール位置制御** | `resetScroll()` による原点（0,0）リセット、`scrollToPosition()` による座標指定スクロール |
 | **スムーズなズーム** | Ctrl/Cmd + ホイールズーム、全体を画面に収める `zoomToFit()` メソッド |
-| **誤操作防止・ガード** | 行移動の縦方向制限（`enableCrossRowMove`）、チャート領域外ドラッグ時の自動キャンセル |
+| **誤操作防止・ガード** | 行移動の縦方向制限（`enableCrossRowMove`）、チャート領域外ドラッグ時の自動キャンセル、サマリータスクへの依存関係作成抑止 |
 | **キーボード操作** | 矢印キーでのナビゲーション、Shift+矢印での移動、Deleteキーでのタスク削除 |
 | **柔軟な表示モード** | 日 / 週 / 月 / 時間単位の切り替え、等幅月表示モード（最大100年スパン対応） |
 | **テーマ対応** | ライト / ダーク / システム連動 + 30項目以上のカスタムカラーテーマ |
@@ -122,39 +129,61 @@ pnpm add @mogura/moguchart-core
 
   const rows = ref<GanttRow[]>([
     {
-      id: 'row-1',
-      name: '開発チームA',
+      id: 'row-phase-1',
+      name: '設計フェーズ', // 親行（サマリータスクが自動集計される）
+      isSummary: true,
+      tasks: [],
+    },
+    {
+      id: 'row-design-api',
+      parentId: 'row-phase-1', // 子行（階層インデントされる）
+      name: 'API設計',
       tasks: [
         {
           id: 't-1',
-          name: 'API設計',
-          start: new Date('2025-06-01'),
-          end: new Date('2025-06-10'),
+          name: 'OpenAPI仕様策定',
+          start: new Date('2026-06-01'),
+          end: new Date('2026-06-10'),
           progress: 100, // 進捗率 (0〜100)
           style: 'background-color: #60a5fa',
         },
+      ],
+    },
+    {
+      id: 'row-design-ui',
+      parentId: 'row-phase-1', // 子行
+      name: 'UIデザイン',
+      tasks: [
         {
           id: 't-2',
-          name: '実装',
-          start: new Date('2025-06-10'),
-          end: new Date('2025-06-25'),
-          progress: 45,
-          style: 'background-color: #34d399',
+          name: 'Figmaモックアップ',
+          start: new Date('2026-06-05'),
+          end: new Date('2026-06-18'),
+          progress: 75,
+          style: 'background-color: #f472b6',
           dependencies: ['t-1'], // t-1 に依存
         },
       ],
     },
     {
-      id: 'row-2',
-      name: 'デザインチーム',
+      id: 'row-phase-2',
+      name: '実装フェーズ', // 親行
+      isSummary: true,
+      tasks: [],
+    },
+    {
+      id: 'row-impl-front',
+      parentId: 'row-phase-2',
+      name: 'フロントエンド開発',
       tasks: [
         {
           id: 't-3',
-          name: 'UIデザイン',
-          start: new Date('2025-06-05'),
-          end: new Date('2025-06-15'),
-          progress: 80,
-          style: 'background-color: #f472b6',
+          name: 'コンポーネント実装',
+          start: new Date('2026-06-15'),
+          end: new Date('2026-07-05'),
+          progress: 30,
+          style: 'background-color: #34d399',
+          dependencies: ['t-2'],
         },
       ],
     },
@@ -162,21 +191,29 @@ pnpm add @mogura/moguchart-core
 
   const option = ref<GanttChartOption>({
     calendar: {
-      start: new Date('2025-06-01'),
-      end: new Date('2025-07-31'),
+      start: new Date('2026-06-01'),
+      end: new Date('2026-07-31'),
       pxPerDay: 30,
       showCurrentTime: true,
+    },
+    tree: {
+      enabled: true, // WBSツリー表示を有効化
+      indentWidth: 18, // 階層ごとのインデント幅 (px)
+      showToggleIcon: true, // 開閉トグルアイコン (▶/▼)
+      autoSummary: true, // 配下の子タスクから親の期間・進捗率を自動集計
+      summaryColor: '#334155', // サマリーバーの既定色
     },
     zoom: {
       enabled: true, // Ctrl + ホイールズームを有効化
     },
+    fontScale: 1, // チャート全体のフォントサイズ倍率 (0.5〜2.0)
     dependency: {
       showCriticalPath: true, // クリティカルパスをハイライト
     },
     progress: {
       enabled: true,
       editable: true, // ドラッグによる進捗率編集を有効化
-      showLabel: true, // 進捗ラベル (例: "45%") を表示
+      showLabel: true, // 進捗ラベル (例: "75%") を表示
       snapStep: 5, // 5%刻みスナップ
     },
     selection: {
@@ -187,6 +224,7 @@ pnpm add @mogura/moguchart-core
       width: 240,
       opacity: 0.85,
     },
+    enableRowReordering: true, // 行の安全なD&D並び替え（子孫行ブロック追従＆循環防止）
     theme: 'system',
   })
 </script>
@@ -212,16 +250,39 @@ export default function GanttDemo() {
 
   const rows: GanttRow[] = [
     {
-      id: 'row-1',
-      name: '開発チームA',
+      id: 'row-phase-1',
+      name: '設計フェーズ',
+      isSummary: true,
+      tasks: [],
+    },
+    {
+      id: 'row-design-api',
+      parentId: 'row-phase-1',
+      name: 'API設計',
       tasks: [
         {
           id: 't-1',
-          name: 'API設計',
-          start: new Date('2025-06-01'),
-          end: new Date('2025-06-10'),
+          name: 'API仕様策定',
+          start: new Date('2026-06-01'),
+          end: new Date('2026-06-10'),
           progress: 100,
           style: 'background-color: #60a5fa',
+        },
+      ],
+    },
+    {
+      id: 'row-design-ui',
+      parentId: 'row-phase-1',
+      name: 'UIデザイン',
+      tasks: [
+        {
+          id: 't-2',
+          name: 'モックアップ作成',
+          start: new Date('2026-06-05'),
+          end: new Date('2026-06-18'),
+          progress: 80,
+          style: 'background-color: #f472b6',
+          dependencies: ['t-1'],
         },
       ],
     },
@@ -229,18 +290,26 @@ export default function GanttDemo() {
 
   const option: GanttChartOption = {
     calendar: {
-      start: new Date('2025-06-01'),
-      end: new Date('2025-07-31'),
+      start: new Date('2026-06-01'),
+      end: new Date('2026-07-31'),
       pxPerDay: 30,
       showCurrentTime: true,
+    },
+    tree: {
+      enabled: true,
+      indentWidth: 18,
+      showToggleIcon: true,
+      autoSummary: true,
     },
     zoom: {
       enabled: true,
     },
+    fontScale: 1,
     progress: {
       enabled: true,
       editable: true,
       showLabel: true,
+      snapStep: 5,
     },
     selection: {
       marquee: true,
@@ -250,6 +319,7 @@ export default function GanttDemo() {
       width: 240,
       opacity: 0.85,
     },
+    enableRowReordering: true,
     theme: 'system',
   }
 
@@ -269,6 +339,62 @@ export default function GanttDemo() {
 ```
 
 ## 機能ハイライト
+
+### 🌳 WBS（階層ツリー構造） ＆ サマリータスク自動計算描画
+
+中〜大規模なプロジェクト管理で必須となる **WBS（Work Breakdown Structure）** をネイティブサポートしました。
+行データに `parentId` を指定するだけで、無制限の親子階層（大工程 ＞ 中工程 ＞ 詳細タスク）を構築できます。
+
+```
+📁 要件・設計フェーズ (サマリータスク: 期間＆進捗率を自動集計)
+  ├─ API設計 (2026/06/01 - 2026/06/10, 進捗: 100%)
+  └─ UIデザイン (2026/06/05 - 2026/06/18, 進捗: 75%)
+📁 実装フェーズ
+  └─ フロントエンド開発 (2026/06/15 - 2026/07/05, 進捗: 30%)
+```
+
+- **インデント＆開閉トグル**: 階層レベルに応じたインデント幅（`tree.indentWidth`）が自動適用され、親行の左側に開閉トグルアイコン（**▶** / **▼**）が表示されます
+- **ワンクリック展開・折りたたみ**: トグルアイコンのクリックで行配下を瞬時に開閉。開閉時には `row-toggle-collapse` イベントが発火します
+- **サマリータスク（Summary Task）の自動計算**: 子行を持つ親行には、配下全タスクの「最小開始日〜最大終了日」および「期間加重平均進捗率」を集計した山型ブラケットバーが自動描画されます
+- **通常タスクとの2段共存描画**: 親行自身に通常タスクが登録されている場合でも、上段に親タスク、下段にサマリータスクが2段で並んで描画され、見落としや衝突が起きません
+- **安全なブロック連動移動 ＆ 循環参照防止**: 親行をドラッグ＆ドロップで並び替えると配下の全子孫行がブロックとして追従移動します。また、自身の子孫階層へのドロップは自動判定（`canDropRow`）により抑止され、循環参照を防ぎます
+- **サマリータスクの安全制御**: 集計バーからの不要な依存関係線作成は自動的に抑止されます
+
+```typescript
+import {
+  computeRowLevels,
+  computeRowWbsCodes,
+  computeChildRowIds,
+  computeVisibleTreeRows,
+  computeSummaryTask,
+  canDropRow,
+} from '@mogura/moguchart-core'
+
+const chart = document.querySelector('gantt-chart')
+
+chart.option = {
+  // ...
+  tree: {
+    enabled: true,           // ツリー表示を有効化 (デフォルト: true)
+    indentWidth: 16,         // 階層ごとのインデント幅 (px、デフォルト: 16)
+    showToggleIcon: true,    // 開閉トグルアイコンの表示 (デフォルト: true)
+    showWbsCode: false,      // 行ヘッダーへのWBSコード自動表示 (デフォルト: false)
+    autoSummary: true,       // サマリータスクの自動計算 (デフォルト: true)
+    summaryColor: '#334155', // サマリーバーの既定色
+  },
+}
+
+// 行の開閉イベント
+chart.addEventListener('row-toggle-collapse', (e) => {
+  const { rowId, collapsed, row } = e.detail
+  console.log(`行 ${row.name} (${rowId}) の開閉状態: ${collapsed ? '折りたたみ' : '展開'}`)
+})
+
+// プログラムからの階層操作
+chart.toggleRowCollapse('row-phase-1') // 特定行の開閉をトグル
+chart.collapseAll()                   // 全ての親行を一括折りたたみ
+chart.expandAll()                     // 全ての行を一括展開
+```
 
 ### 🔲 矩形範囲選択（ラバーバンド選択 / Marquee Selection）
 
@@ -451,7 +577,7 @@ const option = {
 
 ![dependencies.gif](https://raw.githubusercontent.com/hiro-murakami/qiita-content/main/images/moguchart-core-introduction/dependencies.gif)
 
-### 🔍 スムーズなズーム操作＆自動フィット
+### 🔍 スムーズなズーム操作＆フォント連動スケーリング
 
 `zoom.enabled: true` を設定するだけで、チャート上で **`Ctrl`（Mac: `Cmd`）+ マウスホイールによる直感的なズームイン・ズームアウト** が可能になります（カーソル位置を中心に拡大縮小）。
 
@@ -468,6 +594,19 @@ chart.zoomTo(60)
 
 // オプション設定時の元のスケールにリセット
 chart.resetZoom()
+```
+
+#### チャート全体のフォント倍率スケーリング（`fontScale`）
+
+`fontScale` オプション（デフォルト: `1`）を指定することで、チャート内の文字サイズ（カレンダーヘッダー、行名、タスク名、進捗ラベル、マーカーラベル、ツールチップなど）を一括して拡大・縮小できます。
+
+ホスト要素の CSS カスタムプロパティ `--moguchart-font-scale` と動的に連動するため、親アプリケーションでズームUI（50%〜200%）を提供する際にも、文字がはみ出したり視認性が損なわれることなく、美しく一体感のあるスケーリングを実現できます。
+
+```javascript
+chart.option = {
+  // ...
+  fontScale: 1.25, // 全体の文字サイズを 125% に拡大
+}
 ```
 
 ### ⌨️ キーボード操作
@@ -642,6 +781,8 @@ await chart.exportImage('pdf', { download: true, filename: 'gantt', splitHeight:
 ### 🛠️ 便利なパブリックメソッド
 
 ```javascript
+const chart = document.querySelector('gantt-chart')
+
 // 指定タスクを選択してその位置まで自動スクロール
 chart.selectTask('t-1')
 
@@ -650,6 +791,17 @@ const hit = chart.hitTest(e.clientX, e.clientY)
 if (hit) {
   console.log(`行: ${hit.rowId}, 日時: ${hit.date}`)
 }
+
+// スクロール位置を左上（0, 0）に確実にリセット（プロジェクト切替時など）
+chart.resetScroll()
+
+// 任意の座標へスムーズスクロール
+chart.scrollToPosition({ left: 500, top: 200, behavior: 'smooth' })
+
+// WBSツリーの開閉制御
+chart.collapseAll()                   // 全親行を一括折りたたみ
+chart.expandAll()                     // 全行を一括展開
+chart.toggleRowCollapse('row-1', true) // 特定行を折りたたみ
 ```
 
 ## アーキテクチャ
@@ -668,6 +820,7 @@ if (hit) {
 │   └── gantt-chart-styles.ts          # CSS スタイル定義
 └── core/
     ├── types.ts         # 全型定義（充実したTypeScript型）
+    ├── wbs.ts           # WBSツリー・サマリータスク・循環参照防止ロジック
     ├── critical-path.ts # クリティカルパス自動計算ロジック
     ├── theme.ts         # テーマカラーパレット
     ├── patterns.ts      # バーパターン（SVG背景生成）
@@ -696,7 +849,7 @@ MoguChart は Vue 3 + Vuetify 4 をベースに、moguchart-core のガントチ
 
 moguchart-core は、**「フレームワークに縛られず、高機能なガントチャートを手軽に組み込みたい」** という自分自身のニーズから生まれたライブラリです。
 
-v0.12.0 では、ガントバーの矩形範囲選択（ラバーバンド選択）機能や、タスク進捗率の視覚的表示・直感的なドラッグ編集、進捗率計算ユーティリティ関数をはじめ、ミニマップ機能、クリティカルパスの自動ハイライト、スムーズなホイールズーム、高解像度エクスポートなど、商用ライブラリに匹敵する実用的な機能が一段と揃いました。
+メジャーバージョン **v1.0.0** 正式リリースにより、実務に不可欠な **WBS階層ツリー構造** と **サマリータスク自動計算描画** を全面サポート。さらに、矩形範囲選択（ラバーバンド選択）、タスク進捗率の直感的ドラッグ編集、全体を見渡すミニマップ、文字やバーが連動するフォント倍率スケーリング（`fontScale`）、スクロール制御メソッド、クリティカルパスの自動ハイライト、高解像度エクスポートなど、商用ライブラリに匹敵する実用機能を網羅したプロダクションレディなOSSとして結実しました。
 
 フィードバックや Issue、Pull Request を大歓迎しています！
 
