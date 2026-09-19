@@ -27,7 +27,11 @@ agreed_posting_campaign_term: false
 本記事では、個人開発しているガントチャートWebアプリ **「[MoguChart](https://moguchart.jp)」** にリアルタイム共同編集機能を実装した際の**設計思想・アーキテクチャ・実装の詳細**を解説します。
 
 :::note info
-MoguChart の全体アーキテクチャについては、別記事「[個人開発で本格ガントチャートWebアプリ「MoguChart」を作った話](https://qiita.com/hiroyuki_m/items/d1d2b644890e49b796e7)」をご覧ください。
+**MoguChart の関連記事はこちら**
+
+- **全体アーキテクチャ**: [個人開発で本格ガントチャートWebアプリ「MoguChart」を作った話 ─ 自作Web Components × Vue 3 × Firebase のアーキテクチャ全解剖](https://qiita.com/hiroyuki_m/items/d1d2b644890e49b796e7)
+- **UX・機能詳細**: [無料で使えるWebガントチャート「MoguChart」を作った ─ 個人開発で追求した"ちょうどいい"プロジェクト管理UX](https://qiita.com/hiroyuki_m/items/bfdaf141de040cb387b9)
+- **コア描画ライブラリ**: [フレームワークに縛られないガントチャートを作った — Web Components製「moguchart-core」の紹介](https://qiita.com/hiroyuki_m/items/0e4859951a9f652c26c3)
 
 また、アプリケーションのソースコードは GitHub リポジトリ [hiro-murakami/moguchart-app](https://github.com/hiro-murakami/moguchart-app) で公開しています。
 :::
@@ -658,5 +662,9 @@ MoguChart のリアルタイム共同編集は、以下の設計原則に基づ�
 CRDTやOT (Operational Transformation) のような本格的なリアルタイム同期アルゴリズムは採用せず、**イベント通知 + DB差分取得**というシンプルな戦略で十分な共同編集体験を実現できました。ガントチャートのような「同じセルを同時に編集する」ことが稀なユースケースでは、この方式が**実装コスト・メンテナンス性・信頼性のバランス**に優れています。
 
 ---
+
+- [MoguChart 公式サイト / Web アプリケーション](https://moguchart.jp)
+- [moguchart-app GitHub リポジトリ](https://github.com/hiro-murakami/moguchart-app)
+- [moguchart-core GitHub リポジトリ](https://github.com/hiro-murakami/moguchart-core)
 
 ご質問やフィードバックがありましたら、コメントでお気軽にどうぞ！

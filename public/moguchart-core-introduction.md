@@ -30,7 +30,9 @@ agreed_posting_campaign_term: false
 
 https://github.com/hiro-murakami/moguchart-core
 
-そしてこの度、実務レベルのプロジェクト管理に不可欠な **WBS（階層ツリー構造・行の開閉）** と **サマリータスク（自動集計・描画）** を全面サポートし、メジャーバージョン **v1.0.0** を正式リリースしました！🎉
+そしてこの度、実務レベルのプロジェクト管理に不可欠な **WBS（階層ツリー構造・行の開閉）** と **サマリータスク（自動集計・描画）** の全面サポート（v1.0.0）に加え、**プラグインアーキテクチャ**の導入と **公式 React / Vue 3 ラッパー** を追加した最新バージョン **v1.1.1** をリリースしました！🎉
+
+重量級の外部依存（PDF・画像キャプチャ）を独立プラグインパッケージへ分離したことで、コア本体は **~44KB (gzipped)** と超軽量化。React や Vue 3 のプロジェクトでも、各フレームワーク標準の Props やイベント、TypeScript 型安全性を備えたコンポーネントとして直感的に利用できるようになりました。
 
 デモサイトも公開していますので、実際に動く様子をぜひお試しください！
 https://moguchart-core.vercel.app
@@ -39,13 +41,15 @@ https://moguchart-core.vercel.app
 
 `@mogura/moguchart-core` は、[Lit](https://lit.dev/) をベースに構築された **Web Components 製のガントチャートコンポーネント** です。
 
-Custom Elements（`<gantt-chart>`）として動作するため、**Vue、React、Angular、Svelte、あるいはバニラ HTML** — どの環境でもそのまま使えます。
+Custom Elements（`<gantt-chart>`）として動作するため、**Vue、React、Angular、Svelte、あるいはバニラ HTML** — どの環境でもそのまま使えます。さらに、React および Vue 3 向けには **公式ラッパーパッケージ** も提供しており、各フレームワークのイディオムに沿った開発が可能です。
 
 ### 主な特徴
 
 | カテゴリ | 内容 |
 | :--- | :--- |
-| **フレームワーク非依存** | Web Components (Custom Elements) として実装。どの環境でも動作 |
+| **フレームワーク非依存** | Web Components (Custom Elements) として実装。あらゆる環境で動作 |
+| **公式 Vue 3 / React ラッパー** | `@mogura/moguchart-vue`、`@mogura/moguchart-react` を提供。Props リアクティブバインディング、標準イベント・emits、完全型安全 |
+| **プラグインアーキテクチャ** | `GanttPlugin` API による高い拡張性。コア本体を **~44KB (gzipped)** と超軽量に保ちつつ、エクスポート等の機能をオンデマンド拡張可能 |
 | **WBS（階層ツリー構造）** | `parentId` による無制限の親子階層（大工程 ＞ 中工程 ＞ 詳細タスク）、インデント表示、開閉トグル（▶/▼）、展開・折りたたみ対応 |
 | **サマリータスク自動計算** | 配下全タスクの最小開始日〜最大終了日、期間加重平均進捗率を自動集計して山型ブラケットバーを描画。通常タスクとの2段共存描画対応 |
 | **安全な階層並び替え** | 親行ドラッグ移動時の子孫行ブロック一体追従移動、循環参照を未然に防止するドロップ判定ロジック（`canDropRow`） |
@@ -63,7 +67,7 @@ Custom Elements（`<gantt-chart>`）として動作するため、**Vue、React�
 | **柔軟な表示モード** | 日 / 週 / 月 / 時間単位の切り替え、等幅月表示モード（最大100年スパン対応） |
 | **テーマ対応** | ライト / ダーク / システム連動 + 30項目以上のカスタムカラーテーマ |
 | **高度なカスタマイズ** | バー、行ヘッダー、ツールチップ、カレンダーセルなどの描画を関数でオーバーライド可能 |
-| **エクスポート機能** | PNG 画像や PDF としての高解像度エクスポート（複数ページ分割・スクロール位置保持対応） |
+| **エクスポート（プラグイン）** | `@mogura/moguchart-plugin-export` による PNG / PDF 高解像度出力（オンデマンド動的インポート対応） |
 | **日本語対応** | ロケール機能内蔵（日本語・英語）、祝日判定ロジックのカスタマイズ対応 |
 | **ライセンス** | MIT |
 
@@ -106,147 +110,194 @@ moguchart-core は **「商用ライブラリに迫る機能性を、MIT ライ�
 
 特に、以下の点で差別化しています：
 
-- **Web Components ネイティブ** — React/Vue ラッパーではなく、Custom Elements そのもの
+- **Web Components ネイティブ ＋ 公式 Vue / React ラッパー** — 普遍的な Custom Elements を核としつつ、各フレームワークで最高に使いやすいラッパーを提供
+- **モジュラーなプラグインアーキテクチャ** — コアは ~44KB と超軽量。重量級機能（エクスポート等）はプラグインとして疎結合に提供
+- **WBS ＆ サマリータスク** — 無制限の階層構造、インデント・開閉、サマリー自動集計、ブロック連動D&D
 - **仮想スクロール** — 数百〜数千行でも軽快
 - **直感的な操作感** — スムーズなD&D、矩形範囲選択、進捗ドラッグ編集、ホイールズーム、ミニマップ連携、キーボードショートカット
 - **日本語ファースト** — ロケール、祝日判定を標準サポート
 
+## パッケージ一覧（エコシステム）
+
+Moguchart は柔軟なモノレポ構成となっており、用途やフレームワークに合わせて最適なパッケージを組み合わせて利用できます：
+
+| パッケージ | 説明 |
+|---|---|
+| **[@mogura/moguchart-core](https://www.npmjs.com/package/@mogura/moguchart-core)** | コア Web Component（Lit製）。フレームワーク非依存で単体動作（~44KB gzipped） |
+| **[@mogura/moguchart-react](https://www.npmjs.com/package/@mogura/moguchart-react)** | **公式 React ラッパー**。型安全な Props、イベント、ref を提供 |
+| **[@mogura/moguchart-vue](https://www.npmjs.com/package/@mogura/moguchart-vue)** | **公式 Vue 3 ラッパー**。Composition API、リアクティブ Props、emits を提供 |
+| **[@mogura/moguchart-plugin-export](https://www.npmjs.com/package/@mogura/moguchart-plugin-export)** | **公式エクスポートプラグイン**。高解像度 PNG および分割 PDF 出力を提供 |
+
 ## インストール
 
+プロジェクトの技術スタックに合わせてインストールします：
+
 ```bash
+# Core（Web Components / Vanilla JS）
 npm install @mogura/moguchart-core
-# または
-pnpm add @mogura/moguchart-core
+
+# Vue 3 アプリケーションの場合（公式ラッパー）
+npm install @mogura/moguchart-vue @mogura/moguchart-core
+
+# React アプリケーションの場合（公式ラッパー）
+npm install @mogura/moguchart-react @mogura/moguchart-core
+
+# 画像/PDF エクスポートが必要な場合（プラグイン）
+npm install @mogura/moguchart-plugin-export
 ```
 
-## クイックスタート（Vue.js）
+## クイックスタート（Vue 3 公式ラッパー）
 
-```html
+[`@mogura/moguchart-vue`](https://www.npmjs.com/package/@mogura/moguchart-vue) を使うと、Vue 3 の `<script setup>`（Composition API）で直感的にガントチャートを扱えます。Props は自動でリアクティブに同期され、イベントも標準の `@` 構文で受け取れます：
+
+```vue
 <script setup lang="ts">
-  import { ref } from 'vue'
-  import '@mogura/moguchart-core'
-  import type { GanttRow, GanttChartOption } from '@mogura/moguchart-core'
+import { ref } from 'vue'
+import {
+  GanttChart,
+  type GanttChartInstance,
+  type GanttRow,
+  type GanttChartOption,
+  type TaskUpdateEventDetail,
+} from '@mogura/moguchart-vue'
 
-  const rows = ref<GanttRow[]>([
-    {
-      id: 'row-phase-1',
-      name: '設計フェーズ', // 親行（サマリータスクが自動集計される）
-      isSummary: true,
-      tasks: [],
-    },
-    {
-      id: 'row-design-api',
-      parentId: 'row-phase-1', // 子行（階層インデントされる）
-      name: 'API設計',
-      tasks: [
-        {
-          id: 't-1',
-          name: 'OpenAPI仕様策定',
-          start: new Date('2026-06-01'),
-          end: new Date('2026-06-10'),
-          progress: 100, // 進捗率 (0〜100)
-          style: 'background-color: #60a5fa',
-        },
-      ],
-    },
-    {
-      id: 'row-design-ui',
-      parentId: 'row-phase-1', // 子行
-      name: 'UIデザイン',
-      tasks: [
-        {
-          id: 't-2',
-          name: 'Figmaモックアップ',
-          start: new Date('2026-06-05'),
-          end: new Date('2026-06-18'),
-          progress: 75,
-          style: 'background-color: #f472b6',
-          dependencies: ['t-1'], // t-1 に依存
-        },
-      ],
-    },
-    {
-      id: 'row-phase-2',
-      name: '実装フェーズ', // 親行
-      isSummary: true,
-      tasks: [],
-    },
-    {
-      id: 'row-impl-front',
-      parentId: 'row-phase-2',
-      name: 'フロントエンド開発',
-      tasks: [
-        {
-          id: 't-3',
-          name: 'コンポーネント実装',
-          start: new Date('2026-06-15'),
-          end: new Date('2026-07-05'),
-          progress: 30,
-          style: 'background-color: #34d399',
-          dependencies: ['t-2'],
-        },
-      ],
-    },
-  ])
+const chartRef = ref<GanttChartInstance | null>(null)
 
-  const option = ref<GanttChartOption>({
-    calendar: {
-      start: new Date('2026-06-01'),
-      end: new Date('2026-07-31'),
-      pxPerDay: 30,
-      showCurrentTime: true,
-    },
-    tree: {
-      enabled: true, // WBSツリー表示を有効化
-      indentWidth: 18, // 階層ごとのインデント幅 (px)
-      showToggleIcon: true, // 開閉トグルアイコン (▶/▼)
-      autoSummary: true, // 配下の子タスクから親の期間・進捗率を自動集計
-      summaryColor: '#334155', // サマリーバーの既定色
-    },
-    zoom: {
-      enabled: true, // Ctrl + ホイールズームを有効化
-    },
-    fontScale: 1, // チャート全体のフォントサイズ倍率 (0.5〜2.0)
-    dependency: {
-      showCriticalPath: true, // クリティカルパスをハイライト
-    },
-    progress: {
-      enabled: true,
-      editable: true, // ドラッグによる進捗率編集を有効化
-      showLabel: true, // 進捗ラベル (例: "75%") を表示
-      snapStep: 5, // 5%刻みスナップ
-    },
-    selection: {
-      marquee: true, // 矩形範囲選択（ラバーバンド選択）を有効化
-    },
-    minimap: {
-      enabled: true, // ミニマップ（鳥瞰ビュー）を表示
-      width: 240,
-      opacity: 0.85,
-    },
-    enableRowReordering: true, // 行の安全なD&D並び替え（子孫行ブロック追従＆循環防止）
-    theme: 'system',
-  })
+const rows = ref<GanttRow[]>([
+  {
+    id: 'row-phase-1',
+    name: '設計フェーズ', // 親行（サマリータスクが自動集計される）
+    isSummary: true,
+    tasks: [],
+  },
+  {
+    id: 'row-design-api',
+    parentId: 'row-phase-1', // 子行（階層インデントされる）
+    name: 'API設計',
+    tasks: [
+      {
+        id: 't-1',
+        name: 'OpenAPI仕様策定',
+        start: new Date('2026-06-01'),
+        end: new Date('2026-06-10'),
+        progress: 100, // 進捗率 (0〜100)
+        style: 'background-color: #60a5fa',
+      },
+    ],
+  },
+  {
+    id: 'row-design-ui',
+    parentId: 'row-phase-1', // 子行
+    name: 'UIデザイン',
+    tasks: [
+      {
+        id: 't-2',
+        name: 'Figmaモックアップ',
+        start: new Date('2026-06-05'),
+        end: new Date('2026-06-18'),
+        progress: 75,
+        style: 'background-color: #f472b6',
+        dependencies: ['t-1'], // t-1 に依存
+      },
+    ],
+  },
+  {
+    id: 'row-phase-2',
+    name: '実装フェーズ', // 親行
+    isSummary: true,
+    tasks: [],
+  },
+  {
+    id: 'row-impl-front',
+    parentId: 'row-phase-2',
+    name: 'フロントエンド開発',
+    tasks: [
+      {
+        id: 't-3',
+        name: 'コンポーネント実装',
+        start: new Date('2026-06-15'),
+        end: new Date('2026-07-05'),
+        progress: 30,
+        style: 'background-color: #34d399',
+        dependencies: ['t-2'],
+      },
+    ],
+  },
+])
+
+const option = ref<GanttChartOption>({
+  calendar: {
+    start: new Date('2026-06-01'),
+    end: new Date('2026-07-31'),
+    pxPerDay: 30,
+    showCurrentTime: true,
+  },
+  tree: {
+    enabled: true, // WBSツリー表示を有効化
+    indentWidth: 18, // 階層ごとのインデント幅 (px)
+    showToggleIcon: true, // 開閉トグルアイコン (▶/▼)
+    autoSummary: true, // 配下の子タスクから親の期間・進捗率を自動集計
+    summaryColor: '#334155', // サマリーバーの既定色
+  },
+  zoom: {
+    enabled: true, // Ctrl + ホイールズームを有効化
+  },
+  fontScale: 1, // チャート全体のフォントサイズ倍率 (0.5〜2.0)
+  dependency: {
+    showCriticalPath: true, // クリティカルパスをハイライト
+  },
+  progress: {
+    enabled: true,
+    editable: true, // ドラッグによる進捗率編集を有効化
+    showLabel: true, // 進捗ラベル (例: "75%") を表示
+    snapStep: 5, // 5%刻みスナップ
+  },
+  selection: {
+    marquee: true, // 矩形範囲選択（ラバーバンド選択）を有効化
+  },
+  minimap: {
+    enabled: true, // ミニマップ（鳥瞰ビュー）を表示
+    width: 240,
+    opacity: 0.85,
+  },
+  enableRowReordering: true, // 行の安全なD&D並び替え（子孫行ブロック追従＆循環防止）
+  theme: 'system',
+})
+
+const handleTaskUpdate = (detail: TaskUpdateEventDetail) => {
+  console.log('タスク更新:', detail)
+}
 </script>
 
 <template>
   <div style="height: 500px;">
-    <gantt-chart :rows="rows" :option="option" />
+    <GanttChart
+      ref="chartRef"
+      :rows="rows"
+      :option="option"
+      @task-update="handleTaskUpdate"
+      style="width: 100%; height: 100%;"
+    />
   </div>
 </template>
 ```
 
-## クイックスタート（React）
+## クイックスタート（React 公式ラッパー）
 
-React では Web Components の特性上、`ref` 経由でプロパティを設定します。
+[`@mogura/moguchart-react`](https://www.npmjs.com/package/@mogura/moguchart-react) を使うと、React の JSX コンポーネントとして完全に型安全に記述できます。全25種類のカスタムイベントも `onTaskUpdate` などの camelCase Props として直接受け取れます：
 
 ```tsx
-import { useEffect, useRef } from 'react'
-import '@mogura/moguchart-core'
-import type { GanttRow, GanttChartOption } from '@mogura/moguchart-core'
+import React, { useRef } from 'react'
+import {
+  GanttChart,
+  type GanttChartElement,
+  type GanttRow,
+  type GanttChartOption,
+  type TaskUpdateEventDetail,
+} from '@mogura/moguchart-react'
 
 export default function GanttDemo() {
-  const chartRef = useRef<any>(null)
+  const chartRef = useRef<GanttChartElement>(null)
 
   const rows: GanttRow[] = [
     {
@@ -323,16 +374,19 @@ export default function GanttDemo() {
     theme: 'system',
   }
 
-  useEffect(() => {
-    const chart = chartRef.current
-    if (!chart) return
-    chart.rows = rows
-    chart.option = option
-  }, [])
+  const handleTaskUpdate = (e: CustomEvent<TaskUpdateEventDetail>) => {
+    console.log('タスク更新:', e.detail)
+  }
 
   return (
     <div style={{ height: '500px' }}>
-      <gantt-chart ref={chartRef} />
+      <GanttChart
+        ref={chartRef}
+        rows={rows}
+        option={option}
+        onTaskUpdate={handleTaskUpdate}
+        style={{ width: '100%', height: '100%' }}
+      />
     </div>
   )
 }
@@ -764,18 +818,46 @@ const option = {
 }
 ```
 
-### 📤 高解像度 画像/PDF エクスポート
+### 📤 高解像度 画像/PDF エクスポート（公式プラグイン）
 
-チャートを PNG 画像や PDF として書き出すメソッドを内蔵しています（`html2canvas-pro` / `jspdf` を利用）。Shadow DOM 内の描画コンテナを直接キャプチャするため正確に出力でき、エクスポート実行時も現在のスクロール位置が保持・復元されます。
+チャートを PNG 画像や PDF として書き出す機能は、公式プラグイン **`@mogura/moguchart-plugin-export`** として提供されています。
+重量級のライブラリ（`html2canvas-pro` / `jspdf`、約600KB）をコアから切り離したことで、コアバンドルサイズを大幅に削減しつつ、必要な環境でのみ手軽に導入・利用できます。
+
+Shadow DOM 内の描画コンテナを直接キャプチャするため極めて正確に出力でき、エクスポート実行時も現在のスクロール位置が確実に保持・復元されます。
 
 `splitHeight` を指定すると、行の途中で切れないよう境界に合わせて **複数ページに分割されたPDF** を簡単に出力できます。
 
+```bash
+npm install @mogura/moguchart-plugin-export
+```
+
+#### チャートインスタンスに登録して使う場合
+
 ```javascript
+import '@mogura/moguchart-core'
+import { exportPlugin } from '@mogura/moguchart-plugin-export'
+
 const chart = document.querySelector('gantt-chart')
+
+// プラグインの登録（chart.use または option.plugins に指定）
+chart.use(exportPlugin())
+
 // PNG 画像ダウンロード
 await chart.exportImage('png', { download: true, filename: 'gantt' })
+
 // 複数ページ分割 PDF ダウンロード
 await chart.exportImage('pdf', { download: true, filename: 'gantt', splitHeight: 1200 })
+```
+
+#### エクスポート時のみ動的インポート（遅延読み込み）する場合
+
+ボタン押下時など必要なタイミングでのみ Dynamic Import すれば、初期表示時のバンドルサイズへの影響をゼロに抑えられます：
+
+```javascript
+const { exportChart } = await import('@mogura/moguchart-plugin-export')
+
+// スタンドアロン関数で直接エクスポート
+await exportChart(chart, 'png', { download: true, filename: 'gantt' })
 ```
 
 ### 🛠️ 便利なパブリックメソッド
@@ -802,31 +884,27 @@ chart.scrollToPosition({ left: 500, top: 200, behavior: 'smooth' })
 chart.collapseAll()                   // 全親行を一括折りたたみ
 chart.expandAll()                     // 全行を一括展開
 chart.toggleRowCollapse('row-1', true) // 特定行を折りたたみ
+
+// プラグインの動的登録
+chart.use(exportPlugin())
 ```
 
 ## アーキテクチャ
 
+Moguchart は現在、pnpm Workspaces による **モノレポ構成** で開発・公開されています：
+
 ```
-@mogura/moguchart-core
-├── components/
-│   ├── gantt-chart.ts                 # メインコンポーネント (Custom Element)
-│   ├── gantt-minimap.ts               # ミニマップ（Overview Minimap）
-│   ├── gantt-calendar.ts              # カレンダーヘッダー
-│   ├── gantt-bar.ts                   # タスクバー
-│   ├── gantt-row.ts                   # 行コンポーネント (マーカー・レーン配置)
-│   ├── gantt-row-background.ts        # 行背景（土日祝ハイライト）
-│   ├── gantt-chart-dependency-path.ts # 依存関係線の描画 (S字・直角・クリティカルパス)
-│   ├── gantt-chart-export.ts          # PNG/PDF エクスポート
-│   └── gantt-chart-styles.ts          # CSS スタイル定義
-└── core/
-    ├── types.ts         # 全型定義（充実したTypeScript型）
-    ├── wbs.ts           # WBSツリー・サマリータスク・循環参照防止ロジック
-    ├── critical-path.ts # クリティカルパス自動計算ロジック
-    ├── theme.ts         # テーマカラーパレット
-    ├── patterns.ts      # バーパターン（SVG背景生成）
-    ├── i18n.ts          # ロケール定義
-    ├── utils.ts         # ユーティリティ関数
-    └── constants.ts
+moguchart-monorepo/
+├── packages/
+│   ├── core/                  # @mogura/moguchart-core (Lit製 コアWeb Component: ~44KB gzipped)
+│   │   ├── src/components/    # gantt-chart, gantt-calendar, gantt-bar, gantt-minimap 等
+│   │   └── src/core/          # wbs, critical-path, plugin-manager, types, i18n 等
+│   ├── plugin-export/         # @mogura/moguchart-plugin-export (PNG/PDF エクスポートプラグイン)
+│   │   └── src/               # export-plugin, canvas/pdf キャプチャロジック
+│   ├── react/                 # @mogura/moguchart-react (公式 React ラッパーコンポーネント)
+│   │   └── src/               # @lit/react による型安全な <GanttChart /> コンポーネント
+│   └── vue/                   # @mogura/moguchart-vue (公式 Vue 3 ラッパーコンポーネント)
+│       └── src/               # Composition API 対応の <GanttChart> コンポーネント
 ```
 
 Lit の Reactive Properties を活用し、`rows` や `option` が変更されると自動的に再レンダリングされます。仮想スクロールにより、画面外の要素はDOMに描画されないため、大量データでも軽快に動作します。
@@ -835,7 +913,7 @@ Lit の Reactive Properties を活用し、`rows` や `option` が変更され�
 
 moguchart-core は汎用ライブラリとして開発していますが、実は **このライブラリを活用した本格的なプロジェクト管理アプリケーション「MoguChart」** も並行して開発しています。
 
-MoguChart は Vue 3 + Vuetify 4 をベースに、moguchart-core のガントチャートコンポーネントを中心に据えた Web アプリケーションです。ドラッグ＆ドロップ操作・リアルタイム共同編集・画像添付・権限管理など、実務で使える豊富な機能を備えています。
+MoguChart は Vue 3 + Vuetify 4 をベースに、公式ラッパー `@mogura/moguchart-vue` を中心に据えた Web アプリケーションです。ドラッグ＆ドロップ操作・WBSツリー・リアルタイム共同編集・画像添付・権限管理・オンデマンドエクスポートなど、実務で使える豊富な機能を備えています。
 
 👉 **MoguChart アプリケーションの詳細は別記事で紹介しています！**
 
@@ -849,7 +927,9 @@ MoguChart は Vue 3 + Vuetify 4 をベースに、moguchart-core のガントチ
 
 moguchart-core は、**「フレームワークに縛られず、高機能なガントチャートを手軽に組み込みたい」** という自分自身のニーズから生まれたライブラリです。
 
-メジャーバージョン **v1.0.0** 正式リリースにより、実務に不可欠な **WBS階層ツリー構造** と **サマリータスク自動計算描画** を全面サポート。さらに、矩形範囲選択（ラバーバンド選択）、タスク進捗率の直感的ドラッグ編集、全体を見渡すミニマップ、文字やバーが連動するフォント倍率スケーリング（`fontScale`）、スクロール制御メソッド、クリティカルパスの自動ハイライト、高解像度エクスポートなど、商用ライブラリに匹敵する実用機能を網羅したプロダクションレディなOSSとして結実しました。
+メジャーバージョン **v1.0.0** での **WBS階層ツリー構造** と **サマリータスク自動計算描画** の全面サポートを経て、最新 **v1.1.1** では **プラグインアーキテクチャの導入**、**公式 React / Vue 3 ラッパーの提供**、そして **コア本体の超軽量化（~44KB gzipped）** を果たしました。
+
+矩形範囲選択（ラバーバンド選択）、タスク進捗率の直感的ドラッグ編集、全体を見渡すミニマップ、文字やバーが連動するフォント倍率スケーリング（`fontScale`）、スクロール制御メソッド、クリティカルパスの自動ハイライト、高解像度エクスポートなど、商用ライブラリに匹敵する実用機能を網羅したプロダクションレディなOSSとして結実しています。
 
 フィードバックや Issue、Pull Request を大歓迎しています！
 
