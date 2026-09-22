@@ -556,9 +556,22 @@ interface UndoRedoAction {
 }
 ```
 
-Undo/Redo 実行後は、`full_reload` イベントを発行して他ユーザーのUIも更新されるようにしています。
+さらに最新の **v1.2.0** では、コアライブラリ（`@mogura/moguchart-core`）の Command パターンとも完全統合されました。
+
+ガントチャート上でユーザーが直感的に行ったドラッグ移動（単一・複数一括）、ドラッグリサイズ、タスクバー上の進捗ハンドル操作、行の並び替え、依存関係線の作成や削除などの低レベル操作は、コアから `@command` イベント（`GanttCommand`）として発行されます。アプリケーション側（`useGanttChartView.ts`）はこのイベントを捉えて `useUndoRedo` のスタックへと自動登録します。
+
+Undo/Redo 実行時は、MySQL へのデータ更新を行った後、`full_reload` イベントを発行して他ユーザーのUIも安全に更新されるようにしています。
 
 ```typescript
+// コアの command イベントを捕捉して Undo/Redo スタックへ同期
+const handleCommand = async (e: CustomEvent<moguchart.CommandEventDetail>) => {
+  const cmd = e.detail?.command
+  if (!cmd) return
+  // コマンド種別（task-move, task-progress, dependency-create 等）に応じて
+  // 逆操作アクションを生成し useUndoRedo に pushAction
+}
+
+// Undo/Redo 実行時は他ユーザーに同期を促す
 const undo = async () => {
   await _undo()
   publishEditEvent('full_reload')  // 他ユーザーに通知

@@ -30,9 +30,9 @@ agreed_posting_campaign_term: false
 
 https://github.com/hiro-murakami/moguchart-core
 
-そしてこの度、実務レベルのプロジェクト管理に不可欠な **WBS（階層ツリー構造・行の開閉）** と **サマリータスク（自動集計・描画）** の全面サポート（v1.0.0）に加え、**プラグインアーキテクチャ**の導入と **公式 React / Vue 3 ラッパー** を追加した最新バージョン **v1.1.1** をリリースしました！🎉
+そしてこの度、実務レベルのプロジェクト管理に不可欠な **WBS（階層ツリー構造・行の開閉）** と **サマリータスク（自動集計・描画）**（v1.0.0）、**プラグインアーキテクチャ**と **公式 React / Vue 3 ラッパー**（v1.1.0）に加え、**Command パターンによる操作履歴（Undo / Redo）**、**依存関係線の選択・削除**、**包括的ズーム制御**、**内部アーキテクチャのモジュール化（Reactive Controllers）** を果たした最新バージョン **v1.2.0** をリリースしました！🎉
 
-重量級の外部依存（PDF・画像キャプチャ）を独立プラグインパッケージへ分離したことで、コア本体は **~44KB (gzipped)** と超軽量化。React や Vue 3 のプロジェクトでも、各フレームワーク標準の Props やイベント、TypeScript 型安全性を備えたコンポーネントとして直感的に利用できるようになりました。
+重量級の外部依存を分離したコア本体は **~44KB (gzipped)** と超軽量を維持しながら、商用ガントチャートに匹敵するリッチな操作性と堅牢な設計を備えています。React や Vue 3 のプロジェクトでも、各フレームワーク標準の Props やイベント、TypeScript 型安全性を備えたコンポーネントとして直感的に利用可能です。
 
 デモサイトも公開していますので、実際に動く様子をぜひお試しください！
 https://moguchart-core.vercel.app
@@ -50,8 +50,11 @@ Custom Elements（`<gantt-chart>`）として動作するため、**Vue、React�
 | **フレームワーク非依存** | Web Components (Custom Elements) として実装。あらゆる環境で動作 |
 | **公式 Vue 3 / React ラッパー** | `@mogura/moguchart-vue`、`@mogura/moguchart-react` を提供。Props リアクティブバインディング、標準イベント・emits、完全型安全 |
 | **プラグインアーキテクチャ** | `GanttPlugin` API による高い拡張性。コア本体を **~44KB (gzipped)** と超軽量に保ちつつ、エクスポート等の機能をオンデマンド拡張可能 |
+| **操作履歴（Undo / Redo）** | Command パターンに基づく `HistoryManager` を内蔵。ドラッグ移動・進捗変更・タスク削除・行並び替え・依存作成削除を `undo()` / `redo()` やショートカット（Cmd+Z / Ctrl+Z）で安全に取り消し・再実行 |
+| **依存関係線の選択・削除** | 接続線をクリックしてハイライト選択、「×」ボタンや `Delete` / `Backspace` キーで直感削除。削除可否オプションや削除イベント通知完備 |
+| **包括的ズーム＆フォント連動** | 50%〜200%（Chrome互換ステップ）、ホイールズーム（Ctrl+Wheel）、`zoomToPercent()`、文字サイズ・ヘッダー・バーの連動拡大縮小 |
 | **WBS（階層ツリー構造）** | `parentId` による無制限の親子階層（大工程 ＞ 中工程 ＞ 詳細タスク）、インデント表示、開閉トグル（▶/▼）、展開・折りたたみ対応 |
-| **サマリータスク自動計算** | 配下全タスクの最小開始日〜最大終了日、期間加重平均進捗率を自動集計して山型ブラケットバーを描画。通常タスクとの2段共存描画対応 |
+| **サマリータスク自動計算** | 配下全タスクの最小開始日〜最大終了日、期間加重平均進捗率（%ラベル表示対応）を自動集計して山型ブラケットバーを描画。通常タスクとの2段共存描画対応 |
 | **安全な階層並び替え** | 親行ドラッグ移動時の子孫行ブロック一体追従移動、循環参照を未然に防止するドロップ判定ロジック（`canDropRow`） |
 | **仮想スクロール** | 大量のタスク・行でもスムーズで軽快なパフォーマンス |
 | **矩形範囲選択** | チャート背景ドラッグによる複数タスク一括選択（ラバーバンド選択、AABB交差判定、Shift/Ctrl/Cmdでの累積追加選択、オートスクロール対応） |
@@ -59,16 +62,15 @@ Custom Elements（`<gantt-chart>`）として動作するため、**Vue、React�
 | **豊富なインタラクション** | D&D でのタスク移動（行間移動・同一行内制限対応）、リサイズ、行の並び替え、複数選択＆一括ドラッグ |
 | **ミニマップ（鳥瞰ビュー）** | 全体プレビュー、ビューポートパン操作、ドラッグ移動、リサイズ、透過率調整、折りたたみ、タスク進捗率の濃淡自動反映 |
 | **依存関係＆クリティカルパス** | タスク間の依存を矢印付きの曲線/直角線で描画。最長経路（クリティカルパス）の自動ハイライト |
-| **表示倍率＆フォント連動** | `fontScale` オプションと CSS 変数 `--moguchart-font-scale` によるチャート全体の文字サイズ・ヘッダー・バーの連動拡大縮小 |
 | **スクロール位置制御** | `resetScroll()` による原点（0,0）リセット、`scrollToPosition()` による座標指定スクロール |
-| **スムーズなズーム** | Ctrl/Cmd + ホイールズーム、全体を画面に収める `zoomToFit()` メソッド |
 | **誤操作防止・ガード** | 行移動の縦方向制限（`enableCrossRowMove`）、チャート領域外ドラッグ時の自動キャンセル、サマリータスクへの依存関係作成抑止 |
-| **キーボード操作** | 矢印キーでのナビゲーション、Shift+矢印での移動、Deleteキーでのタスク削除 |
+| **キーボード操作** | 矢印キーでのナビゲーション、Shift+矢印での移動、Deleteキーでの削除、Cmd+ZでのUndo、Cmd+Wheelでのズーム |
 | **柔軟な表示モード** | 日 / 週 / 月 / 時間単位の切り替え、等幅月表示モード（最大100年スパン対応） |
 | **テーマ対応** | ライト / ダーク / システム連動 + 30項目以上のカスタムカラーテーマ |
 | **高度なカスタマイズ** | バー、行ヘッダー、ツールチップ、カレンダーセルなどの描画を関数でオーバーライド可能 |
-| **エクスポート（プラグイン）** | `@mogura/moguchart-plugin-export` による PNG / PDF 高解像度出力（オンデマンド動的インポート対応） |
+| **エクスポート（プラグイン）** | `@mogura/moguchart-plugin-export` による PNG / PDF 高解像度出力（オンデマンド動的インポート、ズーム自動正規化対応） |
 | **日本語対応** | ロケール機能内蔵（日本語・英語）、祝日判定ロジックのカスタマイズ対応 |
+| **モジュール設計（Lit Controllers）** | `ZoomController`, `DependencyController`, `TaskDragController` 等の Reactive Controller による高保守性・高拡張性設計 |
 | **ライセンス** | MIT |
 
 ## 開発のきっかけ
@@ -409,7 +411,7 @@ export default function GanttDemo() {
 
 - **インデント＆開閉トグル**: 階層レベルに応じたインデント幅（`tree.indentWidth`）が自動適用され、親行の左側に開閉トグルアイコン（**▶** / **▼**）が表示されます
 - **ワンクリック展開・折りたたみ**: トグルアイコンのクリックで行配下を瞬時に開閉。開閉時には `row-toggle-collapse` イベントが発火します
-- **サマリータスク（Summary Task）の自動計算**: 子行を持つ親行には、配下全タスクの「最小開始日〜最大終了日」および「期間加重平均進捗率」を集計した山型ブラケットバーが自動描画されます
+- **サマリータスク（Summary Task）の自動計算＆進捗率表示**: 子行を持つ親行には、配下全タスクの「最小開始日〜最大終了日」および「期間加重平均進捗率」を集計した山型ブラケットバーが自動描画されます。進捗率ラベル（例: `72%`）も自動表示され、CSS変数 `--moguchart-summary-progress-color` でサマリー専用の進捗バー色を柔軟にカスタマイズ可能です
 - **通常タスクとの2段共存描画**: 親行自身に通常タスクが登録されている場合でも、上段に親タスク、下段にサマリータスクが2段で並んで描画され、見落としや衝突が起きません
 - **安全なブロック連動移動 ＆ 循環参照防止**: 親行をドラッグ＆ドロップで並び替えると配下の全子孫行がブロックとして追従移動します。また、自身の子孫階層へのドロップは自動判定（`canDropRow`）により抑止され、循環参照を防ぎます
 - **サマリータスクの安全制御**: 集計バーからの不要な依存関係線作成は自動的に抑止されます
@@ -435,6 +437,11 @@ chart.option = {
     showWbsCode: false,      // 行ヘッダーへのWBSコード自動表示 (デフォルト: false)
     autoSummary: true,       // サマリータスクの自動計算 (デフォルト: true)
     summaryColor: '#334155', // サマリーバーの既定色
+  },
+  progress: {
+    showLabel: true,         // 通常タスクおよびサマリータスクの進捗率ラベル表示
+    showSummaryLabel: true,  // サマリータスクに進捗率(%)を表示 (デフォルト: true)
+    summaryColor: 'rgba(255, 255, 255, 0.28)', // サマリーバー内の進捗色
   },
 }
 
@@ -616,6 +623,11 @@ const task = {
 
 接続線のスタイルは `orthogonal`（直角折れ線・角丸、デフォルト）と `curve`（ベジェ曲線）から選択できます。また、タスクバーの端にある接続ポイント（コネクター）からドラッグして視覚的に依存関係を作成することもできます。
 
+さらに、**依存関係線のインタラクティブな選択・削除** に対応しています：
+- **クリック選択 ＆ ハイライト**: 接続線をクリックすると太線とドロップシャドウで選択状態になり、線の中央に削除「×」ボタンが表示されます
+- **ワンクリック削除 ＆ キーボード削除**: 削除「×」ボタンをクリックするか、接続線を選択した状態で `Delete` または `Backspace` キーを押すと即座に削除イベント（`dependency-delete`）が発行されます
+- **作成・削除の個別制御**: `dependency.creatable: true/false`、`dependency.deletable: true/false`、`dependency.showDeleteButton: true/false` で細かく挙動をカスタマイズ可能
+
 さらに、`dependency.showCriticalPath: true` を有効にすると、**依存関係ネットワークから全体の遅延に直結する最長経路（クリティカルパス）を自動計算し、該当するバーと接続線を赤色でハイライト** します！
 
 ```javascript
@@ -623,45 +635,141 @@ const option = {
   dependency: {
     lineStyle: 'orthogonal',   // 'orthogonal' | 'curve'
     showArrows: true,
-    showConnectors: true,      // ドラッグで依存作成可能
+    showConnectors: true,      // ドラッグで依存作成可能 (creatable)
+    creatable: true,           // ドラッグでの依存作成を許可 (デフォルト: true)
+    deletable: true,           // 依存関係の削除を許可 (デフォルト: true)
+    showDeleteButton: true,    // 選択時に「×」削除ボタンを表示 (デフォルト: true)
     showCriticalPath: true,    // クリティカルパスをハイライト
   },
 }
+
+// 依存関係の選択・削除イベント
+chart.addEventListener('dependency-select', (e) => {
+  const { sourceTaskId, targetTaskId } = e.detail
+  console.log(`選択された依存関係: ${sourceTaskId} -> ${targetTaskId}`)
+})
+
+chart.addEventListener('dependency-delete', (e) => {
+  const { sourceTaskId, targetTaskId } = e.detail
+  console.log(`削除された依存関係: ${sourceTaskId} -> ${targetTaskId}`)
+})
 ```
 
 ![dependencies.gif](https://raw.githubusercontent.com/hiro-murakami/qiita-content/main/images/moguchart-core-introduction/dependencies.gif)
 
-### 🔍 スムーズなズーム操作＆フォント連動スケーリング
+### ↩️ 操作履歴管理（Undo / Redo）
 
-`zoom.enabled: true` を設定するだけで、チャート上で **`Ctrl`（Mac: `Cmd`）+ マウスホイールによる直感的なズームイン・ズームアウト** が可能になります（カーソル位置を中心に拡大縮小）。
+v1.2.0 から、Command パターンに基づく **操作履歴管理マネージャー（`HistoryManager`）** がコアに標準搭載されました！
 
-また、JavaScript メソッドからズームを自在に制御できます。
+タスクの移動やリサイズ、進捗調整、行の並び替え、依存関係の作成・削除など、チャート上で行われた主要な変更操作が自動的にコマンドとして履歴スタックへ記録され、いつでも手軽に取り消し（Undo）・やり直し（Redo）できます。
+
+#### 自動記録される操作一覧
+- **タスク操作**: ドラッグ移動（単一移動・矩形選択による複数一括移動・行間移動）、ドラッグリサイズ、タスクバー上の進捗ハンドル操作、キーボード移動（Shift+矢印）
+- **タスク削除**: `Delete` / `Backspace` キーによるタスク削除
+- **行操作**: 行のドラッグ＆ドロップによる並び替え（子孫行ブロック連動移動）
+- **依存関係操作**: コネクタードラッグによる接続線作成、クリック選択やDeleteキーによる接続線削除
+
+#### パブリック API とキーボードショートカット
+- **メソッド**:
+  - `chart.undo()`: 直前の操作を元に戻す（Promise<boolean>）
+  - `chart.redo()`: 元に戻した操作をやり直す（Promise<boolean>）
+  - `chart.canUndo`: Undo 可能かどうかの真偽値ゲッター
+  - `chart.canRedo`: Redo 可能かどうかの真偽値ゲッター
+  - `chart.clearHistory()`: 履歴スタックの全消去
+  - `chart.recordCommand(command)`: 外部の独自操作をコマンドとして記録
+- **キーボードショートカット**:
+  - `Ctrl+Z` / `Cmd+Z`: 元に戻す（Undo）
+  - `Ctrl+Y` / `Cmd+Shift+Z` / `Cmd+Y`: やり直し（Redo）
+
+```typescript
+// オプション設定
+chart.option = {
+  // ...
+  history: {
+    enabled: true,    // 履歴管理を有効化 (デフォルト: true)
+    maxDepth: 50,     // スタックの最大保持件数 (デフォルト: 50)
+    keyboard: true,   // Ctrl+Z / Ctrl+Y ショートカットを有効化 (デフォルト: true)
+    onUndo: (cmd) => {
+      console.log('Undo 実行前フック:', cmd)
+      return true     // false を返すと Undo をキャンセル可能
+    },
+    onRedo: (cmd) => {
+      console.log('Redo 実行前フック:', cmd)
+      return true
+    },
+  },
+}
+
+// 履歴変更イベント (ツールバーのボタン活性/非活性制御に便利)
+chart.addEventListener('history-change', (e) => {
+  const { canUndo, canRedo, undoStackLength, redoStackLength } = e.detail
+  undoButton.disabled = !canUndo
+  redoButton.disabled = !canRedo
+})
+```
+
+Vue 3（`<GanttChart>`）や React（`<GanttChart />`）でも、`option.history` の指定や `@history-change` / `onHistoryChange` のイベント購読、Template Ref 経由での `chartRef.value.undo()` の呼び出しが完全サポートされています。
+
+### 🔍 包括的なズーム制御 ＆ フォント連動スケーリング
+
+v1.2.0 では、従来の簡易ズームから **パーセンテージ／スケール倍率ベースの包括的ズーム制御** へと大幅に進化しました。
+
+チャート上で **`Ctrl`（Mac: `Cmd`）+ マウスホイール** を回すだけで、カーソル位置を中心に 50%〜200%（Chrome ブラウザ互換ステップ: 50, 67, 75, 80, 90, 100, 110, 125, 150, 175, 200%）で滑らかに拡大縮小できます。
+
+また、キーボードショートカットや豊富な JavaScript メソッドから自在に制御可能です：
+
+- **キーボードショートカット**:
+  - `Ctrl/Cmd + +`: ズームイン
+  - `Ctrl/Cmd + -`: ズームアウト
+  - `Ctrl/Cmd + 0`: 100% 等倍にリセット
+- **パブリック API**:
+  - `chart.zoomToPercent(percent)`: 指定パーセント（例: `125`）へズーム
+  - `chart.zoomToScale(scale)`: 指定スケール係数（例: `1.25`）へズーム
+  - `chart.zoomIn()` / `chart.zoomOut()`: 1段階拡大 / 縮小
+  - `chart.getZoomPercent()`: 現在のズームパーセントを取得
+  - `chart.getZoomScale()`: 現在のスケール値を取得
+  - `chart.resetZoom()`: 100%（標準表示）にリセット
+  - `chart.zoomToFit()`: 全タスクが横幅に収まるよう自動倍率計算＆スクロール
 
 ```javascript
 const chart = document.querySelector('gantt-chart')
 
-// 全タスクが表示領域に収まるようにズーム倍率を自動計算＆スクロール
-chart.zoomToFit()
+// 125% にズーム
+chart.zoomToPercent(125)
 
-// 指定したピクセル幅（pxPerDay）にズーム
-chart.zoomTo(60)
+// 1段階ズームイン
+chart.zoomIn()
 
-// オプション設定時の元のスケールにリセット
+// 100% にリセット
 chart.resetZoom()
+
+// ズーム変更イベントの購読
+chart.addEventListener('zoom-change', (e) => {
+  const { zoomPercent, zoomScale, pxPerDay } = e.detail
+  console.log(`現在の表示倍率: ${zoomPercent}% (scale: ${zoomScale})`)
+})
 ```
 
-#### チャート全体のフォント倍率スケーリング（`fontScale`）
+#### 要素ごとの連動同期設定（`scaleElements`）
 
-`fontScale` オプション（デフォルト: `1`）を指定することで、チャート内の文字サイズ（カレンダーヘッダー、行名、タスク名、進捗ラベル、マーカーラベル、ツールチップなど）を一括して拡大・縮小できます。
-
-ホスト要素の CSS カスタムプロパティ `--moguchart-font-scale` と動的に連動するため、親アプリケーションでズームUI（50%〜200%）を提供する際にも、文字がはみ出したり視認性が損なわれることなく、美しく一体感のあるスケーリングを実現できます。
+ズーム時にどの要素をスケール連動させるかを `scaleElements` オプションで細かく指定できます：
 
 ```javascript
 chart.option = {
   // ...
-  fontScale: 1.25, // 全体の文字サイズを 125% に拡大
+  zoom: {
+    enabled: true,
+    scaleElements: {
+      calendar: true,   // カレンダー列幅をスケール連動
+      rowHeader: true,  // 行ヘッダー幅をスケール連動
+      barHeight: true,  // ガントバーの高さをスケール連動
+      fontScale: true,  // 文字サイズ (--moguchart-font-scale) をスケール連動
+    },
+  },
 }
 ```
+
+ホスト要素の CSS カスタムプロパティ `--moguchart-font-scale` と連動するため、親アプリケーションで独自のズームUI（50%〜200%）を提供する際にも、文字がはみ出したり視認性が損なわれることなく、美しく一体感のあるスケーリングを実現できます。
 
 ### ⌨️ キーボード操作
 
@@ -674,10 +782,14 @@ chart.option = {
 | `Enter` / `Space` | フォーカス中のタスクを選択 |
 | `Ctrl/Cmd + Enter` | 選択状態をトグル（複数選択） |
 | `Shift + ←` `→` | 選択中のタスク（複数選択・矩形選択を含む）を左右に移動 |
-| `Delete` / `Backspace` | `task-delete` イベントを発火（選択中タスクの削除要求） |
+| `Delete` / `Backspace` | 選択中タスクの削除（`task-delete`）/ 選択中依存関係線の削除（`dependency-delete`） |
+| `Ctrl/Cmd + Z` | 直前の操作を元に戻す（Undo） |
+| `Ctrl/Cmd + Shift + Z` / `Ctrl + Y` | やり直す（Redo） |
+| `Ctrl/Cmd + +` / `-` | チャートのズームイン / ズームアウト |
+| `Ctrl/Cmd + 0` | チャートのズームを 100%（等倍）にリセット |
 | `Escape` | 選択・フォーカスを解除 / ドラッグ操作のキャンセル |
 
-矩形範囲選択（ラバーバンド選択）や `Ctrl/Cmd + クリック` で複数選択したタスクも、`Shift + 矢印キー` でまとめて一括移動したり、`Delete` キーでまとめて削除要求イベントを発行できます。
+矩形範囲選択（ラバーバンド選択）や `Ctrl/Cmd + クリック` で複数選択したタスクも、`Shift + 矢印キー` でまとめて一括移動したり、`Delete` キーでまとめて削除要求イベントを発行できます。また、接続線をクリック選択した状態で `Delete` キーを押すと依存関係を直ちに削除できます。
 
 ```javascript
 chart.addEventListener('task-delete', (e) => {
@@ -865,6 +977,20 @@ await exportChart(chart, 'png', { download: true, filename: 'gantt' })
 ```javascript
 const chart = document.querySelector('gantt-chart')
 
+// 操作履歴（Undo / Redo）
+await chart.undo()                    // 直前の操作を取り消す
+await chart.redo()                    // 取り消した操作をやり直す
+chart.clearHistory()                  // 履歴スタックの全消去
+
+// ズーム制御
+chart.zoomToPercent(125)              // 125% にズーム
+chart.zoomIn()                        // 1段階ズームイン
+chart.resetZoom()                     // 100% にリセット
+chart.zoomToFit()                     // 全体を表示領域に収める
+
+// 依存関係線の操作
+chart.triggerDependencyDelete('t-1', 't-2') // 依存関係線のプログラム削除
+
 // 指定タスクを選択してその位置まで自動スクロール
 chart.selectTask('t-1')
 
@@ -898,7 +1024,8 @@ moguchart-monorepo/
 ├── packages/
 │   ├── core/                  # @mogura/moguchart-core (Lit製 コアWeb Component: ~44KB gzipped)
 │   │   ├── src/components/    # gantt-chart, gantt-calendar, gantt-bar, gantt-minimap 等
-│   │   └── src/core/          # wbs, critical-path, plugin-manager, types, i18n 等
+│   │   ├── src/controllers/   # Lit Reactive Controllers (Zoom, Drag, Tree, Dependency 等)
+│   │   └── src/core/          # wbs, critical-path, history, plugin-manager, types 等
 │   ├── plugin-export/         # @mogura/moguchart-plugin-export (PNG/PDF エクスポートプラグイン)
 │   │   └── src/               # export-plugin, canvas/pdf キャプチャロジック
 │   ├── react/                 # @mogura/moguchart-react (公式 React ラッパーコンポーネント)
@@ -907,7 +1034,23 @@ moguchart-monorepo/
 │       └── src/               # Composition API 対応の <GanttChart> コンポーネント
 ```
 
-Lit の Reactive Properties を活用し、`rows` や `option` が変更されると自動的に再レンダリングされます。仮想スクロールにより、画面外の要素はDOMに描画されないため、大量データでも軽快に動作します。
+### 内部モジュール化: Lit Reactive Controller アーキテクチャ (v1.2.0〜)
+
+かつて 2,000 行を超えていた `<gantt-chart>` の内部ロジックは、v1.2.0 において Lit 標準の **Reactive Controller パターン** を用いて関心事ごとに徹底的にモジュール分割されました：
+
+- **`ZoomController`**: ズーム倍率計算（50%〜200%）、ショートカット・ホイールズーム制御、要素別スケール同期
+- **`HistoryManager`**: Command パターンに基づく Undo / Redo スタック管理とライフサイクルフック
+- **`DependencyController`**: 接続線のクリック選択・ハイライト・「×」ボタン削除・ドラッグ作成
+- **`TaskDragController`**: ガントバーの移動・リサイズ・矩形複数一括ドラッグ・外部ドロップ
+- **`RowReorderController`**: 行のドラッグ並び替え・ブロック追従移動・循環参照防止・FLIPアニメーション
+- **`TreeController`**: WBS階層ツリーの状態管理、開閉トグル、サマリータスク自動集計
+- **`MarqueeController`**: チャート背景ドラッグによるラバーバンド矩形範囲選択
+- **`TooltipController`**: ホバー時の高精度ツールチップ位置計算
+- **`KeyboardController`**: キーボードナビゲーションとショートカットディスパッチ
+
+さらに、SVG 接続線レンダリング処理（直角折れ線・矢印マーカー・削除ボタン・プレビュー線）を独立モジュール `gantt-chart-dependency-svg.ts` へ切り出すことで、**100% の後方互換性を保ちながら、高い凝集度・疎結合な設計** を実現しています。
+
+Lit の Reactive Properties と仮想スクロールにより、数千件のタスクが並ぶ巨大プロジェクトでも 60fps の滑らかなレンダリング性能を維持します。
 
 ## 📱 moguchart-core を使ったアプリケーション「MoguChart」
 
@@ -927,7 +1070,7 @@ MoguChart は Vue 3 + Vuetify 4 をベースに、公式ラッパー `@mogura/mo
 
 moguchart-core は、**「フレームワークに縛られず、高機能なガントチャートを手軽に組み込みたい」** という自分自身のニーズから生まれたライブラリです。
 
-メジャーバージョン **v1.0.0** での **WBS階層ツリー構造** と **サマリータスク自動計算描画** の全面サポートを経て、最新 **v1.1.1** では **プラグインアーキテクチャの導入**、**公式 React / Vue 3 ラッパーの提供**、そして **コア本体の超軽量化（~44KB gzipped）** を果たしました。
+メジャーバージョン **v1.0.0** での **WBS階層ツリー構造** と **サマリータスク自動計算描画**、**v1.1.0** での **プラグインアーキテクチャ** と **公式 React / Vue 3 ラッパー**、そして最新 **v1.2.0** での **操作履歴管理（Undo / Redo）**、**依存関係線の選択・削除**、**包括的ズーム制御**、**内部アーキテクチャ刷新（Reactive Controllers）** を経て、商用ライブラリに迫る実用性と先進的な設計を兼ね備えたプロダクションレディなOSSとして結実しています。
 
 矩形範囲選択（ラバーバンド選択）、タスク進捗率の直感的ドラッグ編集、全体を見渡すミニマップ、文字やバーが連動するフォント倍率スケーリング（`fontScale`）、スクロール制御メソッド、クリティカルパスの自動ハイライト、高解像度エクスポートなど、商用ライブラリに匹敵する実用機能を網羅したプロダクションレディなOSSとして結実しています。
 
