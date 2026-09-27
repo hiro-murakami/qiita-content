@@ -7,7 +7,7 @@ tags:
   - OSS
   - ガントチャート
 private: false
-updated_at: '2026-09-22T15:29:00+09:00'
+updated_at: '2026-09-27T10:45:00+09:00'
 id: 0e4859951a9f652c26c3
 organization_url_name: null
 slide: false
@@ -30,7 +30,7 @@ agreed_posting_campaign_term: false
 
 https://github.com/hiro-murakami/moguchart-core
 
-そしてこの度、実務レベルのプロジェクト管理に不可欠な **WBS（階層ツリー構造・行の開閉）** と **サマリータスク（自動集計・描画）**（v1.0.0）、**プラグインアーキテクチャ**と **公式 React / Vue 3 ラッパー**（v1.1.0）に加え、**Command パターンによる操作履歴（Undo / Redo）**、**依存関係線の選択・削除**、**包括的ズーム制御**、**内部アーキテクチャのモジュール化（Reactive Controllers）** を果たした最新バージョン **v1.2.0** をリリースしました！🎉
+そしてこの度、**WBS（階層ツリー構造・行の開閉）** と **サマリータスク（自動集計・描画）**（v1.0.0）、**プラグインアーキテクチャ**と **公式 React / Vue 3 ラッパー**（v1.1.0）、**Command パターンによる操作履歴（Undo / Redo）** と **依存関係線の選択・削除**（v1.2.0）に続き、セル塗りつぶしによる視覚的工程表シートをブラウザ完結で出力できる **公式 Excel エクスポートプラグイン（`@mogura/moguchart-plugin-excel`）** に対応した最新バージョン **v1.3.0** をリリースしました！🎉
 
 重量級の外部依存を分離したコア本体は **~44KB (gzipped)** と超軽量を維持しながら、商用ガントチャートに匹敵するリッチな操作性と堅牢な設計を備えています。React や Vue 3 のプロジェクトでも、各フレームワーク標準の Props やイベント、TypeScript 型安全性を備えたコンポーネントとして直感的に利用可能です。
 
@@ -49,7 +49,7 @@ Custom Elements（`<gantt-chart>`）として動作するため、**Vue、React�
 | :--- | :--- |
 | **フレームワーク非依存** | Web Components (Custom Elements) として実装。あらゆる環境で動作 |
 | **公式 Vue 3 / React ラッパー** | `@mogura/moguchart-vue`、`@mogura/moguchart-react` を提供。Props リアクティブバインディング、標準イベント・emits、完全型安全 |
-| **プラグインアーキテクチャ** | `GanttPlugin` API による高い拡張性。コア本体を **~44KB (gzipped)** と超軽量に保ちつつ、エクスポート等の機能をオンデマンド拡張可能 |
+| **プラグインアーキテクチャ** | `GanttPlugin` API による高い拡張性。コア本体を **~44KB (gzipped)** と超軽量に保ちつつ、画像・PDF・Excelエクスポート等をオンデマンド拡張可能 |
 | **操作履歴（Undo / Redo）** | Command パターンに基づく `HistoryManager` を内蔵。ドラッグ移動・進捗変更・タスク削除・行並び替え・依存作成削除を `undo()` / `redo()` やショートカット（Cmd+Z / Ctrl+Z）で安全に取り消し・再実行 |
 | **依存関係線の選択・削除** | 接続線をクリックしてハイライト選択、「×」ボタンや `Delete` / `Backspace` キーで直感削除。削除可否オプションや削除イベント通知完備 |
 | **包括的ズーム＆フォント連動** | 50%〜200%（Chrome互換ステップ）、ホイールズーム（Ctrl+Wheel）、`zoomToPercent()`、文字サイズ・ヘッダー・バーの連動拡大縮小 |
@@ -68,8 +68,9 @@ Custom Elements（`<gantt-chart>`）として動作するため、**Vue、React�
 | **柔軟な表示モード** | 日 / 週 / 月 / 時間単位の切り替え、等幅月表示モード（最大100年スパン対応） |
 | **テーマ対応** | ライト / ダーク / システム連動 + 30項目以上のカスタムカラーテーマ |
 | **高度なカスタマイズ** | バー、行ヘッダー、ツールチップ、カレンダーセルなどの描画を関数でオーバーライド可能 |
-| **エクスポート（プラグイン）** | `@mogura/moguchart-plugin-export` による PNG / PDF 高解像度出力（オンデマンド動的インポート、ズーム自動正規化対応） |
-| **日本語対応** | ロケール機能内蔵（日本語・英語）、祝日判定ロジックのカスタマイズ対応 |
+| **画像/PDF エクスポート** | `@mogura/moguchart-plugin-export` による PNG / PDF 高解像度出力（オンデマンド動的インポート、ズーム自動正規化対応） |
+| **Excel エクスポート** | `@mogura/moguchart-plugin-excel` によるタイムライン付き工程表 Excel 出力（セル塗りつぶし、WBSインデント、祝日・土日判定、多言語対応） |
+| **日本語・多言語対応** | ロケール機能内蔵（日本語・英語・中国語簡体字・カスタムロケール登録）、祝日判定ロジックのカスタマイズ対応 |
 | **モジュール設計（Lit Controllers）** | `ZoomController`, `DependencyController`, `TaskDragController` 等の Reactive Controller による高保守性・高拡張性設計 |
 | **ライセンス** | MIT |
 
@@ -129,6 +130,7 @@ Moguchart は柔軟なモノレポ構成となっており、用途やフレー�
 | **[@mogura/moguchart-react](https://www.npmjs.com/package/@mogura/moguchart-react)** | **公式 React ラッパー**。型安全な Props、イベント、ref を提供 |
 | **[@mogura/moguchart-vue](https://www.npmjs.com/package/@mogura/moguchart-vue)** | **公式 Vue 3 ラッパー**。Composition API、リアクティブ Props、emits を提供 |
 | **[@mogura/moguchart-plugin-export](https://www.npmjs.com/package/@mogura/moguchart-plugin-export)** | **公式エクスポートプラグイン**。高解像度 PNG および分割 PDF 出力を提供 |
+| **[@mogura/moguchart-plugin-excel](https://www.npmjs.com/package/@mogura/moguchart-plugin-excel)** | **公式 Excel エクスポートプラグイン**。セル塗りつぶしタイムライン付き工程表 Excel 出力を提供 |
 
 ## インストール
 
@@ -146,6 +148,9 @@ npm install @mogura/moguchart-react @mogura/moguchart-core
 
 # 画像/PDF エクスポートが必要な場合（プラグイン）
 npm install @mogura/moguchart-plugin-export
+
+# タイムライン付き Excel エクスポートが必要な場合（プラグイン）
+npm install @mogura/moguchart-plugin-excel
 ```
 
 ## クイックスタート（Vue 3 公式ラッパー）
@@ -972,6 +977,98 @@ const { exportChart } = await import('@mogura/moguchart-plugin-export')
 await exportChart(chart, 'png', { download: true, filename: 'gantt' })
 ```
 
+### 📊 タイムライン付き Excel (.xlsx) エクスポート（公式プラグイン）
+
+「プロジェクトの工程表を Excel 形式で提出・共有したい」という現場の強い要望に応えるため、公式プラグイン **`@mogura/moguchart-plugin-excel`** を新たにリリースしました！🎉
+
+[ExcelJS](https://github.com/exceljs/exceljs) をベースに採用し、タスクの実施期間セルがチャートのカラーで美しく塗りつぶされた、視覚的な **「Excel製ガントチャート（工程表・タイムライン）」** をブラウザ完結で直接生成・ダウンロードできます。
+
+#### 主な特徴
+- **セル塗りつぶしタイムライン**: 左側にタスク属性（WBS、タスク名、担当者、開始日、終了日、期間、進捗率等）、右側にカレンダー列を配置し、タスク期間のセルを着色。
+- **WBS階層ツリー構造の再現**: 親行・子行の階層関係（WBSコード `1`, `1.1`, `1.2` 等）を維持し、インデントや太字を反映。
+- **土日・日本の祝日の自動ハイライト**: カレンダー列の土日および日本の祝日（祝日判定ライブラリ連携）を自動判定して背景色を着色。
+- **サマリータスクの描画**: 大工程・中工程などのサマリーバー（集計ブラケット形状）も Excel 上で忠実に再現。
+- **多言語 ＆ カスタムロケール対応**: 日本語（`ja`）、英語（`en`）、中国語簡体字（`zh`）を標準サポート。独自の言語パック（`registerExcelLocale`）も簡単に追加可能。
+
+```bash
+npm install @mogura/moguchart-plugin-excel
+```
+
+#### チャートインスタンスに登録して使う場合
+
+プラグインを登録すると、`chart.exportExcel()` メソッドが有効化されます：
+
+```typescript
+import '@mogura/moguchart-core'
+import { excelPlugin } from '@mogura/moguchart-plugin-excel'
+
+const chart = document.querySelector('gantt-chart')
+
+// プラグインの登録
+chart.use(excelPlugin({
+  defaultFilename: 'プロジェクト工程表.xlsx',
+  defaultSheetName: '工程表',
+  themeColor: '#3B82F6'
+}))
+
+// Excelエクスポート実行（タイムライン付き工程表）
+await chart.exportExcel()
+
+// 英語でエクスポートする場合
+await chart.exportExcel({
+  locale: 'en',
+  filename: 'project-schedule.xlsx'
+})
+```
+
+#### エクスポート時のみ動的インポート（遅延読み込み）する場合
+
+ボタン押下時など必要なタイミングでのみ Dynamic Import すれば、重厚な Excel 生成ライブラリ（`exceljs`）を初期バンドルから完全排除し、初回ロードへの影響をゼロに抑えられます：
+
+```typescript
+async function handleExportExcel(chartElement) {
+  const { exportExcel } = await import('@mogura/moguchart-plugin-excel')
+  await exportExcel(chartElement, {
+    filename: '工程表.xlsx',
+    locale: 'ja',
+    download: true
+  })
+}
+```
+
+#### カスタム言語・ロケールの追加
+
+```typescript
+import { registerExcelLocale } from '@mogura/moguchart-plugin-excel'
+
+registerExcelLocale('fr', {
+  code: 'fr',
+  sheetName: 'Planning',
+  defaultFilename: 'planning-gantt.xlsx',
+  columns: {
+    wbs: 'WBS',
+    name: 'Nom de tâche',
+    assignee: 'Responsable',
+    startDate: 'Date de début',
+    endDate: 'Date de fin',
+    duration: 'Durée',
+    progress: 'Progression',
+  },
+  dateFormat: 'DD/MM/YYYY',
+  timeFormat: 'HH:mm',
+  monthYearFormat: (year, month) => `${month}/${year}`,
+  weekFormat: (year, week) => `Sem ${week}, ${year}`,
+  dayHeaderFormat: (date) => `${date.getDate()}`,
+  hourHeaderFormat: (hour) => `${hour}h`,
+  dayNames: ['Dim', 'Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam'],
+  durationUnit: ' j',
+  summaryLabel: ' (Récapitulatif)',
+  percentLabel: '%',
+})
+
+await chart.exportExcel({ locale: 'fr' })
+```
+
 ### 🛠️ 便利なパブリックメソッド
 
 ```javascript
@@ -990,6 +1087,11 @@ chart.zoomToFit()                     // 全体を表示領域に収める
 
 // 依存関係線の操作
 chart.triggerDependencyDelete('t-1', 't-2') // 依存関係線のプログラム削除
+
+// エクスポート（プラグイン登録時）
+await chart.exportImage('png', { download: true, filename: 'gantt' }) // 画像出力
+await chart.exportImage('pdf', { download: true, filename: 'gantt', splitHeight: 1200 }) // 分割PDF
+await chart.exportExcel({ locale: 'ja', filename: '工程表.xlsx' }) // タイムライン付きExcel出力
 
 // 指定タスクを選択してその位置まで自動スクロール
 chart.selectTask('t-1')
@@ -1013,6 +1115,7 @@ chart.toggleRowCollapse('row-1', true) // 特定行を折りたたみ
 
 // プラグインの動的登録
 chart.use(exportPlugin())
+chart.use(excelPlugin())
 ```
 
 ## アーキテクチャ
@@ -1028,6 +1131,8 @@ moguchart-monorepo/
 │   │   └── src/core/          # wbs, critical-path, history, plugin-manager, types 等
 │   ├── plugin-export/         # @mogura/moguchart-plugin-export (PNG/PDF エクスポートプラグイン)
 │   │   └── src/               # export-plugin, canvas/pdf キャプチャロジック
+│   ├── plugin-excel/          # @mogura/moguchart-plugin-excel (タイムライン付き Excel エクスポートプラグイン)
+│   │   └── src/               # excel-plugin, timeline セル塗りつぶし・多言語・WBSロジック
 │   ├── react/                 # @mogura/moguchart-react (公式 React ラッパーコンポーネント)
 │   │   └── src/               # @lit/react による型安全な <GanttChart /> コンポーネント
 │   └── vue/                   # @mogura/moguchart-vue (公式 Vue 3 ラッパーコンポーネント)
@@ -1056,7 +1161,7 @@ Lit の Reactive Properties と仮想スクロールにより、数千件のタ�
 
 moguchart-core は汎用ライブラリとして開発していますが、実は **このライブラリを活用した本格的なプロジェクト管理アプリケーション「MoguChart」** も並行して開発しています。
 
-MoguChart は Vue 3 + Vuetify 4 をベースに、公式ラッパー `@mogura/moguchart-vue` を中心に据えた Web アプリケーションです。ドラッグ＆ドロップ操作・WBSツリー・リアルタイム共同編集・画像添付・権限管理・オンデマンドエクスポートなど、実務で使える豊富な機能を備えています。
+MoguChart は Vue 3 + Vuetify 4 をベースに、公式ラッパー `@mogura/moguchart-vue` を中心に据えた Web アプリケーションです。ドラッグ＆ドロップ操作・WBSツリー・リアルタイム共同編集・画像添付・権限管理・タイムライン付き Excel / PNG / PDF オンデマンドエクスポートなど、実務で使える豊富な機能を備えています。
 
 👉 **MoguChart アプリケーションの詳細は別記事で紹介しています！**
 
@@ -1070,9 +1175,9 @@ MoguChart は Vue 3 + Vuetify 4 をベースに、公式ラッパー `@mogura/mo
 
 moguchart-core は、**「フレームワークに縛られず、高機能なガントチャートを手軽に組み込みたい」** という自分自身のニーズから生まれたライブラリです。
 
-メジャーバージョン **v1.0.0** での **WBS階層ツリー構造** と **サマリータスク自動計算描画**、**v1.1.0** での **プラグインアーキテクチャ** と **公式 React / Vue 3 ラッパー**、そして最新 **v1.2.0** での **操作履歴管理（Undo / Redo）**、**依存関係線の選択・削除**、**包括的ズーム制御**、**内部アーキテクチャ刷新（Reactive Controllers）** を経て、商用ライブラリに迫る実用性と先進的な設計を兼ね備えたプロダクションレディなOSSとして結実しています。
+メジャーバージョン **v1.0.0** での **WBS階層ツリー構造** と **サマリータスク自動計算描画**、**v1.1.0** での **プラグインアーキテクチャ** と **公式 React / Vue 3 ラッパー**、**v1.2.0** での **操作履歴管理（Undo / Redo）**、**依存関係線の選択・削除**、**包括的ズーム制御**、**内部アーキテクチャ刷新（Reactive Controllers）**、そして最新 **v1.3.0** での **公式 Excel プラグインによるセル塗りつぶしタイムライン工程表エクスポート** を経て、商用ライブラリに迫る実用性と先進的な設計を兼ね備えたプロダクションレディなOSSとして結実しています。
 
-矩形範囲選択（ラバーバンド選択）、タスク進捗率の直感的ドラッグ編集、全体を見渡すミニマップ、文字やバーが連動するフォント倍率スケーリング（`fontScale`）、スクロール制御メソッド、クリティカルパスの自動ハイライト、高解像度エクスポートなど、商用ライブラリに匹敵する実用機能を網羅したプロダクションレディなOSSとして結実しています。
+矩形範囲選択（ラバーバンド選択）、タスク進捗率の直感的ドラッグ編集、全体を見渡すミニマップ、文字やバーが連動するフォント倍率スケーリング（`fontScale`）、スクロール制御メソッド、クリティカルパスの自動ハイライト、高解像度 PNG / PDF / Excel エクスポートなど、商用ライブラリに匹敵する実用機能を網羅したプロダクションレディなOSSとして結実しています。
 
 フィードバックや Issue、Pull Request を大歓迎しています！
 

@@ -9,7 +9,7 @@ tags:
   - 個人開発
   - ガントチャート
 private: false
-updated_at: '2026-09-22T15:29:00+09:00'
+updated_at: '2026-09-27T10:45:00+09:00'
 id: d1d2b644890e49b796e7
 organization_url_name: null
 slide: false
@@ -52,15 +52,15 @@ MoguChart は、**Web ブラウザ上で動作する高機能ガントチャー�
 | 📈 **進捗管理 ＆ 直感的ドラッグ編集** | バー端ハンドルによる直感的ドラッグ変更（スナップ・Escキャンセル対応）、プロジェクト単位の進捗表示設定 |
 | 🗺️ **ミニマップ（鳥瞰ビュー）** | 全体プレビュー、ビューポートパン操作、ドラッグ移動、リサイズ、透過率調整、タスク進捗率の濃淡自動反映 |
 | 📅 **4つの表示モード** | 時間単位 / 日単位 / 週単位 / 月単位（等幅表示・最長100年対応） |
-| 🔗 **依存関係＆クリティカルパス** | 矢印付き曲線（S字）/直角線での可視化、最長遅延チェーンの自動ハイライト |
+| 🔗 **依存関係＆クリティカルパス** | 矢印付き曲線（S字）/直角線での可視化、接続線クリック選択・削除、最長遅延チェーンの自動ハイライト |
 | 🖼️ **画像添付＆クリップボード連携** | タスク・行への画像添付、クリップボード貼り付け（Ctrl+V）、D&Dアップロード、自動圧縮、ホバーディレイ付きプレビュー |
 | 🏁 **マイルストーン＆マーカー** | 縦線マイルストーン ＋ 行ごとの個別日時マーカー（マルチレーン自動配置） |
 | 👤 **担当者設定 ＆ 権限分離** | 担当者メールアドレス補完、閲覧者ロールでも自身の担当タスク進捗率のみ更新可能な実務的権限設計 |
-| 👥 **リアルタイム共同編集** | 複数ユーザーでの同時編集、プレゼンス・アクティビティログ表示（最小化対応） |
+| 👥 **リアルタイム共同編集** | 複数ユーザーでの同時編集、プレゼンス・アクティビティログ表示（最小化対応）、Undo/Redo同期 |
 | 🔑 **外部連携 REST API** | APIキー認証、レートリミット、プロジェクト・行・タスク・コメントのCRUD、GAS連携、OpenAPI仕様 |
 | 🌐 **公開閲覧モード** | 一般公開フラグによる未ログインユーザーの安全な閲覧共有 |
 | 💬 **多層コメント機能** | プロジェクト / 行 / タスクごとのスレッドコメント |
-| 📤 **多彩なエクスポート** | PDF（複数ページ分割） / PNG / CSV / Excel / **ZIP（添付画像完全同梱・自動復元）**、オンデマンド動的インポート＆ズーム自動正規化対応 |
+| 📤 **多彩なエクスポート** | PDF（複数ページ分割） / PNG / CSV / **Excel（セル塗りつぶしタイムライン工程表シート）** / **ZIP（添付画像完全同梱・自動復元）**、オンデマンド動的インポート＆ズーム自動正規化対応 |
 | 📸 **スナップショット** | プロジェクト状態の保存・復元・バックアップJSON入出力 |
 | 🌓 **テーマ切り替え** | ライト / ダーク / システム連動 ＋ 30項目以上のカラーカスタマイズ、モダンなテーマカードUI |
 | 🔒 **きめ細かな権限管理** | オーナー / 編集者 / 閲覧者ロールによるアクセス制御 |
@@ -84,11 +84,13 @@ flowchart TB
         subgraph CoreEngine ["ガントチャート基盤 & プラグイン"]
             Core["@mogura/moguchart-core<br>(Lit Web Component: ~44KB gzipped)<br>・仮想スクロール (60FPS)<br>・WBSツリー ＆ サマリー自動集計<br>・D&D / 行間移動 / 矩形範囲選択<br>・進捗ドラッグ編集 / ミニマップ<br>・フォント倍率連動 / ホイールズーム"]
             ExportPlugin["@mogura/moguchart-plugin-export<br>(オンデマンド動的インポート)<br>・高解像度 PNG / 分割 PDF<br>・ズーム等倍自動正規化"]
+            ExcelPlugin["@mogura/moguchart-plugin-excel<br>(オンデマンド動的インポート)<br>・セル塗りつぶしタイムライン工程表<br>・WBS/祝日/担当者自動反映"]
         end
 
         Frontend --> Wrapper
         Wrapper --> Core
-        Core -.->|"エクスポート時のみ動的ロード"| ExportPlugin
+        Core -.->|"画像/PDFエクスポート時動的ロード"| ExportPlugin
+        Core -.->|"Excelエクスポート時動的ロード"| ExcelPlugin
     end
 
     subgraph External ["外部システム連携"]
@@ -133,9 +135,10 @@ flowchart TB
 
 | 技術 | バージョン | 用途 |
 |---|---|---|
-| **@mogura/moguchart-core** | ^1.2.0 | Lit ベースのコアガントチャート描画エンジン（Reactive Controllers 刷新、超軽量 ~44KB gzipped） |
-| **@mogura/moguchart-vue** | ^1.2.0 | **公式 Vue 3 ラッパー**（リアクティブ Props、Vue 標準 emits、Command/Undo・ズーム・依存削除の双方向バインディング） |
-| **@mogura/moguchart-plugin-export** | ^1.2.0 | **公式エクスポートプラグイン**（PNG/PDF 高画質出力、オンデマンド動的インポート、ズーム自動正規化） |
+| **@mogura/moguchart-core** | ^1.3.0 | Lit ベースのコアガントチャート描画エンジン（Reactive Controllers 刷新、超軽量 ~44KB gzipped） |
+| **@mogura/moguchart-vue** | ^1.3.0 | **公式 Vue 3 ラッパー**（リアクティブ Props、Vue 標準 emits、Command/Undo・ズーム・依存削除の双方向バインディング） |
+| **@mogura/moguchart-plugin-export** | ^1.3.0 | **公式エクスポートプラグイン**（PNG/PDF 高画質出力、オンデマンド動的インポート、ズーム自動正規化） |
+| **@mogura/moguchart-plugin-excel** | ^1.3.0 | **公式 Excel エクスポートプラグイン**（セル塗りつぶしタイムライン工程表シート、オンデマンド動的インポート） |
 | **Lit** | ^3.3 | Web Components 基盤（Reactive Controllers 対応） |
 | **内製祝日判定モジュール** | - | 日本の祝日自動判定・カスタムロジック注入対応 |
 
@@ -205,7 +208,7 @@ Lit を選択したことで、軽量（オーバーヘッド最小限）かつ�
 ガントチャート基盤は独立リポジトリ（`moguchart-core`）として切り出し、pnpm Workspaces によるモノレポで開発・公開しています。
 
 ```bash
-npm install @mogura/moguchart-vue @mogura/moguchart-core @mogura/moguchart-plugin-export
+npm install @mogura/moguchart-vue @mogura/moguchart-core @mogura/moguchart-plugin-export @mogura/moguchart-plugin-excel
 ```
 
 アプリ側からはモノレポ内でローカル参照（`link:`）し、コアエンジンの修正がアプリ側に即時反映される開発体験を構築しています：
@@ -215,7 +218,8 @@ npm install @mogura/moguchart-vue @mogura/moguchart-core @mogura/moguchart-plugi
   "dependencies": {
     "@mogura/moguchart-core": "link:../../../moguchart-core/packages/core",
     "@mogura/moguchart-vue": "link:../../../moguchart-core/packages/vue",
-    "@mogura/moguchart-plugin-export": "link:../../../moguchart-core/packages/plugin-export"
+    "@mogura/moguchart-plugin-export": "link:../../../moguchart-core/packages/plugin-export",
+    "@mogura/moguchart-plugin-excel": "link:../../../moguchart-core/packages/plugin-excel"
   }
 }
 ```
@@ -416,19 +420,28 @@ Client / GAS / CI  ──( X-API-Key: mk_... )──>  Express REST API (Cloud F
 
 ### 4. エクスポートプラグインのオンデマンド動的インポート ＆ ズーム自動正規化
 
-画像（PNG）および PDF のエクスポートには、公式プラグイン `@mogura/moguchart-plugin-export` を採用しています。
+画像（PNG）および PDF のエクスポートには公式プラグイン `@mogura/moguchart-plugin-export` を、Excel（.xlsx）のタイムライン工程表エクスポートには公式プラグイン `@mogura/moguchart-plugin-excel` を採用しています。
 
-- **オンデマンド動的インポート（遅延読み込み）**: 重量級ライブラリ（`html2canvas-pro`、`jspdf`）を初期バンドルに含めず、ユーザーが「画像エクスポート」を押した瞬間にのみ `import('@mogura/moguchart-plugin-export')` で動的ロード。初期ロード速度を損ないません
-- **ズーム倍率の自動正規化 (`withNormalizedZoomForExport`)**: ユーザーがどんな倍率（例: 75% や 150%）でチャートを見ていても、キャプチャ実行時に一時的に 100%（等倍）へ自動調整し、完了後に元の表示倍率へ自動復元。常に鮮明で標準比率の画像が出力されます
+- **オンデマンド動的インポート（遅延読み込み）**: 重量級ライブラリ（`html2canvas-pro`、`jspdf`、`exceljs`）を初期バンドルに一切含めず、ユーザーが「画像エクスポート」や「Excelエクスポート」を押した瞬間にのみ `import()` で動的ロード。Web アプリの初回爆速表示を損ないません
+- **セル塗りつぶしタイムライン付き Excel 出力**: `@mogura/moguchart-plugin-excel` を通じて、タスク実施期間セルがチャートカラーで塗られた視覚的工程表シートを出力。WBS階層インデントや太字、土日および日本の祝日（`@holiday-jp/holiday_jp` 連携）の自動ハイライト、担当者（assignees）カラムの挿入、サマリータスク（集計ブラケット形状）の描画に対応しています。また旧 `xlsx` 依存を完全削除し、依存関係の健全化とバンドル軽量化を実現しました
+- **ズーム倍率の自動正規化 (`withNormalizedZoomForExport`)**: ユーザーがどんな倍率（例: 75% や 150%）でチャートを見ていても、画像・PDFキャプチャ実行時に一時的に 100%（等倍）へ自動調整し、完了後に元の表示倍率へ自動復元。常に鮮明で標準比率の画像が出力されます
 - **影の描画補正 ＆ スクロール位置保持**: カレンダー幅拡張時のドロップシャドウ描画ずれを補正し、エクスポート処理前後でユーザーのスクロール位置を確実に保持します
 
 ```typescript
-// useGanttChartView.ts 抜粋
+// useGanttChartView.ts 抜粋（各種エクスポートプラグインの遅延読み込み）
 const ensureExportPlugin = async (chart: GanttChartInstance) => {
   const isAlreadyInstalled = chart.element?.pluginManager?.hasPlugin('export') ?? false
   if (!isAlreadyInstalled) {
     const { exportPlugin } = await import('@mogura/moguchart-plugin-export')
     chart.use(exportPlugin())
+  }
+}
+
+const ensureExcelPlugin = async (chart: GanttChartInstance) => {
+  const isAlreadyInstalled = chart.element?.pluginManager?.hasPlugin('excel') ?? false
+  if (!isAlreadyInstalled) {
+    const { excelPlugin } = await import('@mogura/moguchart-plugin-excel')
+    chart.use(excelPlugin())
   }
 }
 ```
@@ -482,7 +495,7 @@ const ensureExportPlugin = async (chart: GanttChartInstance) => {
 
 ### 1. バージョン同期の自動化 (`scripts/sync-version.mjs`)
 
-ルートの `package.json` のバージョン（`1.2.0`）を、フロント・バックエンドの共有型定義（`shared.ts`）や OpenAPI 3.1 仕様書（`docs/openapi.yaml`）へビルド前に自動同期します。
+ルートの `package.json` のバージョン（`1.3.0`）を、フロント・バックエンドの共有型定義（`shared.ts`）や OpenAPI 3.1 仕様書（`docs/openapi.yaml`）へビルド前に自動同期します。
 
 ```json
 {
@@ -520,7 +533,7 @@ CDP (Chrome DevTools Protocol) 連携スクリプト（`scripts/debug-chrome.mjs
 1. **コア描画エンジンと公式 Vue ラッパーの多層分離が最大の成功要因**
    ガントチャートの描画・D&D・仮想スクロールなどの低レイヤーを Web Component（Lit）として疎結合にし、さらに Vue 3 向けに公式ラッパーコンポーネントを設けたことで、アプリ側では Vue のリアクティビティをフル活用しつつ、基盤のバージョンアップやリファクタリングが極めて安全に行えました。
 2. **プラグインアーキテクチャによるバンドル最適化の威力**
-   PNG/PDF エクスポートのような重量級ライブラリ（約600KB）をプラグインとして分離し、オンデマンド動的インポートに切り替えたことで、コアライブラリは ~44KB (gzipped) まで軽量化され、Web アプリの初回表示も劇的に高速化しました。
+   PNG/PDF エクスポート（`html2canvas-pro`、`jspdf`）や Excel エクスポート（`exceljs`）のような重量級ライブラリを独立プラグインとして分離し、オンデマンド動的インポートに切り替えたことで、コアライブラリは ~44KB (gzipped) まで軽量化され、Web アプリの初回表示も劇的に高速化しました。旧 `xlsx` 依存も完全削除でき、依存関係の健全化にも寄与しています。
 3. **Command パターンと Undo / Redo 履歴管理の全域統合**
    低レイヤーの描画エンジン（Lit）が発行する操作イベントと、上位アプリケーション層（Vue 3 / Firestore）のデータ更新を Command パターンで繋ぎ込むことで、ドラッグ操作や進捗変更を含む全操作の取り消し・再実行を驚くほどクリーンに実現できました。
 4. **リレーショナル DB (Prisma) ＋ JSON カラムの相性の良さ**
@@ -530,7 +543,7 @@ CDP (Chrome DevTools Protocol) 連携スクリプト（`scripts/debug-chrome.mjs
 
 ## まとめ
 
-MoguChart は、**「Web Components 製の超軽量描画エンジン ＆ 公式 Vue 3 ラッパー」** と **「Vue 3 ＋ Firebase ＋ MySQL による堅牢なフルスタック Web アプリ」** という設計で成り立っています。
+MoguChart は、**「Web Components 製の超軽量描画エンジン ＆ 公式 Vue 3 ラッパー ＆ 拡張プラグイン群」** と **「Vue 3 ＋ Firebase ＋ MySQL による堅牢なフルスタック Web アプリ」** という設計で成り立っています。
 
 個人開発であっても、最初から適切な境界（コア分離・プラグイン化・モノレポ・型共有・IaC）を敷いておくことで、機能追加を重ねても破綻せず、楽しく開発を継続できています。
 

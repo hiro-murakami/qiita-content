@@ -7,7 +7,7 @@ tags:
   - リアルタイム
   - Firestore
 private: false
-updated_at: '2026-09-22T15:28:59+09:00'
+updated_at: '2026-09-27T10:45:00+09:00'
 id: 9664fa9018efc06059f2
 organization_url_name: null
 slide: false
@@ -556,7 +556,7 @@ interface UndoRedoAction {
 }
 ```
 
-さらに最新の **v1.2.0** では、コアライブラリ（`@mogura/moguchart-core`）の Command パターンとも完全統合されました。
+さらに **v1.2.0** 以降では、コアライブラリ（`@mogura/moguchart-core`）の Command パターンとも完全統合されました。
 
 ガントチャート上でユーザーが直感的に行ったドラッグ移動（単一・複数一括）、ドラッグリサイズ、タスクバー上の進捗ハンドル操作、行の並び替え、依存関係線の作成や削除などの低レベル操作は、コアから `@command` イベント（`GanttCommand`）として発行されます。アプリケーション側（`useGanttChartView.ts`）はこのイベントを捉えて `useUndoRedo` のスタックへと自動登録します。
 
