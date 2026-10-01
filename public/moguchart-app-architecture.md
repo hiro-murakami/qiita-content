@@ -55,7 +55,7 @@ MoguChart は、**Web ブラウザ上で動作する高機能ガントチャー�
 | 🔗 **依存関係＆クリティカルパス** | 矢印付き曲線（S字）/直角線での可視化、接続線クリック選択・削除、最長遅延チェーンの自動ハイライト |
 | 🖼️ **画像添付＆クリップボード連携** | タスク・行への画像添付、クリップボード貼り付け（Ctrl+V）、D&Dアップロード、自動圧縮、ホバーディレイ付きプレビュー |
 | 🏁 **マイルストーン＆マーカー** | 縦線マイルストーン ＋ 行ごとの個別日時マーカー（マルチレーン自動配置） |
-| 👤 **担当者設定 ＆ 権限分離** | 担当者メールアドレス補完、閲覧者ロールでも自身の担当タスク進捗率のみ更新可能な実務的権限設計 |
+| 👤 **メンバー管理 ＆ 権限分離** | 専用一覧テーブルUI、ロールインライン変更、コラボレーター自動サジェスト、閲覧者でも担当タスク進捗率のみ更新可能な現場目線の権限設計、Prismaリレーショナル管理 |
 | 👥 **リアルタイム共同編集** | 複数ユーザーでの同時編集、プレゼンス・アクティビティログ表示（最小化対応）、Undo/Redo同期 |
 | 🔑 **外部連携 REST API** | APIキー認証、レートリミット、プロジェクト・行・タスク・コメントのCRUD、GAS連携、OpenAPI仕様 |
 | 🌐 **公開閲覧モード** | 一般公開フラグによる未ログインユーザーの安全な閲覧共有 |
@@ -295,16 +295,26 @@ Firebase を利用しながらも、メインデータベースには MySQL（Pr
 - 他ユーザーの編集通知イベント配信
 
 ```prisma
-// schema.prisma の抜粋
+// schema.prisma の抜粋（v1.4.0）
+
+model User {
+  id          String          @id @db.VarChar(128) // Firebase Auth UID
+  email       String?         @db.VarChar(255)
+  displayName String?         @db.VarChar(255)
+  attribute   Json            @default("{}")
+  memberships ProjectMember[]
+  assignments TaskAssignee[]
+}
 
 model Project {
-  id        String     @id @default(uuid()) @db.Char(36)
+  id        String          @id @default(uuid()) @db.Char(36)
   name      String
-  start     DateTime   @db.DateTime(3)
-  end       DateTime   @db.DateTime(3)
-  attribute Json       @default("{}")  // カラーパレット、ラベル定義、表示設定
-  public    Boolean    @default(false) // 一般公開フラグ
-  authority Json       @default("{}")  // メンバー権限（owner, editor, viewer）
+  start     DateTime        @db.DateTime(3)
+  end       DateTime        @db.DateTime(3)
+  attribute Json            @default("{}")  // カラーパレット、ラベル定義、表示設定
+  public    Boolean         @default(false) // 一般公開フラグ
+  authority Json            @default("{}")  // メンバー権限（後方互換・Dual Write用）
+  members   ProjectMember[]
   rows      GanttRow[]
   comments  Comment[]
 }
@@ -322,14 +332,42 @@ model GanttRow {
 }
 
 model GanttTask {
-  id        Int       @id @default(autoincrement())
+  id        Int            @id @default(autoincrement())
   rowId     Int
   name      String
   start     DateTime
   end       DateTime
-  attribute Json      @default("{}")  // 色、パターン、進捗率、依存先、添付画像等
-  row       GanttRow  @relation(fields: [rowId], references: [id], onDelete: Cascade)
+  attribute Json           @default("{}")  // 色、パターン、進捗率、依存先、添付画像等
+  row       GanttRow       @relation(fields: [rowId], references: [id], onDelete: Cascade)
   comments  Comment[]
+  assignees TaskAssignee[]
+}
+
+model ProjectMember {
+  id        String   @id @default(uuid()) @db.Char(36)
+  projectId String   @db.Char(36)
+  userId    String?  @db.VarChar(128)
+  email     String?  @db.VarChar(255)
+  role      String   @db.VarChar(20) // 'owner' | 'editor' | 'viewer'
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  user      User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([projectId])
+  @@index([userId])
+  @@index([email])
+}
+
+model TaskAssignee {
+  id        String    @id @default(uuid()) @db.Char(36)
+  taskId    Int
+  userId    String?   @db.VarChar(128)
+  email     String?   @db.VarChar(255)
+  task      GanttTask @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  user      User?     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([taskId])
+  @@index([userId])
+  @@index([email])
 }
 
 model Comment {
@@ -357,11 +395,23 @@ model ApiKey {
 }
 ```
 
-### 💡 設計のポイント: `Json` 属性カラムの活用
+### 💡 設計のポイント1: `Json` 属性カラムによる爆速プロトタイピング
 
 UI の機能拡張（バーの影、枠線、グラデーション、進捗率、ラベル、マーカー、添付画像リストなど）を素早く追加できるよう、各テーブルに `attribute Json` カラムを持たせています。
 
 これにより、**DB マイグレーションを都度走らせることなくフロントエンド主導で新しいプロパティを追加**でき、爆速な機能追加と安定性を両立しています。
+
+### 💡 設計のポイント2: サービス成長に伴うリレーショナル化への段階的進化（Dual Write / Dual Read 機構）
+
+当初はプロジェクト権限を `Project.authority` JSON、タスク担当者を `Task.attribute.assignees` JSON に格納していましたが、v1.4.0 で正規化テーブル `ProjectMember` および `TaskAssignee` へ移行しました。
+
+**なぜリレーショナル化したのか？**
+1. **所属プロジェクト横断クエリの高速化**: ユーザーが参加する全プロジェクトから共同作業者を自動収集する「コラボレーター自動サジェスト」API（`selectCollaborators`）を JOIN クエリで高速・軽量に実現するため
+2. **インデックスを活用した整合性と検索性**: メンバー数やタスク数が増加しても、`projectId` や `userId`, `email` に対するインデックスで高速な検索・フィルタリング・インライン権限変更を担保
+3. **未登録ユーザーの初回ログイン時自動紐付け**: メールアドレスで事前招待された未登録ユーザーが初回ログイン（`upsertUser`）した際、該当する `ProjectMember` と `TaskAssignee` レコードへ Firebase Auth UID を自動補完
+
+**無停止移行を支えた Dual Write & Dual Read**:
+個人開発での本番稼働中におけるスキーマ移行では、ダウンタイムなしに後方互換性を保つことが最重要です。更新時にはリレーショナル中間テーブルと既存 JSON カラムの双方に書き込む **Dual Write** を行い、読み込み時も新テーブルを優先しつつ JSON にフォールバックする **Dual Read** を構築。さらに一括データ移行用 CLI スクリプト（`migrateJsonToRelational`）を用意することで、API 連携や旧クライアントに一切影響を与えずに安全な移行を完遂しました。
 
 ## 外部連携 REST API ＆ セキュリティ
 
@@ -468,9 +518,11 @@ const ensureExcelPlugin = async (chart: GanttChartInstance) => {
 
 コアエンジンの Canvas ミニマップと Vue の表示設定ストアを連携させ、表示状態・幅・不透明度（20%〜100%）・折りたたみ状態をプロジェクトごとにサーバーへ自動永続化しています。右下アンカー相対座標で管理することで、画面リサイズ時も破綻なく追従します。
 
-### 9. 現場目線の権限分離（担当者進捗ドラッグ更新）
+### 9. 現場目線の権限分離（担当者進捗ドラッグ更新 ＆ moguchart-core v1.3.1 連携）
 
-タスクの日程や行構造を保護するため、現場メンバーを「閲覧者（Viewer）」にしつつ、**「自身が担当するタスクの進捗率のみ、タスクバー端のハンドルドラッグで更新可能」** とする権限チェックをフロントエンド・バックエンド双方に実装。誤操作を防ぎながら即時報告を可能にしています。
+タスクの日程や行構造を保護するため、現場メンバーを「閲覧者（Viewer）」にしつつ、**「自身が担当するタスクの進捗率のみ、タスクバー端のハンドルドラッグで更新可能」** とする実務的な権限チェックをフロントエンド・バックエンド双方に実装しています。
+
+コアライブラリ（`@mogura/moguchart-core` v1.3.1）では、チャート全体が読み取り専用（`readOnly: true`）であっても、タスクに `progressResizable: true` が設定されていれば進捗率ドラッグ変更のみを受け付ける仕組みが備わっています。MoguChart アプリケーション層では、ユーザーが閲覧者の場合にチャートを読み取り専用としつつ、ログインユーザーが担当者（assignee）に含まれるタスクにのみ `progressResizable: true` を動的付与。これにより、コアエンジンの堅牢な誤編集ガードと現場の自律的な進捗報告が完璧に両立しています。
 
 ### 10. コア Command パターンと Undo / Redo 履歴管理の完全統合
 
@@ -491,11 +543,22 @@ const ensureExcelPlugin = async (chart: GanttChartInstance) => {
 
 コアの `zoomToPercent` メソッドおよび `@zoom-change` イベントによる双方向連動を確立したことで、マウスホイールズーム（`Ctrl/Cmd + Wheel`）やキーボードショートカット、表示設定メニューのセグメントボタン間での状態同期が極めてシンプルかつ堅牢になりました。
 
+### 13. プロジェクトメンバー管理 UI の刷新とコラボレーター自動サジェスト
+
+v1.4.0 では、プロジェクト詳細の「権限」設定を全面刷新し、専用コンポーネント（`ProjectMembersTable`）によるモダンな一覧テーブル形式へ移行しました。
+
+- **モダンな一覧テーブル表示**: Google アカウントのアバター画像（未登録ユーザーや画像未設定時はイニシャルアバター）、表示名、メールアドレスを一覧表示
+- **インラインロール変更**: ドロップダウンから「オーナー」「編集者」「閲覧者」をワンクリックで切り替え
+- **インクリメンタル検索フィルター**: メンバー数が多い場合でも名前やメールアドレスで即座に絞り込み可能
+- **複数メールアドレスの一括パース**: スペース・カンマ・改行区切りの複数アドレスの一括入力やクリップボード貼り付けに対応（無効形式のリアルタイムバリデーション完備）
+- **オーナー保護ルール**: 最低1名のオーナーを必須とし、最後の1人のオーナーに対する降格・削除操作をUI・API双方で安全にガード
+- **コラボレーター自動サジェスト**: 旧メール履歴の手動保存を廃止し、自身が所属する全プロジェクトから共同作業者を自動収集する `selectCollaborators` API を新設。メンバー追加時やタスク担当者設定時（`UsersInput`）にアバター付きでスムーズにサジェストされます
+
 ## 開発を支える運用・自動化の仕組み
 
 ### 1. バージョン同期の自動化 (`scripts/sync-version.mjs`)
 
-ルートの `package.json` のバージョン（`1.3.0`）を、フロント・バックエンドの共有型定義（`shared.ts`）や OpenAPI 3.1 仕様書（`docs/openapi.yaml`）へビルド前に自動同期します。
+ルートの `package.json` のバージョン（`1.4.0`）を、フロント・バックエンドの共有型定義（`shared.ts`）や OpenAPI 3.1 仕様書（`docs/openapi.yaml`）へビルド前に自動同期します。
 
 ```json
 {
