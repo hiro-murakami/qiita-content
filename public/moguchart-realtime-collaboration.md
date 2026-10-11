@@ -7,7 +7,7 @@ tags:
   - リアルタイム
   - Firestore
 private: false
-updated_at: '2026-09-27T10:55:38+09:00'
+updated_at: '2026-10-11T12:00:00+09:00'
 id: 9664fa9018efc06059f2
 organization_url_name: null
 slide: false
@@ -29,6 +29,7 @@ agreed_posting_campaign_term: false
 :::note info
 **MoguChart の関連記事はこちら**
 
+- **リリース＆改善アップデート**: [【個人開発】直感操作の無料Webガントチャート「MoguChart」を正式リリースしました！](https://qiita.com/hiroyuki_m/items/c953507bb22d3b207eb3)
 - **全体アーキテクチャ**: [個人開発で本格ガントチャートWebアプリ「MoguChart」を作った話 ─ 自作Web Components × Vue 3 × Firebase のアーキテクチャ全解剖](https://qiita.com/hiroyuki_m/items/d1d2b644890e49b796e7)
 - **UX・機能詳細**: [無料で使えるWebガントチャート「MoguChart」を作った ─ 個人開発で追求した"ちょうどいい"プロジェクト管理UX](https://qiita.com/hiroyuki_m/items/bfdaf141de040cb387b9)
 - **コア描画ライブラリ**: [フレームワークに縛られないガントチャートを作った — Web Components製「moguchart-core」の紹介](https://qiita.com/hiroyuki_m/items/0e4859951a9f652c26c3)
@@ -217,6 +218,12 @@ const applyRemoteEditingHighlight = (
 ```
 
 ハイライトはユーザーのアバター色と連動しているため、**誰が編集しているか一目でわかる**UIになっています。
+
+:::note info
+**v1.5.0 における改善・拡張：**
+- **閲覧者向け進捗更新（`TaskProgressDialog`）との連携**: 編集権限を持たない閲覧者（Viewer）でも進捗率の更新が許可されていますが、進捗ダイアログを開いている間も同様に `editingTaskIds` にタスクIDが追加されます。これにより「誰が進捗を報告・更新中か」が全メンバーへリアルタイムに視覚共有されます。
+- **スナップショット差分比較時の一貫性保持**: 過去のスナップショットをベースラインとして同時描画している際、Firestore から届く共同編集イベントは「現在のプロジェクトデータ」にのみ反映され、読み取り専用であるスナップショットデータには干渉しないため、比較画面が崩れることなくリアルタイム同期が維持されます。
+:::
 
 ## ② 編集イベント同期
 

@@ -7,7 +7,7 @@ tags:
   - OSS
   - ガントチャート
 private: false
-updated_at: '2026-10-01T16:30:59+09:00'
+updated_at: '2026-10-11T11:50:00+09:00'
 id: 0e4859951a9f652c26c3
 organization_url_name: null
 slide: false
@@ -30,7 +30,7 @@ agreed_posting_campaign_term: false
 
 https://github.com/hiro-murakami/moguchart-core
 
-そしてこの度、**WBS（階層ツリー構造・行の開閉）** と **サマリータスク（自動集計・描画）**（v1.0.0）、**プラグインアーキテクチャ**と **公式 React / Vue 3 ラッパー**（v1.1.0）、**Command パターンによる操作履歴（Undo / Redo）** と **依存関係線の選択・削除**（v1.2.0）、セル塗りつぶしによる視覚的工程表シートを出力できる **公式 Excel エクスポートプラグイン（`@mogura/moguchart-plugin-excel`）**（v1.3.0）に続き、読み取り専用モード下での柔軟な権限分離を可能にする **タスク単位の進捗ドラッグ制御（`progressResizable`）** に対応した最新バージョン **v1.3.1** をリリースしました！🎉
+そしてこの度、**WBS（階層ツリー構造・行の開閉）** と **サマリータスク（自動集計・描画）**（v1.0.0）、**プラグインアーキテクチャ**と **公式 React / Vue 3 ラッパー**（v1.1.0）、**Command パターンによる操作履歴（Undo / Redo）** と **依存関係線の選択・削除**（v1.2.0）、セル塗りつぶしによる視覚的工程表シートを出力できる **公式 Excel エクスポートプラグイン（`@mogura/moguchart-plugin-excel`）**（v1.3.0）、読み取り専用モード下での柔軟な権限分離を可能にする **タスク単位の進捗ドラッグ制御（`progressResizable`）**（v1.3.1）に続き、計画と実績の乖離を同一レーン上に同時描画・可視化できる **ベースライン（当初計画）トラッキング ＆ スケジュール差異判定機能** や **`scrollToTask` スムーズスクロール最適化（公式Vueラッパー公開）** に対応した最新バージョン **v1.4.0** をリリースしました！🎉
 
 重量級の外部依存を分離したコア本体は **~44KB (gzipped)** と超軽量を維持しながら、商用ガントチャートに匹敵するリッチな操作性と堅牢な設計を備えています。React や Vue 3 のプロジェクトでも、各フレームワーク標準の Props やイベント、TypeScript 型安全性を備えたコンポーネントとして直感的に利用可能です。
 
@@ -50,19 +50,21 @@ Custom Elements（`<gantt-chart>`）として動作するため、**Vue、React�
 | **フレームワーク非依存** | Web Components (Custom Elements) として実装。あらゆる環境で動作 |
 | **公式 Vue 3 / React ラッパー** | `@mogura/moguchart-vue`、`@mogura/moguchart-react` を提供。Props リアクティブバインディング、標準イベント・emits、完全型安全 |
 | **プラグインアーキテクチャ** | `GanttPlugin` API による高い拡張性。コア本体を **~44KB (gzipped)** と超軽量に保ちつつ、画像・PDF・Excelエクスポート等をオンデマンド拡張可能 |
+| **ベースライン（当初計画）表示** | `task.baseline` による計画と実績の同一レーン同時描画。配置位置切替（下部/上部/背面オーバーレイ）、遅延ハイライト線（`.task-delayed`）、計画進捗率・スケジュール差異（遅延/前倒し日数）の多言語ツールチップ、親サマリー自動集計、ミニマップ描画対応（v1.4.0） |
 | **操作履歴（Undo / Redo）** | Command パターンに基づく `HistoryManager` を内蔵。ドラッグ移動・進捗変更・タスク削除・行並び替え・依存作成削除を `undo()` / `redo()` やショートカット（Cmd+Z / Ctrl+Z）で安全に取り消し・再実行 |
 | **依存関係線の選択・削除** | 接続線をクリックしてハイライト選択、「×」ボタンや `Delete` / `Backspace` キーで直感削除。削除可否オプションや削除イベント通知完備 |
-| **包括的ズーム＆フォント連動** | 50%〜200%（Chrome互換ステップ）、ホイールズーム（Ctrl+Wheel）、`zoomToPercent()`、文字サイズ・ヘッダー・バーの連動拡大縮小 |
-| **WBS（階層ツリー構造）** | `parentId` による無制限の親子階層（大工程 ＞ 中工程 ＞ 詳細タスク）、インデント表示、開閉トグル（▶/▼）、展開・折りたたみ対応 |
-| **サマリータスク自動計算** | 配下全タスクの最小開始日〜最大終了日、期間加重平均進捗率（%ラベル表示対応）を自動集計して山型ブラケットバーを描画。通常タスクとの2段共存描画対応 |
+| **包括的ズーム＆フォント連動** | 50%〜200%（Chrome互換ステップ）、ホイールズーム（Ctrl+Wheel）、`zoomToPercent()`、文字サイズ・ヘッダー・バーの連動拡大縮小。WBSツリートグルとスペーサーも `--moguchart-font-scale` で比例伸縮 |
+| **WBS（階層ツリー構造）** | `parentId` による無制限の親子階層（大工程 ＞ 中工程 ＞ 詳細タスク）、インデント表示、開閉トグル（▶/▼）、展開・折りたたみ対応。子タスクフィルタ除外時の親サマリー半透明連動（`opacity: 0.2`） |
+| **サマリータスク自動計算** | 配下全タスクの最小開始日〜最大終了日、期間加重平均進捗率（%ラベル表示対応）を自動集計して山型ブラケットバーを描画。ベースライン集計、通常タスクとの2段共存描画対応 |
 | **安全な階層並び替え** | 親行ドラッグ移動時の子孫行ブロック一体追従移動、循環参照を未然に防止するドロップ判定ロジック（`canDropRow`） |
 | **仮想スクロール** | 大量のタスク・行でもスムーズで軽快なパフォーマンス |
 | **矩形範囲選択** | チャート背景ドラッグによる複数タスク一括選択（ラバーバンド選択、AABB交差判定、Shift/Ctrl/Cmdでの累積追加選択、オートスクロール対応） |
 | **タスク進捗管理** | バー内進捗インジケーター描画、ハンドル操作による直感的ドラッグ編集（スナップ・Escキャンセル対応）、タスク単位の個別制御（`progressResizable`）、読み取り専用モードとの柔軟な権限連携、進捗ラベル表示、進捗率計算ユーティリティ |
 | **豊富なインタラクション** | D&D でのタスク移動（行間移動・同一行内制限対応）、リサイズ、行の並び替え、複数選択＆一括ドラッグ |
-| **ミニマップ（鳥瞰ビュー）** | 全体プレビュー、ビューポートパン操作、ドラッグ移動、リサイズ、透過率調整、折りたたみ、タスク進捗率の濃淡自動反映 |
+| **ミニマップ（鳥瞰ビュー）** | 全体プレビュー、ビューポートパン操作、ドラッグ移動、リサイズ、透過率調整、折りたたみ、タスク進捗率の濃淡自動反映、ベースライン同時描画 |
 | **依存関係＆クリティカルパス** | タスク間の依存を矢印付きの曲線/直角線で描画。最長経路（クリティカルパス）の自動ハイライト |
-| **スクロール位置制御** | `resetScroll()` による原点（0,0）リセット、`scrollToPosition()` による座標指定スクロール |
+| **スクロール位置制御** | `scrollToTask()` による目的タスクへのスムーズスクロール（単一 `scrollTo` 最適化、40pxオフセット、Vue ラッパー公開）、`resetScroll()` による原点（0,0）リセット、`scrollToPosition()` による座標指定スクロール |
+| **行ヘッダー拡張** | `row-header-dblclick` イベントの `contentTarget` プロパティによる行名要素へのアクセス、インライン編集配置容易化（v1.4.0） |
 | **誤操作防止・ガード** | 行移動の縦方向制限（`enableCrossRowMove`）、チャート領域外ドラッグ時の自動キャンセル、サマリータスクへの依存関係作成抑止 |
 | **キーボード操作** | 矢印キーでのナビゲーション、Shift+矢印での移動、Deleteキーでの削除、Cmd+ZでのUndo、Cmd+Wheelでのズーム |
 | **柔軟な表示モード** | 日 / 週 / 月 / 時間単位の切り替え、等幅月表示モード（最大100年スパン対応） |
@@ -400,6 +402,92 @@ export default function GanttDemo() {
 ```
 
 ## 機能ハイライト
+
+### ⏱️ ベースライン（当初計画）とスケジュール差異トラッキング (v1.4.0〜)
+
+実務のプロジェクト管理では、「当初立てた計画」と「現在の実績」を比較し、**スケジュールが何日遅延しているか／前倒しになっているか**を可視化することが極めて重要です。
+
+v1.4.0 では、各タスクに当初計画日程（`baseline`）を持たせることで、実績タスクバーと同一レーン上にベースラインバーを同時描画し、スケジュールの差異を直感的に把握できる **Baseline Tracking（ベースライントラッキング）機能** を新設しました！
+
+```typescript
+// タスク定義に baseline を設定するだけ
+const task: GanttTask = {
+  id: 't-1',
+  name: 'API実装',
+  // 現在の実績日程
+  start: new Date('2026-06-05'),
+  end: new Date('2026-06-20'),
+  progress: 60,
+  // 当初計画（ベースライン）
+  baseline: {
+    start: new Date('2026-06-01'),
+    end: new Date('2026-06-15'),
+    progress: 100, // 計画上の想定進捗率（省略時は100%）
+    style: 'background-color: #94a3b8;', // カスタム色（省略可）
+  },
+}
+```
+
+#### 1. 3つのレイアウト配置位置（`option.baseline.position`）
+
+行の高さやバーの視認性に応じて、ベースラインの配置位置を3パターンから選択できます：
+
+| 配置位置 | 動作 |
+|---|---|
+| `'bottom'` **(デフォルト)** | レーン内の高さをスマートに半分割し、実績バーの下段にベースラインバーを描画。行の高さ（`rowHeight`）や仮想スクロールのパフォーマンスに一切影響を与えません |
+| `'top'` | 実績バーの上段にベースラインバーを描画 |
+| `'overlay'` | 実績バーの背面にフルサイズで重ねて描画 |
+
+```typescript
+const option: GanttChartOption = {
+  baseline: {
+    enabled: true,
+    position: 'bottom', // 'bottom' | 'top' | 'overlay'
+    highlightDelay: true, // 遅延タスクのハイライト表示（デフォルト: true）
+    delayColor: '#ef4444', // 遅延インジケーター線の色（デフォルト: #ef4444）
+  },
+}
+```
+
+#### 2. 遅延の自動検出 ＆ ハイライト表示（`.task-delayed`）
+
+終了実績日がベースライン計画終了日を超過している場合（`task.end > baseline.end`）、システムが自動的に遅延タスクとして識別し、タスクバーの下端に遅延アクセントライン（`.task-delayed`）が鮮やかに描画されます。
+
+#### 3. インタラクティブな差異表示ツールチップ（多言語対応）
+
+タスクバーまたはベースラインバーにマウスホバーすると、リッチなツールチップが出現：
+- **計画期間 ＆ 計画進捗率**（例: `計画: 2026/06/01 - 2026/06/15 (100%)`）
+- **スケジュール差異バッジ**: 「**+5日遅延**」「**2日前倒し**」（英語ロケール時は `+5 days delayed`, `2 days ahead`）がひと目で分かります。
+
+#### 4. WBS 親サマリーへのベースライン自動集計 (`autoSummary`)
+
+WBS の階層構造（`parentId`）を使用している場合、子タスク群のベースライン情報（最小開始日〜最大終了日、加重平均進捗率）が親行のサマリータスクへ自動集計され、親サマリーバーの下段にも集計ベースラインバーが美しく描画されます。
+
+#### 5. ミニマップ（鳥瞰ビュー）連携
+
+画面右下のミニマップ Canvas にもベースラインバーが同期描画され、プロジェクト全体の計画乖離状況を俯瞰できます。
+
+#### 6. 便利な差異計算ユーティリティ関数
+
+```typescript
+import {
+  calculateTaskDelay,
+  calculateProjectBaselineSummary,
+} from '@mogura/moguchart-core'
+
+// 単一タスクの遅延・差異日数を算出
+const delayInfo = calculateTaskDelay(task)
+console.log(delayInfo.isDelayed)    // true (遅延あり)
+console.log(delayInfo.delayDays)    // 5 (5日遅延)
+console.log(delayInfo.delayMs)      // 遅延ミリ秒
+
+// プロジェクト全体のベースライン統計を集計
+const summary = calculateProjectBaselineSummary(rows)
+console.log(`総ベースラインタスク: ${summary.totalBaselineTasks}件`)
+console.log(`遅延タスク数: ${summary.delayedTasksCount}件`)
+console.log(`前倒しタスク数: ${summary.aheadTasksCount}件`)
+console.log(`最大遅延日数: ${summary.maxDelayDays}日`)
+```
 
 ### 🌳 WBS（階層ツリー構造） ＆ サマリータスク自動計算描画
 
@@ -1117,6 +1205,9 @@ await chart.exportImage('png', { download: true, filename: 'gantt' }) // 画像�
 await chart.exportImage('pdf', { download: true, filename: 'gantt', splitHeight: 1200 }) // 分割PDF
 await chart.exportExcel({ locale: 'ja', filename: '工程表.xlsx' }) // タイムライン付きExcel出力
 
+// 指定タスクへスムーズスクロール（v1.4.0 最適化・縦横同時スムーズスクロール ＆ 40pxオフセット）
+chart.scrollToTask('t-1')
+
 // 指定タスクを選択してその位置まで自動スクロール
 chart.selectTask('t-1')
 
@@ -1140,6 +1231,45 @@ chart.toggleRowCollapse('row-1', true) // 特定行を折りたたみ
 // プラグインの動的登録
 chart.use(exportPlugin())
 chart.use(excelPlugin())
+```
+
+### 🎯 `scrollToTask` によるスムーズなタスクスクロール (v1.4.0〜)
+
+特定のタスクへ画面をスクロールさせたい場合、v1.4.0 では **`scrollToTask(taskId)`** の実装が大幅に最適化され、公式 Vue 3 ラッパー（`GanttChartPublicApi`）の公開 API にも追加されました。
+
+- **滑らかな単一スクロール**: 縦スクロールと横スクロールを単一の `container.scrollTo({ behavior: 'smooth' })` で同時に実行することで、従来発生していたスクロールのカクつきを完全に解消
+- **快適なオフセット配置**: 行ヘッダー幅に加え、タスクの左側に 40px の余白を自動計算してスクロールするため、タスクの開始位置がヘッダーに隠れず視認性抜群です
+
+```vue
+<!-- Vue 3 公式ラッパーでの利用例 -->
+<script setup lang="ts">
+import { ref } from 'vue'
+import { GanttChart, type GanttChartInstance } from '@mogura/moguchart-vue'
+
+const chartRef = ref<GanttChartInstance | null>(null)
+
+// 目的のタスクへスムーズスクロール
+const focusTask = (taskId: string) => {
+  chartRef.value?.scrollToTask(taskId)
+}
+</script>
+```
+
+### 🏷️ 行ヘッダーのインライン編集・拡張を支援する `contentTarget` (v1.4.0〜)
+
+行ヘッダーのダブルクリック時に発火する `row-header-dblclick` イベントの detail に、行名テキストが配置されている実際の DOM 要素を参照できる **`contentTarget`** プロパティが追加されました。
+
+WBS のインデント余白（スペーサー）や開閉トグルボタンを除いた、**純粋な行名ラベルの表示領域（`getBoundingClientRect()`）** を即座に取得できるため、行名のインラインリネーム用 `<input>` やカスタムフローティングメニューを行名の上にピタリと重ねて表示することが極めて簡単になりました。
+
+```javascript
+chart.addEventListener('row-header-dblclick', (e) => {
+  const { rowId, row, contentTarget } = e.detail
+  if (contentTarget) {
+    const rect = contentTarget.getBoundingClientRect()
+    // 行名要素の上にインライン入力欄を正確にオーバーレイ配置
+    openInlineRenameInput(rowId, rect)
+  }
+})
 ```
 
 ## アーキテクチャ
@@ -1174,7 +1304,7 @@ moguchart-monorepo/
 - **`RowReorderController`**: 行のドラッグ並び替え・ブロック追従移動・循環参照防止・FLIPアニメーション
 - **`TreeController`**: WBS階層ツリーの状態管理、開閉トグル、サマリータスク自動集計
 - **`MarqueeController`**: チャート背景ドラッグによるラバーバンド矩形範囲選択
-- **`TooltipController`**: ホバー時の高精度ツールチップ位置計算
+- **`TooltipController`**: ホバー時の高精度ツールチップ位置計算（ベースライン差異・計画進捗率バッジ対応）
 - **`KeyboardController`**: キーボードナビゲーションとショートカットディスパッチ
 
 さらに、SVG 接続線レンダリング処理（直角折れ線・矢印マーカー・削除ボタン・プレビュー線）を独立モジュール `gantt-chart-dependency-svg.ts` へ切り出すことで、**100% の後方互換性を保ちながら、高い凝集度・疎結合な設計** を実現しています。
@@ -1199,7 +1329,7 @@ MoguChart は Vue 3 + Vuetify 4 をベースに、公式ラッパー `@mogura/mo
 
 moguchart-core は、**「フレームワークに縛られず、高機能なガントチャートを手軽に組み込みたい」** という自分自身のニーズから生まれたライブラリです。
 
-メジャーバージョン **v1.0.0** での **WBS階層ツリー構造** と **サマリータスク自動計算描画**、**v1.1.0** での **プラグインアーキテクチャ** と **公式 React / Vue 3 ラッパー**、**v1.2.0** での **操作履歴管理（Undo / Redo）**、**依存関係線の選択・削除**、**包括的ズーム制御**、**内部アーキテクチャ刷新（Reactive Controllers）**、**v1.3.0** での **公式 Excel プラグインによるセル塗りつぶしタイムライン工程表エクスポート**、そして最新 **v1.3.1** での **読み取り専用モードと連携したタスク単位の進捗ドラッグ制御（`progressResizable`）** を経て、商用ライブラリに迫る実用性と先進的な設計を兼ね備えたプロダクションレディなOSSとして結実しています。
+メジャーバージョン **v1.0.0** での **WBS階層ツリー構造** と **サマリータスク自動計算描画**、**v1.1.0** での **プラグインアーキテクチャ** と **公式 React / Vue 3 ラッパー**、**v1.2.0** での **操作履歴管理（Undo / Redo）**、**依存関係線の選択・削除**、**包括的ズーム制御**、**内部アーキテクチャ刷新（Reactive Controllers）**、**v1.3.0** での **公式 Excel プラグインによるセル塗りつぶしタイムライン工程表エクスポート**、**v1.3.1** での **読み取り専用モードと連携したタスク単位の進捗ドラッグ制御（`progressResizable`）**、そして最新 **v1.4.0** での **ベースライン（当初計画）トラッキング ＆ スケジュール差異判定機能**、**`scrollToTask` スムーズスクロール最適化（公式Vueラッパー公開）**、**行ヘッダーの `contentTarget` による拡張性向上** を経て、商用ライブラリに迫る実用性と先進的な設計を兼ね備えたプロダクションレディなOSSとして結実しています。
 
 矩形範囲選択（ラバーバンド選択）、タスク進捗率の直感的ドラッグ編集、全体を見渡すミニマップ、文字やバーが連動するフォント倍率スケーリング（`fontScale`）、スクロール制御メソッド、クリティカルパスの自動ハイライト、高解像度 PNG / PDF / Excel エクスポートなど、商用ライブラリに匹敵する実用機能を網羅したプロダクションレディなOSSとして結実しています。
 
