@@ -7,7 +7,7 @@ tags:
   - OSS
   - ガントチャート
 private: false
-updated_at: '2026-10-11T14:15:37+09:00'
+updated_at: '2026-10-17T20:05:30+09:00'
 id: 0e4859951a9f652c26c3
 organization_url_name: null
 slide: false
@@ -30,7 +30,7 @@ agreed_posting_campaign_term: false
 
 https://github.com/hiro-murakami/moguchart-core
 
-そしてこの度、**WBS（階層ツリー構造・行の開閉）** と **サマリータスク（自動集計・描画）**（v1.0.0）、**プラグインアーキテクチャ**と **公式 React / Vue 3 ラッパー**（v1.1.0）、**Command パターンによる操作履歴（Undo / Redo）** と **依存関係線の選択・削除**（v1.2.0）、セル塗りつぶしによる視覚的工程表シートを出力できる **公式 Excel エクスポートプラグイン（`@mogura/moguchart-plugin-excel`）**（v1.3.0）、読み取り専用モード下での柔軟な権限分離を可能にする **タスク単位の進捗ドラッグ制御（`progressResizable`）**（v1.3.1）に続き、計画と実績の乖離を同一レーン上に同時描画・可視化できる **ベースライン（当初計画）トラッキング ＆ スケジュール差異判定機能** や **`scrollToTask` スムーズスクロール最適化（公式Vueラッパー公開）** に対応した最新バージョン **v1.4.0** をリリースしました！🎉
+そしてこの度、**WBS（階層ツリー構造・行の開閉）** と **サマリータスク（自動集計・描画）**（v1.0.0）、**プラグインアーキテクチャ**と **公式 React / Vue 3 ラッパー**（v1.1.0）、**Command パターンによる操作履歴（Undo / Redo）** と **依存関係線の選択・削除**（v1.2.0）、セル塗りつぶしによる視覚的工程表シートを出力できる **公式 Excel エクスポートプラグイン（`@mogura/moguchart-plugin-excel`）**（v1.3.0）、読み取り専用モード下での柔軟な権限分離を可能にする **タスク単位の進捗ドラッグ制御（`progressResizable`）**（v1.3.1）、計画と実績の乖離を同一レーン上に同時描画・可視化できる **ベースライン（当初計画）トラッキング ＆ スケジュール差異判定機能**（v1.4.0）に続き、行ヘッダー領域を本格的な複数カラムテーブルとして表示・操作できる **マルチカラムデータグリッド（WBSテーブル）** と **グリッドセルのインライン編集機能（`option.grid.editable` / `cell-edit`）** に対応した最新バージョン **v1.5.0** をリリースしました！🎉
 
 重量級の外部依存を分離したコア本体は **~44KB (gzipped)** と超軽量を維持しながら、商用ガントチャートに匹敵するリッチな操作性と堅牢な設計を備えています。React や Vue 3 のプロジェクトでも、各フレームワーク標準の Props やイベント、TypeScript 型安全性を備えたコンポーネントとして直感的に利用可能です。
 
@@ -50,8 +50,9 @@ Custom Elements（`<gantt-chart>`）として動作するため、**Vue、React�
 | **フレームワーク非依存** | Web Components (Custom Elements) として実装。あらゆる環境で動作 |
 | **公式 Vue 3 / React ラッパー** | `@mogura/moguchart-vue`、`@mogura/moguchart-react` を提供。Props リアクティブバインディング、標準イベント・emits、完全型安全 |
 | **プラグインアーキテクチャ** | `GanttPlugin` API による高い拡張性。コア本体を **~44KB (gzipped)** と超軽量に保ちつつ、画像・PDF・Excelエクスポート等をオンデマンド拡張可能 |
+| **マルチカラムデータグリッド ＆ セルインライン編集** | 行ヘッダー領域を複数カラムのWBSテーブルとして表示（WBS・タスク名・開始日/月/日時・終了日/月/日時・期間・進捗率・カスタム列）。表示モードに応じた自動ヘッダー/フォーマット切替、ダブルクリック等によるインライン編集（6種の組み込みエディタ・カスタムエディタ・タスク編集可否連動・Undo/Redo連動・編集可能/読取専用セルの視覚区別）、カラム幅リサイズ、独立横スクロール同期、`cornerContent` との2段レイアウト共存（v1.5.0） |
 | **ベースライン（当初計画）表示** | `task.baseline` による計画と実績の同一レーン同時描画。配置位置切替（下部/上部/背面オーバーレイ）、遅延ハイライト線（`.task-delayed`）、計画進捗率・スケジュール差異（遅延/前倒し日数）の多言語ツールチップ、親サマリー自動集計、ミニマップ描画対応（v1.4.0） |
-| **操作履歴（Undo / Redo）** | Command パターンに基づく `HistoryManager` を内蔵。ドラッグ移動・進捗変更・タスク削除・行並び替え・依存作成削除を `undo()` / `redo()` やショートカット（Cmd+Z / Ctrl+Z）で安全に取り消し・再実行 |
+| **操作履歴（Undo / Redo）** | Command パターンに基づく `HistoryManager` を内蔵。ドラッグ移動・進捗変更・タスク削除・行並び替え・依存作成削除・グリッドセル編集を `undo()` / `redo()` やショートカット（Cmd+Z / Ctrl+Z）で安全に取り消し・再実行 |
 | **依存関係線の選択・削除** | 接続線をクリックしてハイライト選択、「×」ボタンや `Delete` / `Backspace` キーで直感削除。削除可否オプションや削除イベント通知完備 |
 | **包括的ズーム＆フォント連動** | 50%〜200%（Chrome互換ステップ）、ホイールズーム（Ctrl+Wheel）、`zoomToPercent()`、文字サイズ・ヘッダー・バーの連動拡大縮小。WBSツリートグルとスペーサーも `--moguchart-font-scale` で比例伸縮 |
 | **WBS（階層ツリー構造）** | `parentId` による無制限の親子階層（大工程 ＞ 中工程 ＞ 詳細タスク）、インデント表示、開閉トグル（▶/▼）、展開・折りたたみ対応。子タスクフィルタ除外時の親サマリー半透明連動（`opacity: 0.2`） |
@@ -293,7 +294,7 @@ const handleTaskUpdate = (detail: TaskUpdateEventDetail) => {
 
 ## クイックスタート（React 公式ラッパー）
 
-[`@mogura/moguchart-react`](https://www.npmjs.com/package/@mogura/moguchart-react) を使うと、React の JSX コンポーネントとして完全に型安全に記述できます。全25種類のカスタムイベントも `onTaskUpdate` などの camelCase Props として直接受け取れます：
+[`@mogura/moguchart-react`](https://www.npmjs.com/package/@mogura/moguchart-react) を使うと、React の JSX コンポーネントとして完全に型安全に記述できます。全28種類のカスタムイベントも `onTaskUpdate` や `onCellEdit` などの camelCase Props として直接受け取れます：
 
 ```tsx
 import React, { useRef } from 'react'
@@ -402,6 +403,82 @@ export default function GanttDemo() {
 ```
 
 ## 機能ハイライト
+
+### 📋 マルチカラムデータグリッド（WBSテーブル）＆ セルのインライン編集 (v1.5.0〜)
+
+本格的なプロジェクト管理では、タイムライン上のガントバーだけでなく、左側の行ヘッダー領域に **WBS番号・タスク名・担当者・開始日・終了日・期間・進捗率** などを一覧表（データグリッド）として並べて確認・直接編集したいケースが多々あります。
+
+v1.5.0 では、行ヘッダー領域を複数カラムのテーブルとして表示・操作できる **Multi-Column Data Grid（マルチカラムデータグリッド）** と **グリッドセルのインライン編集機能** を新設しました！
+
+```typescript
+const option: GanttChartOption = {
+  grid: {
+    enabled: true,            // マルチカラムグリッドを有効化
+    width: 700,               // グリッド領域全体の初期幅 (px)
+    splitterResizable: true,  // グリッドとタイムライン境界のスプリッターリサイズ
+    showBorders: true,        // セル罫線を表示
+    editable: true,           // セルのインライン編集を有効化 (デフォルト: false)
+    editTrigger: 'dblclick',  // 'dblclick' (デフォルト) | 'click'
+    columns: [
+      { id: 'wbs', width: 60 },         // WBS階層コード (1, 1.1, 1.2.1...)
+      { id: 'name', width: 220 },       // タスク名・行名 (ツリー開閉トグル内包)
+      { id: 'startDate', width: 125 },  // 開始日 (月/時間モード時は自動切替)
+      { id: 'endDate', width: 125 },    // 終了日 (月/時間モード時は自動切替)
+      { id: 'duration', width: 80 },    // 期間 (日数 / 時間・分)
+      { id: 'progress', width: 70 },    // 進捗率 (0〜100%)
+      {
+        id: 'assignee',
+        title: '担当者',
+        width: 110,
+        field: 'assignee',              // 任意のプロパティをバインド
+        editor: 'select',               // セレクトボックスエディタ
+        editorOptions: [
+          { label: '山田', value: '山田' },
+          { label: '佐藤', value: '佐藤' },
+          { label: '鈴木', value: '鈴木' },
+        ],
+      },
+    ],
+  },
+}
+```
+
+#### 1. 標準組み込みカラム ＆ 表示モードに応じた自動適応
+
+標準プリセット（`wbs`, `name`, `startDate`, `endDate`, `duration`, `progress`）を指定するだけで、単一タスク行の属性表示はもちろん、**サマリー行（親行）や複数タスク行における最小開始日〜最大終了日・期間・加重平均進捗率の自動集計表示** までコアがすべて自動で処理します。
+
+さらに、カレンダーの表示モードに応じて列ヘッダー名・表示フォーマット・エディタ種別が自動的に切り替わります：
+- **日・週単位モード**: 「開始日」「終了日」（`YYYY/MM/DD`、日付ピッカー）
+- **月単位モード（`pxPerMonth` 指定時）**: 「開始月」「終了月」（`YYYY/M`、月ピッカー、終了月は前月表記に自動調整）
+- **時間単位モード（`showTime: true` 時）**: 「開始日時」「終了日時」（時刻付き表示、日時ピッカー、時間・分単位の期間フォーマット）
+
+#### 2. セルのインライン編集 ＆ 編集可能/読み取り専用セルの視覚的区別
+
+`option.grid.editable: true` を設定すると、グリッド上のセルをダブルクリック（またはクリック）してその場で値を直接編集できます。
+- **6種の組み込みエディタ ＋ カスタムエディタ関数**: `text`, `number`, `date`, `datetime`, `month`, `select` に加え、任意の `HTMLElement` を返すカスタム関数 `editor: (context) => HTMLElement` に対応
+- **タスク個別の編集可否設定との自動連動**: 単一タスクの `resizable: false` や `movable: 'none'` 時は開始日・終了日・期間の編集を自動抑止し、`progressResizable: false` 時は進捗率の編集を自動抑止
+- **視覚的区別（`.grid-cell-editable` / `.grid-cell-readonly`）**: 編集可能なセルはテキストカーソルとホバーハイライトが表示され、サマリー行・複数タスク行の集計セルや WBS 番号セルなどの編集不可セルはグレーアウト背景・半透明表示で明確に区別されます（PNG/PDF エクスポート時は自動的に通常表示へ正規化）
+- **快適なドラッグ＆テキスト選択制御**: グリッド有効時は行のドラッグ並び替えおよび行ヘッダーツールチップの表示対象をタスク名（ツリー）セル（`.grid-cell-name`, `.grid-tree-cell`）に限定し、インライン編集中は行並び替えを一時抑止することで入力欄内のマウスドラッグによる文字選択がスムーズに行えます
+- **イベント発火 ＆ Undo / Redo 完全連動**: 編集確定時に `cell-edit` および `rows-change` イベントを発火し、`HistoryManager`（`command.type === 'cell-edit'`）と完全連動して `Ctrl+Z` / `Cmd+Z` で即座に取り消し・再実行が可能
+
+```typescript
+// セル編集イベントの購読
+chart.addEventListener('cell-edit', (e) => {
+  const { rowId, columnId, oldValue, newValue, row, rows } = e.detail
+  console.log(`行 ${rowId} の ${columnId} を更新: ${oldValue} -> ${newValue}`)
+})
+
+// プログラムからのセル編集制御メソッド
+chart.startCellEdit('row-1', 'name')
+chart.commitCellEdit('新しいタスク名')
+chart.cancelCellEdit()
+```
+
+#### 3. カラム幅ドラッグリサイズ ＆ 独立横スクロール同期 ＆ 2段コーナーレイアウト
+
+- **カラム幅リサイズ（`column-resize`）**: 各カラムヘッダー右端の境界線をドラッグして列幅を個別に調整可能。行クリックやオプション更新時もユーザーのリサイズ幅を保持します
+- **グリッド内の独立横スクロール同期**: カラム合計幅がグリッド領域幅を超える場合、トラックパッド横スワイプ、`Shift + ホイール`、またはグリッドヘッダー上のホイール操作でグリッド内だけを独立して横スクロールでき、ヘッダーと全行セルが 1px のズレもなく完全同期します
+- **`cornerContent` との2段レイアウト共存**: `customRendering.cornerContent` が指定されている場合、左上コーナー領域の上段にカスタムコンテンツ（フィルタや切替ボタン等）、下段にグリッドカラムヘッダーを配置する2段構成で美しく共存します
 
 ### ⏱️ ベースライン（当初計画）とスケジュール差異トラッキング (v1.4.0〜)
 
@@ -782,6 +859,7 @@ v1.2.0 から、Command パターンに基づく **操作履歴管理マネー�
 
 #### 自動記録される操作一覧
 - **タスク操作**: ドラッグ移動（単一移動・矩形選択による複数一括移動・行間移動）、ドラッグリサイズ、タスクバー上の進捗ハンドル操作、キーボード移動（Shift+矢印）
+- **グリッドセル操作**: マルチカラムデータグリッド上のセルインライン編集（`command.type === 'cell-edit'`：行名・開始日・終了日・期間・進捗率・カスタム列の更新）
 - **タスク削除**: `Delete` / `Backspace` キーによるタスク削除
 - **行操作**: 行のドラッグ＆ドロップによる並び替え（子孫行ブロック連動移動）
 - **依存関係操作**: コネクタードラッグによる接続線作成、クリック選択やDeleteキーによる接続線削除
@@ -1228,6 +1306,11 @@ chart.collapseAll()                   // 全親行を一括折りたたみ
 chart.expandAll()                     // 全行を一括展開
 chart.toggleRowCollapse('row-1', true) // 特定行を折りたたみ
 
+// マルチカラムグリッドのセル編集制御（v1.5.0〜）
+chart.startCellEdit('row-1', 'name')       // 指定セルのインライン編集を開始
+chart.commitCellEdit('新しいタスク名')     // インライン編集を確定
+chart.cancelCellEdit()                     // インライン編集をキャンセル
+
 // プラグインの動的登録
 chart.use(exportPlugin())
 chart.use(excelPlugin())
@@ -1282,7 +1365,7 @@ moguchart-monorepo/
 │   ├── core/                  # @mogura/moguchart-core (Lit製 コアWeb Component: ~44KB gzipped)
 │   │   ├── src/components/    # gantt-chart, gantt-calendar, gantt-bar, gantt-minimap 等
 │   │   ├── src/controllers/   # Lit Reactive Controllers (Zoom, Drag, Tree, Dependency 等)
-│   │   └── src/core/          # wbs, critical-path, history, plugin-manager, types 等
+│   │   └── src/core/          # grid, wbs, critical-path, history, plugin, types 等
 │   ├── plugin-export/         # @mogura/moguchart-plugin-export (PNG/PDF エクスポートプラグイン)
 │   │   └── src/               # export-plugin, canvas/pdf キャプチャロジック
 │   ├── plugin-excel/          # @mogura/moguchart-plugin-excel (タイムライン付き Excel エクスポートプラグイン)
@@ -1307,7 +1390,7 @@ moguchart-monorepo/
 - **`TooltipController`**: ホバー時の高精度ツールチップ位置計算（ベースライン差異・計画進捗率バッジ対応）
 - **`KeyboardController`**: キーボードナビゲーションとショートカットディスパッチ
 
-さらに、SVG 接続線レンダリング処理（直角折れ線・矢印マーカー・削除ボタン・プレビュー線）を独立モジュール `gantt-chart-dependency-svg.ts` へ切り出すことで、**100% の後方互換性を保ちながら、高い凝集度・疎結合な設計** を実現しています。
+さらに、SVG 接続線レンダリング処理（直角折れ線・矢印マーカー・削除ボタン・プレビュー線）を独立モジュール `gantt-chart-dependency-svg.ts` へ、マルチカラムデータグリッドの値算出・フォーマット・インライン編集判定ロジックを `core/grid.ts` へ切り出すことで、**100% の後方互換性を保ちながら、高い凝集度・疎結合な設計** を実現しています。
 
 Lit の Reactive Properties と仮想スクロールにより、数千件のタスクが並ぶ巨大プロジェクトでも 60fps の滑らかなレンダリング性能を維持します。
 
@@ -1315,7 +1398,7 @@ Lit の Reactive Properties と仮想スクロールにより、数千件のタ�
 
 moguchart-core は汎用ライブラリとして開発していますが、実は **このライブラリを活用した本格的なプロジェクト管理アプリケーション「MoguChart」** も並行して開発しています。
 
-MoguChart は Vue 3 + Vuetify 4 をベースに、公式ラッパー `@mogura/moguchart-vue` を中心に据えた Web アプリケーションです。ドラッグ＆ドロップ操作・WBSツリー・リアルタイム共同編集・画像添付・権限管理・タイムライン付き Excel / PNG / PDF オンデマンドエクスポートなど、実務で使える豊富な機能を備えています。
+MoguChart は Vue 3 + Vuetify 4 をベースに、公式ラッパー `@mogura/moguchart-vue` を中心に据えた Web アプリケーションです。ドラッグ＆ドロップ操作・WBSツリー・マルチカラムグリッド＆セルインライン編集・リアルタイム共同編集・画像添付・権限管理・タイムライン付き Excel / PNG / PDF オンデマンドエクスポートなど、実務で使える豊富な機能を備えています。
 
 👉 **MoguChart アプリケーションの詳細は別記事で紹介しています！**
 
@@ -1329,7 +1412,7 @@ MoguChart は Vue 3 + Vuetify 4 をベースに、公式ラッパー `@mogura/mo
 
 moguchart-core は、**「フレームワークに縛られず、高機能なガントチャートを手軽に組み込みたい」** という自分自身のニーズから生まれたライブラリです。
 
-メジャーバージョン **v1.0.0** での **WBS階層ツリー構造** と **サマリータスク自動計算描画**、**v1.1.0** での **プラグインアーキテクチャ** と **公式 React / Vue 3 ラッパー**、**v1.2.0** での **操作履歴管理（Undo / Redo）**、**依存関係線の選択・削除**、**包括的ズーム制御**、**内部アーキテクチャ刷新（Reactive Controllers）**、**v1.3.0** での **公式 Excel プラグインによるセル塗りつぶしタイムライン工程表エクスポート**、**v1.3.1** での **読み取り専用モードと連携したタスク単位の進捗ドラッグ制御（`progressResizable`）**、そして最新 **v1.4.0** での **ベースライン（当初計画）トラッキング ＆ スケジュール差異判定機能**、**`scrollToTask` スムーズスクロール最適化（公式Vueラッパー公開）**、**行ヘッダーの `contentTarget` による拡張性向上** を経て、商用ライブラリに迫る実用性と先進的な設計を兼ね備えたプロダクションレディなOSSとして結実しています。
+メジャーバージョン **v1.0.0** での **WBS階層ツリー構造** と **サマリータスク自動計算描画**、**v1.1.0** での **プラグインアーキテクチャ** と **公式 React / Vue 3 ラッパー**、**v1.2.0** での **操作履歴管理（Undo / Redo）**、**依存関係線の選択・削除**、**包括的ズーム制御**、**内部アーキテクチャ刷新（Reactive Controllers）**、**v1.3.0** での **公式 Excel プラグインによるセル塗りつぶしタイムライン工程表エクスポート**、**v1.3.1** での **読み取り専用モードと連携したタスク単位の進捗ドラッグ制御（`progressResizable`）**、**v1.4.0** での **ベースライン（当初計画）トラッキング ＆ スケジュール差異判定機能**・**`scrollToTask` スムーズスクロール最適化**、そして最新 **v1.5.0** での **マルチカラムデータグリッド（WBSテーブル）** と **グリッドセルのインライン編集機能（`option.grid.editable` / `cell-edit`）** を経て、商用ライブラリに迫る実用性と先進的な設計を兼ね備えたプロダクションレディなOSSとして結実しています。
 
 矩形範囲選択（ラバーバンド選択）、タスク進捗率の直感的ドラッグ編集、全体を見渡すミニマップ、文字やバーが連動するフォント倍率スケーリング（`fontScale`）、スクロール制御メソッド、クリティカルパスの自動ハイライト、高解像度 PNG / PDF / Excel エクスポートなど、商用ライブラリに匹敵する実用機能を網羅したプロダクションレディなOSSとして結実しています。
 
