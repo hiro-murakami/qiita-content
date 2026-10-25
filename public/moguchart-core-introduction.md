@@ -30,9 +30,9 @@ agreed_posting_campaign_term: false
 
 https://github.com/hiro-murakami/moguchart-core
 
-そしてこの度、**WBS（階層ツリー構造・行の開閉）** と **サマリータスク（自動集計・描画）**（v1.0.0）、**プラグインアーキテクチャ**と **公式 React / Vue 3 ラッパー**（v1.1.0）、**Command パターンによる操作履歴（Undo / Redo）** と **依存関係線の選択・削除**（v1.2.0）、セル塗りつぶしによる視覚的工程表シートを出力できる **公式 Excel エクスポートプラグイン（`@mogura/moguchart-plugin-excel`）**（v1.3.0）、読み取り専用モード下での柔軟な権限分離を可能にする **タスク単位の進捗ドラッグ制御（`progressResizable`）**（v1.3.1）、計画と実績の乖離を同一レーン上に同時描画・可視化できる **ベースライン（当初計画）トラッキング ＆ スケジュール差異判定機能**（v1.4.0）に続き、行ヘッダー領域を本格的な複数カラムテーブルとして表示・操作できる **マルチカラムデータグリッド（WBSテーブル）** と **グリッドセルのインライン編集機能（`option.grid.editable` / `cell-edit`）** に対応した最新バージョン **v1.5.0** をリリースしました！🎉
+そしてこの度、**WBS（階層ツリー構造・行の開閉）** と **サマリータスク（自動集計・描画）**（v1.0.0）、**プラグインアーキテクチャ**と **公式 React / Vue 3 ラッパー**（v1.1.0）、**Command パターンによる操作履歴（Undo / Redo）** と **依存関係線の選択・削除**（v1.2.0）、セル塗りつぶしによる視覚的工程表シートを出力できる **公式 Excel エクスポートプラグイン（`@mogura/moguchart-plugin-excel`）**（v1.3.0）、読み取り専用モード下での柔軟な権限分離を可能にする **タスク単位の進捗ドラッグ制御（`progressResizable`）**（v1.3.1）、計画と実績の乖離を同一レーン上に同時描画・可視化できる **ベースライン（当初計画）トラッキング ＆ スケジュール差異判定機能**（v1.4.0）に続き、行ヘッダー領域を本格的な複数カラムテーブルとして表示・操作できる **マルチカラムデータグリッド（WBSテーブル）** と **グリッドセルのインライン編集機能（`option.grid.editable` / `cell-edit`）** に対応した **v1.5.0**、そして **4種類の依存関係タイプ（FS / SS / FF / SF）とラグ設定** を備えた拡張依存関係モデルと、先行タスクの変更に合わせて後続タスクを連鎖調整する **自動スケジューリング（営業日ベース計算対応）** に対応した最新バージョン **v1.6.0** をリリースしました！🎉
 
-重量級の外部依存を分離したコア本体は **~44KB (gzipped)** と超軽量を維持しながら、商用ガントチャートに匹敵するリッチな操作性と堅牢な設計を備えています。React や Vue 3 のプロジェクトでも、各フレームワーク標準の Props やイベント、TypeScript 型安全性を備えたコンポーネントとして直感的に利用可能です。
+重量級の外部依存を分離したコア本体は **~66KB (gzipped)** と超軽量を維持しながら、商用ガントチャートに匹敵するリッチな操作性と堅牢な設計を備えています。React や Vue 3 のプロジェクトでも、各フレームワーク標準の Props やイベント、TypeScript 型安全性を備えたコンポーネントとして直感的に利用可能です。
 
 デモサイトも公開していますので、実際に動く様子をぜひお試しください！
 https://moguchart-core.vercel.app
@@ -49,11 +49,12 @@ Custom Elements（`<gantt-chart>`）として動作するため、**Vue、React�
 | :--- | :--- |
 | **フレームワーク非依存** | Web Components (Custom Elements) として実装。あらゆる環境で動作 |
 | **公式 Vue 3 / React ラッパー** | `@mogura/moguchart-vue`、`@mogura/moguchart-react` を提供。Props リアクティブバインディング、標準イベント・emits、完全型安全 |
-| **プラグインアーキテクチャ** | `GanttPlugin` API による高い拡張性。コア本体を **~44KB (gzipped)** と超軽量に保ちつつ、画像・PDF・Excelエクスポート等をオンデマンド拡張可能 |
+| **プラグインアーキテクチャ** | `GanttPlugin` API による高い拡張性。コア本体を **~66KB (gzipped)** と超軽量に保ちつつ、画像・PDF・Excelエクスポート等をオンデマンド拡張可能 |
 | **マルチカラムデータグリッド ＆ セルインライン編集** | 行ヘッダー領域を複数カラムのWBSテーブルとして表示（WBS・タスク名・開始日/月/日時・終了日/月/日時・期間・進捗率・カスタム列）。表示モードに応じた自動ヘッダー/フォーマット切替、ダブルクリック等によるインライン編集（6種の組み込みエディタ・カスタムエディタ・タスク編集可否連動・Undo/Redo連動・編集可能/読取専用セルの視覚区別）、カラム幅リサイズ、独立横スクロール同期、`cornerContent` との2段レイアウト共存（v1.5.0） |
+| **拡張依存関係 ＆ 自動スケジューリング** | `GanttDependencyLink`（`{ taskId, type, lag }`）による FS / SS / FF / SF の4種類の依存関係と分単位のラグ / リード（文字列IDとも完全後方互換）。トポロジカル順の自動スケジューリング（`push-only` / `strict`）、土日・祝日を除外する営業日ベース計算（`calendarMode`）、`chart.autoSchedule()` API、計算用ユーティリティ関数群（v1.6.0） |
 | **ベースライン（当初計画）表示** | `task.baseline` による計画と実績の同一レーン同時描画。配置位置切替（下部/上部/背面オーバーレイ）、遅延ハイライト線（`.task-delayed`）、計画進捗率・スケジュール差異（遅延/前倒し日数）の多言語ツールチップ、親サマリー自動集計、ミニマップ描画対応（v1.4.0） |
-| **操作履歴（Undo / Redo）** | Command パターンに基づく `HistoryManager` を内蔵。ドラッグ移動・進捗変更・タスク削除・行並び替え・依存作成削除・グリッドセル編集を `undo()` / `redo()` やショートカット（Cmd+Z / Ctrl+Z）で安全に取り消し・再実行 |
-| **依存関係線の選択・削除** | 接続線をクリックしてハイライト選択、「×」ボタンや `Delete` / `Backspace` キーで直感削除。削除可否オプションや削除イベント通知完備 |
+| **操作履歴（Undo / Redo）** | Command パターンに基づく `HistoryManager` を内蔵。ドラッグ移動・進捗変更・タスク削除・行並び替え・依存作成削除・グリッドセル編集・自動スケジューリングによる連鎖更新を `undo()` / `redo()` やショートカット（Cmd+Z / Ctrl+Z）で安全に取り消し・再実行 |
+| **依存関係線の選択・削除** | 接続線をクリックしてハイライト選択、「×」ボタンや `Delete` / `Backspace` キーで直感削除。削除可否オプションや削除イベント通知完備。ダブルクリック・右クリック（`dependency-click`）にも対応（v1.6.0） |
 | **包括的ズーム＆フォント連動** | 50%〜200%（Chrome互換ステップ）、ホイールズーム（Ctrl+Wheel）、`zoomToPercent()`、文字サイズ・ヘッダー・バーの連動拡大縮小。WBSツリートグルとスペーサーも `--moguchart-font-scale` で比例伸縮 |
 | **WBS（階層ツリー構造）** | `parentId` による無制限の親子階層（大工程 ＞ 中工程 ＞ 詳細タスク）、インデント表示、開閉トグル（▶/▼）、展開・折りたたみ対応。子タスクフィルタ除外時の親サマリー半透明連動（`opacity: 0.2`） |
 | **サマリータスク自動計算** | 配下全タスクの最小開始日〜最大終了日、期間加重平均進捗率（%ラベル表示対応）を自動集計して山型ブラケットバーを描画。ベースライン集計、通常タスクとの2段共存描画対応 |
@@ -63,7 +64,7 @@ Custom Elements（`<gantt-chart>`）として動作するため、**Vue、React�
 | **タスク進捗管理** | バー内進捗インジケーター描画、ハンドル操作による直感的ドラッグ編集（スナップ・Escキャンセル対応）、タスク単位の個別制御（`progressResizable`）、読み取り専用モードとの柔軟な権限連携、進捗ラベル表示、進捗率計算ユーティリティ |
 | **豊富なインタラクション** | D&D でのタスク移動（行間移動・同一行内制限対応）、リサイズ、行の並び替え、複数選択＆一括ドラッグ |
 | **ミニマップ（鳥瞰ビュー）** | 全体プレビュー、ビューポートパン操作、ドラッグ移動、リサイズ、透過率調整、折りたたみ、タスク進捗率の濃淡自動反映、ベースライン同時描画 |
-| **依存関係＆クリティカルパス** | タスク間の依存を矢印付きの曲線/直角線で描画。最長経路（クリティカルパス）の自動ハイライト |
+| **依存関係＆クリティカルパス** | タスク間の依存を矢印付きの曲線/直角線で描画（FS / SS / FF / SF に応じて左右端のエンドポイントから正確にルーティング）。最長経路（クリティカルパス）の自動ハイライト |
 | **スクロール位置制御** | `scrollToTask()` による目的タスクへのスムーズスクロール（単一 `scrollTo` 最適化、40pxオフセット、Vue ラッパー公開）、`resetScroll()` による原点（0,0）リセット、`scrollToPosition()` による座標指定スクロール |
 | **行ヘッダー拡張** | `row-header-dblclick` イベントの `contentTarget` プロパティによる行名要素へのアクセス、インライン編集配置容易化（v1.4.0） |
 | **誤操作防止・ガード** | 行移動の縦方向制限（`enableCrossRowMove`）、チャート領域外ドラッグ時の自動キャンセル、サマリータスクへの依存関係作成抑止 |
@@ -117,7 +118,7 @@ moguchart-core は **「商用ライブラリに迫る機能性を、MIT ライ�
 特に、以下の点で差別化しています：
 
 - **Web Components ネイティブ ＋ 公式 Vue / React ラッパー** — 普遍的な Custom Elements を核としつつ、各フレームワークで最高に使いやすいラッパーを提供
-- **モジュラーなプラグインアーキテクチャ** — コアは ~44KB と超軽量。重量級機能（エクスポート等）はプラグインとして疎結合に提供
+- **モジュラーなプラグインアーキテクチャ** — コアは ~66KB と超軽量。重量級機能（エクスポート等）はプラグインとして疎結合に提供
 - **WBS ＆ サマリータスク** — 無制限の階層構造、インデント・開閉、サマリー自動集計、ブロック連動D&D
 - **仮想スクロール** — 数百〜数千行でも軽快
 - **直感的な操作感** — スムーズなD&D、矩形範囲選択、進捗ドラッグ編集、ホイールズーム、ミニマップ連携、キーボードショートカット
@@ -129,7 +130,7 @@ Moguchart は柔軟なモノレポ構成となっており、用途やフレー�
 
 | パッケージ | 説明 |
 |---|---|
-| **[@mogura/moguchart-core](https://www.npmjs.com/package/@mogura/moguchart-core)** | コア Web Component（Lit製）。フレームワーク非依存で単体動作（~44KB gzipped） |
+| **[@mogura/moguchart-core](https://www.npmjs.com/package/@mogura/moguchart-core)** | コア Web Component（Lit製）。フレームワーク非依存で単体動作（~66KB gzipped） |
 | **[@mogura/moguchart-react](https://www.npmjs.com/package/@mogura/moguchart-react)** | **公式 React ラッパー**。型安全な Props、イベント、ref を提供 |
 | **[@mogura/moguchart-vue](https://www.npmjs.com/package/@mogura/moguchart-vue)** | **公式 Vue 3 ラッパー**。Composition API、リアクティブ Props、emits を提供 |
 | **[@mogura/moguchart-plugin-export](https://www.npmjs.com/package/@mogura/moguchart-plugin-export)** | **公式エクスポートプラグイン**。高解像度 PNG および分割 PDF 出力を提供 |
@@ -403,6 +404,106 @@ export default function GanttDemo() {
 ```
 
 ## 機能ハイライト
+
+### 🔗 拡張依存関係（FS / SS / FF / SF・ラグ）＆ 自動スケジューリング (v1.6.0〜)
+
+「前工程が遅れたら後工程を全部ずらす」「設計開始の2日後にレビューを始める」── 実務のスケジュール管理では、単純な「終了 → 開始」だけでは表現しきれない依存関係と、それに追従する日程調整が欠かせません。
+
+v1.6.0 では、依存関係モデルを拡張して **4種類の依存関係タイプとラグ / リード期間** に対応し、さらに依存関係に基づいて後続タスクの日程を自動で連鎖調整する **自動スケジューリングエンジン** を搭載しました！
+
+#### 1. `GanttDependencyLink` による4種類の依存関係 ＆ ラグ / リード
+
+`task.dependencies` には、従来のタスクID文字列に加えて `GanttDependencyLink` オブジェクトを指定できます。文字列との混在も可能で、既存データとは完全に後方互換です。
+
+| タイプ | 意味 | 制約 |
+| :--- | :--- | :--- |
+| `FS`（デフォルト） | Finish-to-Start | 先行タスクの終了（＋ラグ）以降に後続タスクを開始 |
+| `SS` | Start-to-Start | 先行タスクの開始（＋ラグ）に合わせて後続タスクを開始 |
+| `FF` | Finish-to-Finish | 先行タスクの終了（＋ラグ）に合わせて後続タスクを終了 |
+| `SF` | Start-to-Finish | 先行タスクの開始（＋ラグ）に合わせて後続タスクを終了 |
+
+```javascript
+const rows = [
+  {
+    id: 'row-1',
+    name: 'バックエンド開発',
+    tasks: [
+      { id: 't-1', name: 'スキーマ設計', start: new Date('2026-04-01'), end: new Date('2026-04-05') },
+      {
+        id: 't-2',
+        name: 'API実装',
+        start: new Date('2026-04-06'),
+        end: new Date('2026-04-12'),
+        // タスクID文字列、または GanttDependencyLink ({ taskId, type, lag }) を指定可能
+        dependencies: [{ taskId: 't-1', type: 'FS', lag: 1440 }], // +1日 (1440分) のラグ
+      },
+    ],
+  },
+]
+```
+
+- **ラグは分単位**: 正の値で遅延、負の値でリード（前倒し）を表します
+- **エンドポイント連動の描画 ＆ 作成**: 直角折れ線（`'orthogonal'`）/ ベジェ曲線（`'curve'`）ともに、タイプに応じてタスクバー左端（開始）/ 右端（終了）から正確にルーティングします。コネクタのドラッグで接続線を作成した場合も、接続元・接続先の端点からタイプを自動判定し、`dependency-create` イベントの `detail.type` に格納します
+- **対話操作の拡充**: `dependency-click` がダブルクリック・右クリックでも発火するようになり（`e.detail.event.type` で判別）、アプリ側で編集ダイアログやコンテキストメニューを簡単に実装できます
+- **周辺機能も対応**: `computeCriticalPath` や Excel エクスポートプラグイン（FS 以外を `1 (SS)` のように表記）も `GanttDependencyLink` に対応しています
+
+#### 2. トポロジカル順の自動スケジューリング（`option.dependency.autoSchedule`）
+
+```javascript
+const option = {
+  dependency: {
+    autoSchedule: true, // 先行タスク変更時に後続タスクを自動カスケード移動 (デフォルト: false)
+    scheduleMode: 'push-only', // 'push-only' (制約違反時のみ押し出し) | 'strict' (常に厳密追従)
+    respectMovable: true, // movable: 'none' | 'y' のタスクを自動移動対象から除外 (デフォルト: true)
+    calendarMode: 'weekends-holidays', // 'calendar' (暦日, デフォルト) | 'weekends' (土日除外) | 'weekends-holidays' (土日・祝日除外)
+    // isHoliday: (date) => false, // 祝日判定関数（省略時は option.calendar.isHoliday を使用）
+  },
+}
+
+// プログラムから全依存関係、または指定タスク起点で自動スケジューリングを実行
+const updatedTaskIds = chart.autoSchedule()
+const cascaded = chart.autoSchedule(['t-1'], { mode: 'strict' })
+```
+
+- **2つの制約モード**: `'push-only'` は依存制約に違反（逆転）したときだけ後続タスクを後ろへ押し出し、`'strict'` は先行タスクの位置＋ラグに常に厳密追従させます
+- **あらゆる操作と連動**: タスクバーのドラッグ移動・リサイズ、複数タスクの一括移動、キーボード（`Shift + 矢印キー`）移動、グリッドのインラインセル編集（`startDate` / `endDate` / `duration`）のすべてで後続タスクへ自動伝播し、連鎖した変更全体を **1件の Undo / Redo コマンド** として記録します
+- **営業日ベースの計算（`calendarMode`）**: `'weekends'` / `'weekends-holidays'` を指定すると、後続タスクの着地日が非稼働日なら翌営業日へスキップし、各タスクの実稼働期間とラグを営業日ベースで維持したまま期間を伸縮します
+
+#### 3. 純粋関数として使える計算ユーティリティ
+
+自動スケジューリングの計算ロジックは、チャートの外でもそのまま使える純粋関数としてエクスポートしています。サーバー側での一括再計算や、確認ダイアログを挟んでから適用するといったアプリ固有のフローにも組み込めます。
+
+```typescript
+import {
+  propagateAutoSchedule,
+  createNonWorkingDayChecker,
+  computeWorkingDurationMs,
+  createDependencyEntry,
+  normalizeDependencyLink,
+} from '@mogura/moguchart-core'
+
+// 変更起点タスクからトポロジカル順に後続タスクの日程を計算（元の rows は変更しない）
+const result = propagateAutoSchedule(rows, ['t-1'], {
+  mode: 'push-only',
+  calendarMode: 'weekends-holidays',
+  isHoliday: (date) => isJapaneseHoliday(date),
+})
+if (result.hasChanges) {
+  console.log('更新されたタスク:', result.updatedTaskIds)
+  applyRows(result.rows) // 変更がない行は元の参照を維持
+}
+
+// 非稼働日判定関数を生成し、実稼働期間（ミリ秒）を算出
+const isNonWorkingDay = createNonWorkingDayChecker('weekends')
+const workingMs = computeWorkingDurationMs(start.getTime(), end.getTime(), isNonWorkingDay!)
+
+// 後方互換な依存関係エントリを生成（FS かつ lag=0 なら文字列、それ以外はオブジェクト）
+createDependencyEntry('t-1')              // => 't-1'
+createDependencyEntry('t-1', 'SS', 120)   // => { taskId: 't-1', type: 'SS', lag: 120 }
+normalizeDependencyLink('t-1')            // => { taskId: 't-1', type: 'FS', lag: 0 }
+```
+
+このほか、`computeRequiredStartMs` / `snapToWorkingStartMs` / `addWorkingTimeMs` / `getDependencyTaskId` / `endpointsToDependencyType` / `dependencyTypeToEndpoints` / `hasDependencyTarget` / `removeDependencyTarget` もエクスポートしています。
 
 ### 📋 マルチカラムデータグリッド（WBSテーブル）＆ セルのインライン編集 (v1.5.0〜)
 
@@ -862,7 +963,8 @@ v1.2.0 から、Command パターンに基づく **操作履歴管理マネー�
 - **グリッドセル操作**: マルチカラムデータグリッド上のセルインライン編集（`command.type === 'cell-edit'`：行名・開始日・終了日・期間・進捗率・カスタム列の更新）
 - **タスク削除**: `Delete` / `Backspace` キーによるタスク削除
 - **行操作**: 行のドラッグ＆ドロップによる並び替え（子孫行ブロック連動移動）
-- **依存関係操作**: コネクタードラッグによる接続線作成、クリック選択やDeleteキーによる接続線削除
+- **依存関係操作**: コネクタードラッグによる接続線作成、クリック選択やDeleteキーによる接続線削除、依存関係リンクの更新（`dependency-update`、v1.6.0〜）
+- **自動スケジューリング**: 先行タスクの変更によって連鎖的に動いた後続タスクの日程更新（起点の操作とまとめて1件のコマンドとして記録、v1.6.0〜）
 
 #### パブリック API とキーボードショートカット
 - **メソッド**:
@@ -1278,6 +1380,10 @@ chart.zoomToFit()                     // 全体を表示領域に収める
 // 依存関係線の操作
 chart.triggerDependencyDelete('t-1', 't-2') // 依存関係線のプログラム削除
 
+// 自動スケジューリング（v1.6.0〜）: 更新されたタスクIDの配列を返す
+const updatedIds = chart.autoSchedule()                         // 全依存関係を再計算
+chart.autoSchedule(['t-1'], { mode: 'strict' })                  // t-1 起点で厳密追従
+
 // エクスポート（プラグイン登録時）
 await chart.exportImage('png', { download: true, filename: 'gantt' }) // 画像出力
 await chart.exportImage('pdf', { download: true, filename: 'gantt', splitHeight: 1200 }) // 分割PDF
@@ -1362,7 +1468,7 @@ Moguchart は現在、pnpm Workspaces による **モノレポ構成** で開発
 ```
 moguchart-monorepo/
 ├── packages/
-│   ├── core/                  # @mogura/moguchart-core (Lit製 コアWeb Component: ~44KB gzipped)
+│   ├── core/                  # @mogura/moguchart-core (Lit製 コアWeb Component: ~66KB gzipped)
 │   │   ├── src/components/    # gantt-chart, gantt-calendar, gantt-bar, gantt-minimap 等
 │   │   ├── src/controllers/   # Lit Reactive Controllers (Zoom, Drag, Tree, Dependency 等)
 │   │   └── src/core/          # grid, wbs, critical-path, history, plugin, types 等
@@ -1412,7 +1518,7 @@ MoguChart は Vue 3 + Vuetify 4 をベースに、公式ラッパー `@mogura/mo
 
 moguchart-core は、**「フレームワークに縛られず、高機能なガントチャートを手軽に組み込みたい」** という自分自身のニーズから生まれたライブラリです。
 
-メジャーバージョン **v1.0.0** での **WBS階層ツリー構造** と **サマリータスク自動計算描画**、**v1.1.0** での **プラグインアーキテクチャ** と **公式 React / Vue 3 ラッパー**、**v1.2.0** での **操作履歴管理（Undo / Redo）**、**依存関係線の選択・削除**、**包括的ズーム制御**、**内部アーキテクチャ刷新（Reactive Controllers）**、**v1.3.0** での **公式 Excel プラグインによるセル塗りつぶしタイムライン工程表エクスポート**、**v1.3.1** での **読み取り専用モードと連携したタスク単位の進捗ドラッグ制御（`progressResizable`）**、**v1.4.0** での **ベースライン（当初計画）トラッキング ＆ スケジュール差異判定機能**・**`scrollToTask` スムーズスクロール最適化**、そして最新 **v1.5.0** での **マルチカラムデータグリッド（WBSテーブル）** と **グリッドセルのインライン編集機能（`option.grid.editable` / `cell-edit`）** を経て、商用ライブラリに迫る実用性と先進的な設計を兼ね備えたプロダクションレディなOSSとして結実しています。
+メジャーバージョン **v1.0.0** での **WBS階層ツリー構造** と **サマリータスク自動計算描画**、**v1.1.0** での **プラグインアーキテクチャ** と **公式 React / Vue 3 ラッパー**、**v1.2.0** での **操作履歴管理（Undo / Redo）**、**依存関係線の選択・削除**、**包括的ズーム制御**、**内部アーキテクチャ刷新（Reactive Controllers）**、**v1.3.0** での **公式 Excel プラグインによるセル塗りつぶしタイムライン工程表エクスポート**、**v1.3.1** での **読み取り専用モードと連携したタスク単位の進捗ドラッグ制御（`progressResizable`）**、**v1.4.0** での **ベースライン（当初計画）トラッキング ＆ スケジュール差異判定機能**・**`scrollToTask` スムーズスクロール最適化**、**v1.5.0** での **マルチカラムデータグリッド（WBSテーブル）** と **グリッドセルのインライン編集機能（`option.grid.editable` / `cell-edit`）**、そして最新 **v1.6.0** での **拡張依存関係（FS / SS / FF / SF・ラグ）** と **営業日ベースの自動スケジューリング（`option.dependency.autoSchedule` / `chart.autoSchedule()`）** を経て、商用ライブラリに迫る実用性と先進的な設計を兼ね備えたプロダクションレディなOSSとして結実しています。
 
 矩形範囲選択（ラバーバンド選択）、タスク進捗率の直感的ドラッグ編集、全体を見渡すミニマップ、文字やバーが連動するフォント倍率スケーリング（`fontScale`）、スクロール制御メソッド、クリティカルパスの自動ハイライト、高解像度 PNG / PDF / Excel エクスポートなど、商用ライブラリに匹敵する実用機能を網羅したプロダクションレディなOSSとして結実しています。
 
