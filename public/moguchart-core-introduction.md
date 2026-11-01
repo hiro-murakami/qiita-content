@@ -30,9 +30,9 @@ agreed_posting_campaign_term: false
 
 https://github.com/hiro-murakami/moguchart-core
 
-そしてこの度、**WBS（階層ツリー構造・行の開閉）** と **サマリータスク（自動集計・描画）**（v1.0.0）、**プラグインアーキテクチャ**と **公式 React / Vue 3 ラッパー**（v1.1.0）、**Command パターンによる操作履歴（Undo / Redo）** と **依存関係線の選択・削除**（v1.2.0）、セル塗りつぶしによる視覚的工程表シートを出力できる **公式 Excel エクスポートプラグイン（`@mogura/moguchart-plugin-excel`）**（v1.3.0）、読み取り専用モード下での柔軟な権限分離を可能にする **タスク単位の進捗ドラッグ制御（`progressResizable`）**（v1.3.1）、計画と実績の乖離を同一レーン上に同時描画・可視化できる **ベースライン（当初計画）トラッキング ＆ スケジュール差異判定機能**（v1.4.0）に続き、行ヘッダー領域を本格的な複数カラムテーブルとして表示・操作できる **マルチカラムデータグリッド（WBSテーブル）** と **グリッドセルのインライン編集機能（`option.grid.editable` / `cell-edit`）** に対応した **v1.5.0**、そして **4種類の依存関係タイプ（FS / SS / FF / SF）とラグ設定** を備えた拡張依存関係モデルと、先行タスクの変更に合わせて後続タスクを連鎖調整する **自動スケジューリング（営業日ベース計算対応）** に対応した最新バージョン **v1.6.0** をリリースしました！🎉
+そしてこの度、**WBS（階層ツリー構造・行の開閉）** と **サマリータスク（自動集計・描画）**（v1.0.0）、**プラグインアーキテクチャ**と **公式 React / Vue 3 ラッパー**（v1.1.0）、**Command パターンによる操作履歴（Undo / Redo）** と **依存関係線の選択・削除**（v1.2.0）、セル塗りつぶしによる視覚的工程表シートを出力できる **公式 Excel エクスポートプラグイン（`@mogura/moguchart-plugin-excel`）**（v1.3.0）、読み取り専用モード下での柔軟な権限分離を可能にする **タスク単位の進捗ドラッグ制御（`progressResizable`）**（v1.3.1）、計画と実績の乖離を同一レーン上に同時描画・可視化できる **ベースライン（当初計画）トラッキング ＆ スケジュール差異判定機能**（v1.4.0）、行ヘッダー領域を本格的な複数カラムテーブルとして表示・操作できる **マルチカラムデータグリッド（WBSテーブル）** と **グリッドセルのインライン編集機能（`option.grid.editable` / `cell-edit`）**（v1.5.0）、**4種類の依存関係タイプ（FS / SS / FF / SF）とラグ設定** を備えた拡張依存関係モデルと **自動スケジューリング**（v1.6.0）に続き、行タイムライン上にひし形シンボルを描画する **タスクレベルのマイルストーン（`task.type: 'milestone'`）**、カスタム定休日曜日・個別休日背景色・ドラッグ時の実稼働日数維持・標準 `workingDays` グリッド列を統合した **稼働日・カスタム休日管理（`option.calendar`）**、およびバー幅に応じた **タスクバーラベルの自動外側退避（`labelPosition: 'auto'`）** に対応した最新バージョン **v1.7.0** をリリースしました！🎉
 
-重量級の外部依存を分離したコア本体は **~66KB (gzipped)** と超軽量を維持しながら、商用ガントチャートに匹敵するリッチな操作性と堅牢な設計を備えています。React や Vue 3 のプロジェクトでも、各フレームワーク標準の Props やイベント、TypeScript 型安全性を備えたコンポーネントとして直感的に利用可能です。
+重量級の外部依存を分離したコア本体は **~67KB (gzipped)** と超軽量を維持しながら、商用ガントチャートに匹敵するリッチな操作性と堅牢な設計を備えています。React や Vue 3 のプロジェクトでも、各フレームワーク標準の Props やイベント、TypeScript 型安全性を備えたコンポーネントとして直感的に利用可能です。
 
 デモサイトも公開していますので、実際に動く様子をぜひお試しください！
 https://moguchart-core.vercel.app
@@ -49,9 +49,11 @@ Custom Elements（`<gantt-chart>`）として動作するため、**Vue、React�
 | :--- | :--- |
 | **フレームワーク非依存** | Web Components (Custom Elements) として実装。あらゆる環境で動作 |
 | **公式 Vue 3 / React ラッパー** | `@mogura/moguchart-vue`、`@mogura/moguchart-react` を提供。Props リアクティブバインディング、標準イベント・emits、完全型安全 |
-| **プラグインアーキテクチャ** | `GanttPlugin` API による高い拡張性。コア本体を **~66KB (gzipped)** と超軽量に保ちつつ、画像・PDF・Excelエクスポート等をオンデマンド拡張可能 |
-| **マルチカラムデータグリッド ＆ セルインライン編集** | 行ヘッダー領域を複数カラムのWBSテーブルとして表示（WBS・タスク名・開始日/月/日時・終了日/月/日時・期間・進捗率・カスタム列）。表示モードに応じた自動ヘッダー/フォーマット切替、ダブルクリック等によるインライン編集（6種の組み込みエディタ・カスタムエディタ・タスク編集可否連動・Undo/Redo連動・編集可能/読取専用セルの視覚区別）、カラム幅リサイズ、独立横スクロール同期、`cornerContent` との2段レイアウト共存（v1.5.0） |
-| **拡張依存関係 ＆ 自動スケジューリング** | `GanttDependencyLink`（`{ taskId, type, lag }`）による FS / SS / FF / SF の4種類の依存関係と分単位のラグ / リード（文字列IDとも完全後方互換）。トポロジカル順の自動スケジューリング（`push-only` / `strict`）、土日・祝日を除外する営業日ベース計算（`calendarMode`）、`chart.autoSchedule()` API、計算用ユーティリティ関数群（v1.6.0） |
+| **プラグインアーキテクチャ** | `GanttPlugin` API による高い拡張性。コア本体を **~67KB (gzipped)** と超軽量に保ちつつ、画像・PDF・Excelエクスポート等をオンデマンド拡張可能 |
+| **タスクレベルのマイルストーン ＆ ラベル配置制御** | `task.type: 'milestone'` による行内ひし形（`◆`）シンボル描画（ミニマップ・グリッド `0日` 表示・Excel `◆` 出力完全連携）と、`labelPosition: 'inside' \| 'right' \| 'left' \| 'auto'` によるタスク名ラベルの配置制御・狭幅バーからの自動外側退避（v1.7.0） |
+| **稼働日（営業日）管理 ＆ カスタム休日メタデータ** | `option.calendar` で稼働日計算モード（`calendarMode`）、カスタム定休日曜日（`nonWorkingDays`）、休日ごとの個別背景色付きメタデータ（`isHoliday`）、ドラッグ移動時の実稼働日数維持（`preserveWorkingDaysOnDrag`）、ツールチップの稼働日数併記を一元管理（v1.7.0） |
+| **マルチカラムデータグリッド ＆ セルインライン編集** | 行ヘッダー領域を複数カラムのWBSテーブルとして表示（WBS・タスク名・開始日/月/日時・終了日/月/日時・期間・稼働日 `workingDays`・進捗率・カスタム列）。表示モードに応じた自動ヘッダー/フォーマット切替、ダブルクリック等によるインライン編集（6種の組み込みエディタ・カスタムエディタ・タスク編集可否連動・Undo/Redo連動・編集可能/読取専用セルの視覚区別）、カラム幅リサイズ、独立横スクロール同期、`cornerContent` との2段レイアウト共存（v1.5.0〜v1.7.0） |
+| **拡張依存関係 ＆ 自動スケジューリング** | `GanttDependencyLink`（`{ taskId, type, lag }`）による FS / SS / FF / SF の4種類の依存関係と分単位のラグ / リード（文字列IDとも完全後方互換）。トポロジカル順の自動スケジューリング（`push-only` / `strict`）、営業日・カスタム定休日・祝日除外計算、`chart.autoSchedule()` API、計算用ユーティリティ関数群（v1.6.0〜v1.7.0） |
 | **ベースライン（当初計画）表示** | `task.baseline` による計画と実績の同一レーン同時描画。配置位置切替（下部/上部/背面オーバーレイ）、遅延ハイライト線（`.task-delayed`）、計画進捗率・スケジュール差異（遅延/前倒し日数）の多言語ツールチップ、親サマリー自動集計、ミニマップ描画対応（v1.4.0） |
 | **操作履歴（Undo / Redo）** | Command パターンに基づく `HistoryManager` を内蔵。ドラッグ移動・進捗変更・タスク削除・行並び替え・依存作成削除・グリッドセル編集・自動スケジューリングによる連鎖更新を `undo()` / `redo()` やショートカット（Cmd+Z / Ctrl+Z）で安全に取り消し・再実行 |
 | **依存関係線の選択・削除** | 接続線をクリックしてハイライト選択、「×」ボタンや `Delete` / `Backspace` キーで直感削除。削除可否オプションや削除イベント通知完備。ダブルクリック・右クリック（`dependency-click`）にも対応（v1.6.0） |
@@ -118,7 +120,7 @@ moguchart-core は **「商用ライブラリに迫る機能性を、MIT ライ�
 特に、以下の点で差別化しています：
 
 - **Web Components ネイティブ ＋ 公式 Vue / React ラッパー** — 普遍的な Custom Elements を核としつつ、各フレームワークで最高に使いやすいラッパーを提供
-- **モジュラーなプラグインアーキテクチャ** — コアは ~66KB と超軽量。重量級機能（エクスポート等）はプラグインとして疎結合に提供
+- **モジュラーなプラグインアーキテクチャ** — コアは ~67KB と超軽量。重量級機能（エクスポート等）はプラグインとして疎結合に提供
 - **WBS ＆ サマリータスク** — 無制限の階層構造、インデント・開閉、サマリー自動集計、ブロック連動D&D
 - **仮想スクロール** — 数百〜数千行でも軽快
 - **直感的な操作感** — スムーズなD&D、矩形範囲選択、進捗ドラッグ編集、ホイールズーム、ミニマップ連携、キーボードショートカット
@@ -130,7 +132,7 @@ Moguchart は柔軟なモノレポ構成となっており、用途やフレー�
 
 | パッケージ | 説明 |
 |---|---|
-| **[@mogura/moguchart-core](https://www.npmjs.com/package/@mogura/moguchart-core)** | コア Web Component（Lit製）。フレームワーク非依存で単体動作（~66KB gzipped） |
+| **[@mogura/moguchart-core](https://www.npmjs.com/package/@mogura/moguchart-core)** | コア Web Component（Lit製）。フレームワーク非依存で単体動作（~67KB gzipped） |
 | **[@mogura/moguchart-react](https://www.npmjs.com/package/@mogura/moguchart-react)** | **公式 React ラッパー**。型安全な Props、イベント、ref を提供 |
 | **[@mogura/moguchart-vue](https://www.npmjs.com/package/@mogura/moguchart-vue)** | **公式 Vue 3 ラッパー**。Composition API、リアクティブ Props、emits を提供 |
 | **[@mogura/moguchart-plugin-export](https://www.npmjs.com/package/@mogura/moguchart-plugin-export)** | **公式エクスポートプラグイン**。高解像度 PNG および分割 PDF 出力を提供 |
@@ -405,6 +407,94 @@ export default function GanttDemo() {
 
 ## 機能ハイライト
 
+### 🏁 タスクレベルのマイルストーン ＆ 稼働日・カスタム休日管理 ＆ バーラベル配置制御 (v1.7.0〜)
+
+v1.7.0 では、実務の工程表で頻繁に求められる **「行ごとの節目（マイルストーンタスク）」**、**「変則定休日や特定休日期間を考慮した稼働日管理」**、および **「短いバーでも文字が潰れないラベル配置制御」** を実装しました！
+
+#### 1. タスクレベルのマイルストーン（`task.type: 'milestone'`）
+
+チャート全体を貫く縦線マイルストーン（`calendar.milestones`）に加え、各行のタイムライン上に単一時点（期間0日）のタスクとして配置できる **マイルストーンタスク** に対応しました。
+
+```typescript
+import { isMilestoneTask, type GanttRow, type GanttChartOption } from '@mogura/moguchart-core'
+
+const rows: GanttRow[] = [
+  {
+    id: 'row-gate',
+    name: '設計ゲートレビュー',
+    tasks: [
+      {
+        id: 'task-ms-1',
+        name: '設計承認完了',
+        type: 'milestone', // ひし形シンボルとして描画
+        start: new Date('2026-04-15'),
+        end: new Date('2026-04-15'),
+        dependencies: ['task-design'],
+      },
+    ],
+  },
+]
+
+const option: GanttChartOption = {
+  bar: {
+    milestoneColor: '#8b5cf6', // マイルストーン既定色（CSS変数 --moguchart-milestone-bar-color でも指定可）
+  },
+}
+```
+
+- **ひし形（`◆`）描画 ＆ 右外側ラベル**: タイムライン上にダイヤモンド形状（`.milestone-bar`）で描画され、ラベルはデフォルトで右外側（`'right'`）に見やすく表示されます（ミニマップ Canvas 上にもひし形で描画され、同一行・同一日時で重なる場合は別レーンへ自動分離）
+- **単一時点タスクとしての自動制御**: 期間リサイズハンドル・進捗バー・進捗ドラッグ編集を自動的に無効化しつつ、ドラッグ移動、左右コネクタからの依存関係作成、単一日付ツールチップ表示に完全対応
+- **マルチカラムグリッド ＆ Excel プラグイン連携**: グリッドの `duration` / `workingDays` 列では `0日`（読み取り専用）を表示し、`startDate` / `endDate` のどちらをインライン編集しても両方を同一タイムスタンプへ同期更新します。また `@mogura/moguchart-plugin-excel` でも期間 `0` として出力し、タイムラインセル上に `◆` シンボルを描画します
+
+#### 2. 稼働日（営業日）管理・カスタム休日メタデータ・ドラッグ時の実稼働日数維持（`option.calendar`）
+
+カレンダー描画・ツールチップ・データグリッド・ドラッグ移動・自動スケジューリングの間で稼働日・休日ルールを共有できるよう、設定を `option.calendar` に一元化しました。
+
+```typescript
+import {
+  countWorkingDays,
+  addWorkingDays,
+  createCustomHolidayResolver,
+  resolveHolidayMeta,
+} from '@mogura/moguchart-core'
+
+const option: GanttChartOption = {
+  calendar: {
+    start: new Date('2026-04-01'),
+    end: new Date('2026-05-31'),
+    pxPerDay: 40,
+    calendarMode: 'weekends-holidays', // 'calendar' (暦日, デフォルト) | 'weekends' | 'weekends-holidays'
+    nonWorkingDays: [0, 6],            // 非営業日とする曜日 (0=日曜 .. 6=土曜、火・水定休なら [2, 3])
+    preserveWorkingDaysOnDrag: true,   // ドラッグ移動で休日を跨いだ際に元の実稼働日数を維持して終了日を自動伸縮
+    // boolean または { name?, color? } メタデータを返却可能
+    isHoliday: (date) => {
+      if (date.getMonth() === 4 && date.getDate() === 5) {
+        return { name: 'こどもの日', color: '#fee2e2' } // 休日ごとの個別背景色にも対応
+      }
+      return false
+    },
+  },
+}
+```
+
+- **カスタム定休日曜日（`nonWorkingDays`）**: 土日（`[0, 6]`）以外の変則定休日も配列指定一つでカレンダー背景・稼働日計算・自動スケジューリングのすべてに反映されます
+- **休日ごとの個別背景色（`GanttHolidayMeta`）**: `isHoliday` が `{ name?, color? }` を返すと、カレンダーヘッダーの日セルおよび行背景にその休日固有の背景色を適用します（特定日・期間の配列から判定関数を作る `createCustomHolidayResolver` も提供）
+- **ドラッグ移動時の実稼働日数維持（`preserveWorkingDaysOnDrag`）**: 有効化すると、タスクバーのドラッグ移動（一括移動を含む）で週末や祝日を跨いだ際、開始日を翌営業日へスナップしつつ元の実稼働日数が変わらないよう終了日を自動伸縮します
+- **標準組み込み `workingDays` カラム ＆ ツールチップ併記**: マルチカラムグリッドの標準カラムに `'workingDays'`（`稼働日` / `Working Days`）を追加。インライン数値編集で非営業日をスキップした終了日の自動再計算が行われるほか、日・週単位表示のツールチップにも `所要日数: 5日 (稼働3日)` のように稼働日数が自動併記されます
+
+#### 3. タスクバーラベルの表示位置制御・自動外側退避（`labelPosition`）
+
+チャート全体の `option.bar.labelPosition` またはタスク個別の `task.labelPosition` で、タスク名ラベルの配置を `'inside' | 'right' | 'left' | 'auto'` から選択できます。
+
+```typescript
+const option: GanttChartOption = {
+  bar: {
+    // バー幅がラベル推定幅（fontScale 考慮）より狭い場合のみ自動で右外側 ('right') へ退避
+    labelPosition: 'auto',
+  },
+}
+```
+
 ### 🔗 拡張依存関係（FS / SS / FF / SF・ラグ）＆ 自動スケジューリング (v1.6.0〜)
 
 「前工程が遅れたら後工程を全部ずらす」「設計開始の2日後にレビューを始める」── 実務のスケジュール管理では、単純な「終了 → 開始」だけでは表現しきれない依存関係と、それに追従する日程調整が欠かせません。
@@ -451,12 +541,18 @@ const rows = [
 
 ```javascript
 const option = {
+  calendar: {
+    start: new Date('2026-04-01'),
+    end: new Date('2026-04-30'),
+    pxPerDay: 40,
+    calendarMode: 'weekends-holidays', // 'calendar' (暦日, デフォルト) | 'weekends' (定休日除外) | 'weekends-holidays' (定休日・祝日除外)
+    nonWorkingDays: [0, 6], // 非営業曜日 (デフォルト: [0, 6])
+    // isHoliday: (date) => false, // 祝日・休日判定関数 (boolean または { name, color } を返却)
+  },
   dependency: {
     autoSchedule: true, // 先行タスク変更時に後続タスクを自動カスケード移動 (デフォルト: false)
     scheduleMode: 'push-only', // 'push-only' (制約違反時のみ押し出し) | 'strict' (常に厳密追従)
     respectMovable: true, // movable: 'none' | 'y' のタスクを自動移動対象から除外 (デフォルト: true)
-    calendarMode: 'weekends-holidays', // 'calendar' (暦日, デフォルト) | 'weekends' (土日除外) | 'weekends-holidays' (土日・祝日除外)
-    // isHoliday: (date) => false, // 祝日判定関数（省略時は option.calendar.isHoliday を使用）
   },
 }
 
@@ -466,8 +562,8 @@ const cascaded = chart.autoSchedule(['t-1'], { mode: 'strict' })
 ```
 
 - **2つの制約モード**: `'push-only'` は依存制約に違反（逆転）したときだけ後続タスクを後ろへ押し出し、`'strict'` は先行タスクの位置＋ラグに常に厳密追従させます
-- **あらゆる操作と連動**: タスクバーのドラッグ移動・リサイズ、複数タスクの一括移動、キーボード（`Shift + 矢印キー`）移動、グリッドのインラインセル編集（`startDate` / `endDate` / `duration`）のすべてで後続タスクへ自動伝播し、連鎖した変更全体を **1件の Undo / Redo コマンド** として記録します
-- **営業日ベースの計算（`calendarMode`）**: `'weekends'` / `'weekends-holidays'` を指定すると、後続タスクの着地日が非稼働日なら翌営業日へスキップし、各タスクの実稼働期間とラグを営業日ベースで維持したまま期間を伸縮します
+- **あらゆる操作と連動**: タスクバーのドラッグ移動・リサイズ、複数タスクの一括移動、キーボード（`Shift + 矢印キー`）移動、グリッドのインラインセル編集（`startDate` / `endDate` / `duration` / `workingDays`）のすべてで後続タスクへ自動伝播し、連鎖した変更全体を **1件の Undo / Redo コマンド** として記録します
+- **営業日ベースの計算（`option.calendar.calendarMode`）**: `'weekends'` / `'weekends-holidays'` を指定すると、後続タスクの着地日が非稼働日なら翌営業日へスキップし、各タスクの実稼働期間とラグを営業日ベースで維持したまま期間を伸縮します
 
 #### 3. 純粋関数として使える計算ユーティリティ
 
@@ -486,6 +582,7 @@ import {
 const result = propagateAutoSchedule(rows, ['t-1'], {
   mode: 'push-only',
   calendarMode: 'weekends-holidays',
+  nonWorkingDays: [0, 6],
   isHoliday: (date) => isJapaneseHoliday(date),
 })
 if (result.hasChanges) {
@@ -494,7 +591,7 @@ if (result.hasChanges) {
 }
 
 // 非稼働日判定関数を生成し、実稼働期間（ミリ秒）を算出
-const isNonWorkingDay = createNonWorkingDayChecker('weekends')
+const isNonWorkingDay = createNonWorkingDayChecker('weekends', undefined, [0, 6])
 const workingMs = computeWorkingDurationMs(start.getTime(), end.getTime(), isNonWorkingDay!)
 
 // 後方互換な依存関係エントリを生成（FS かつ lag=0 なら文字列、それ以外はオブジェクト）
@@ -503,13 +600,13 @@ createDependencyEntry('t-1', 'SS', 120)   // => { taskId: 't-1', type: 'SS', lag
 normalizeDependencyLink('t-1')            // => { taskId: 't-1', type: 'FS', lag: 0 }
 ```
 
-このほか、`computeRequiredStartMs` / `snapToWorkingStartMs` / `addWorkingTimeMs` / `getDependencyTaskId` / `endpointsToDependencyType` / `dependencyTypeToEndpoints` / `hasDependencyTarget` / `removeDependencyTarget` もエクスポートしています。
+このほか、`computeRequiredStartMs` / `snapToWorkingStartMs` / `addWorkingTimeMs` / `countWorkingDays` / `addWorkingDays` / `createCustomHolidayResolver` / `resolveHolidayMeta` / `parseLocalDateToStartOfDayMs` / `getDependencyTaskId` / `endpointsToDependencyType` / `dependencyTypeToEndpoints` / `hasDependencyTarget` / `removeDependencyTarget` / `isMilestoneTask` / `estimateTaskLabelWidth` もエクスポートしています。
 
 ### 📋 マルチカラムデータグリッド（WBSテーブル）＆ セルのインライン編集 (v1.5.0〜)
 
-本格的なプロジェクト管理では、タイムライン上のガントバーだけでなく、左側の行ヘッダー領域に **WBS番号・タスク名・担当者・開始日・終了日・期間・進捗率** などを一覧表（データグリッド）として並べて確認・直接編集したいケースが多々あります。
+本格的なプロジェクト管理では、タイムライン上のガントバーだけでなく、左側の行ヘッダー領域に **WBS番号・タスク名・担当者・開始日・終了日・期間・稼働日・進捗率** などを一覧表（データグリッド）として並べて確認・直接編集したいケースが多々あります。
 
-v1.5.0 では、行ヘッダー領域を複数カラムのテーブルとして表示・操作できる **Multi-Column Data Grid（マルチカラムデータグリッド）** と **グリッドセルのインライン編集機能** を新設しました！
+v1.5.0 では、行ヘッダー領域を複数カラムのテーブルとして表示・操作できる **Multi-Column Data Grid（マルチカラムデータグリッド）** と **グリッドセルのインライン編集機能** を新設しました！（v1.7.0 では標準組み込みカラム `workingDays` およびマイルストーン行対応を追加）
 
 ```typescript
 const option: GanttChartOption = {
@@ -525,7 +622,8 @@ const option: GanttChartOption = {
       { id: 'name', width: 220 },       // タスク名・行名 (ツリー開閉トグル内包)
       { id: 'startDate', width: 125 },  // 開始日 (月/時間モード時は自動切替)
       { id: 'endDate', width: 125 },    // 終了日 (月/時間モード時は自動切替)
-      { id: 'duration', width: 80 },    // 期間 (日数 / 時間・分)
+      { id: 'duration', width: 80 },    // 期間 (暦日数 / 時間・分)
+      { id: 'workingDays', width: 80 }, // 稼働日 (非営業日・祝日を除いた営業日数、v1.7.0〜)
       { id: 'progress', width: 70 },    // 進捗率 (0〜100%)
       {
         id: 'assignee',
@@ -546,7 +644,7 @@ const option: GanttChartOption = {
 
 #### 1. 標準組み込みカラム ＆ 表示モードに応じた自動適応
 
-標準プリセット（`wbs`, `name`, `startDate`, `endDate`, `duration`, `progress`）を指定するだけで、単一タスク行の属性表示はもちろん、**サマリー行（親行）や複数タスク行における最小開始日〜最大終了日・期間・加重平均進捗率の自動集計表示** までコアがすべて自動で処理します。
+標準プリセット（`wbs`, `name`, `startDate`, `endDate`, `duration`, `workingDays`, `progress`）を指定するだけで、単一タスク行の属性表示はもちろん、**サマリー行（親行）や複数タスク行における最小開始日〜最大終了日・期間・稼働日・加重平均進捗率の自動集計表示** までコアがすべて自動で処理します（マイルストーンタスクの行では期間・稼働日が `0日` として表示されます）。
 
 さらに、カレンダーの表示モードに応じて列ヘッダー名・表示フォーマット・エディタ種別が自動的に切り替わります：
 - **日・週単位モード**: 「開始日」「終了日」（`YYYY/MM/DD`、日付ピッカー）
@@ -1119,11 +1217,12 @@ const option = {
 
 ![demo-dark.png](https://raw.githubusercontent.com/hiro-murakami/qiita-content/main/images/moguchart-core-introduction/demo-dark.png)
 
-### 🏁 マイルストーン
+### 🏁 マイルストーン（縦線マイルストーン ＆ 行内マイルストーンタスク）
 
-チャート上に縦線＋名前バッジでマイルストーンを表示できます。
+チャート全体を貫く縦線＋名前バッジ（`calendar.milestones`）に加え、v1.7.0 からは各行内のタスクとしてひし形（ダイヤモンド）シンボルを描画する `task.type: 'milestone'` にも対応しています。
 
 ```javascript
+// 1. チャート全体の縦線マイルストーン
 option.calendar.milestones = [
   {
     id: 'ms-1',
@@ -1132,6 +1231,15 @@ option.calendar.milestones = [
     color: '#8b5cf6',
   },
 ]
+
+// 2. 行内のマイルストーンタスク (v1.7.0〜)
+const milestoneTask = {
+  id: 'task-ms-1',
+  name: '設計ゲート承認',
+  type: 'milestone',
+  start: new Date('2025-06-20'),
+  end: new Date('2025-06-20'),
+}
 ```
 
 ![milestone.gif](https://raw.githubusercontent.com/hiro-murakami/qiita-content/main/images/moguchart-core-introduction/milestone.gif)
@@ -1209,9 +1317,9 @@ const option = {
 }
 ```
 
-### 🌐 ロケール＆祝日判定
+### 🌐 ロケール＆祝日・カスタム休日判定
 
-日本語/英語のビルトインロケールを切り替えるだけでなく、カスタムロケールや祝日判定関数の注入に対応しています。
+日本語/英語のビルトインロケールを切り替えるだけでなく、カスタムロケールや祝日・休業日判定関数の注入に対応しています。v1.7.0 からは `boolean` だけでなく `{ name?: string, color?: string }` の返却にも対応し、休日ごとの個別背景色を着色できます。
 
 ```javascript
 import { enLocale } from '@mogura/moguchart-core'
@@ -1219,8 +1327,9 @@ import { enLocale } from '@mogura/moguchart-core'
 const option = {
   locale: enLocale,
   calendar: {
+    nonWorkingDays: [0, 6], // 非営業曜日 (デフォルト: 土・日)
     isHoliday: (date) => {
-      // 独自の祝日・休業日判定ロジック
+      // boolean または { name?, color? } を返却可能
       return checkCustomHoliday(date)
     },
   },
@@ -1276,9 +1385,9 @@ await exportChart(chart, 'png', { download: true, filename: 'gantt' })
 [ExcelJS](https://github.com/exceljs/exceljs) をベースに採用し、タスクの実施期間セルがチャートのカラーで美しく塗りつぶされた、視覚的な **「Excel製ガントチャート（工程表・タイムライン）」** をブラウザ完結で直接生成・ダウンロードできます。
 
 #### 主な特徴
-- **セル塗りつぶしタイムライン**: 左側にタスク属性（WBS、タスク名、担当者、開始日、終了日、期間、進捗率等）、右側にカレンダー列を配置し、タスク期間のセルを着色。
+- **セル塗りつぶしタイムライン**: 左側にタスク属性（WBS、タスク名、担当者、開始日、終了日、期間、進捗率等）、右側にカレンダー列を配置し、タスク期間のセルを着色（マイルストーンタスクは `◆` シンボルと期間 `0` として出力）。
 - **WBS階層ツリー構造の再現**: 親行・子行の階層関係（WBSコード `1`, `1.1`, `1.2` 等）を維持し、インデントや太字を反映。
-- **土日・日本の祝日の自動ハイライト**: カレンダー列の土日および日本の祝日（祝日判定ライブラリ連携）を自動判定して背景色を着色。
+- **土日・祝日・カスタム休日の自動ハイライト**: カレンダー列の土日および日本の祝日・カスタム休日（`isHoliday` による個別背景色を含む）を自動判定して背景色を着色。
 - **サマリータスクの描画**: 大工程・中工程などのサマリーバー（集計ブラケット形状）も Excel 上で忠実に再現。
 - **多言語 ＆ カスタムロケール対応**: 日本語（`ja`）、英語（`en`）、中国語簡体字（`zh`）を標準サポート。独自の言語パック（`registerExcelLocale`）も簡単に追加可能。
 
@@ -1468,7 +1577,7 @@ Moguchart は現在、pnpm Workspaces による **モノレポ構成** で開発
 ```
 moguchart-monorepo/
 ├── packages/
-│   ├── core/                  # @mogura/moguchart-core (Lit製 コアWeb Component: ~66KB gzipped)
+│   ├── core/                  # @mogura/moguchart-core (Lit製 コアWeb Component: ~67KB gzipped)
 │   │   ├── src/components/    # gantt-chart, gantt-calendar, gantt-bar, gantt-minimap 等
 │   │   ├── src/controllers/   # Lit Reactive Controllers (Zoom, Drag, Tree, Dependency 等)
 │   │   └── src/core/          # grid, wbs, critical-path, history, plugin, types 等
@@ -1518,7 +1627,7 @@ MoguChart は Vue 3 + Vuetify 4 をベースに、公式ラッパー `@mogura/mo
 
 moguchart-core は、**「フレームワークに縛られず、高機能なガントチャートを手軽に組み込みたい」** という自分自身のニーズから生まれたライブラリです。
 
-メジャーバージョン **v1.0.0** での **WBS階層ツリー構造** と **サマリータスク自動計算描画**、**v1.1.0** での **プラグインアーキテクチャ** と **公式 React / Vue 3 ラッパー**、**v1.2.0** での **操作履歴管理（Undo / Redo）**、**依存関係線の選択・削除**、**包括的ズーム制御**、**内部アーキテクチャ刷新（Reactive Controllers）**、**v1.3.0** での **公式 Excel プラグインによるセル塗りつぶしタイムライン工程表エクスポート**、**v1.3.1** での **読み取り専用モードと連携したタスク単位の進捗ドラッグ制御（`progressResizable`）**、**v1.4.0** での **ベースライン（当初計画）トラッキング ＆ スケジュール差異判定機能**・**`scrollToTask` スムーズスクロール最適化**、**v1.5.0** での **マルチカラムデータグリッド（WBSテーブル）** と **グリッドセルのインライン編集機能（`option.grid.editable` / `cell-edit`）**、そして最新 **v1.6.0** での **拡張依存関係（FS / SS / FF / SF・ラグ）** と **営業日ベースの自動スケジューリング（`option.dependency.autoSchedule` / `chart.autoSchedule()`）** を経て、商用ライブラリに迫る実用性と先進的な設計を兼ね備えたプロダクションレディなOSSとして結実しています。
+メジャーバージョン **v1.0.0** での **WBS階層ツリー構造** と **サマリータスク自動計算描画**、**v1.1.0** での **プラグインアーキテクチャ** と **公式 React / Vue 3 ラッパー**、**v1.2.0** での **操作履歴管理（Undo / Redo）**、**依存関係線の選択・削除**、**包括的ズーム制御**、**内部アーキテクチャ刷新（Reactive Controllers）**、**v1.3.0** での **公式 Excel プラグインによるセル塗りつぶしタイムライン工程表エクスポート**、**v1.3.1** での **読み取り専用モードと連携したタスク単位の進捗ドラッグ制御（`progressResizable`）**、**v1.4.0** での **ベースライン（当初計画）トラッキング ＆ スケジュール差異判定機能**・**`scrollToTask` スムーズスクロール最適化**、**v1.5.0** での **マルチカラムデータグリッド（WBSテーブル）** と **グリッドセルのインライン編集機能（`option.grid.editable` / `cell-edit`）**、**v1.6.0** での **拡張依存関係（FS / SS / FF / SF・ラグ）** と **自動スケジューリング**、そして最新 **v1.7.0** での **タスクレベルのマイルストーン（`task.type: 'milestone'`）**・**稼働日とカスタム休日メタデータの一元管理（`option.calendar` / `workingDays` 列 / ドラッグ時稼働日数維持）**・**タスクバーラベルの自動外側退避（`labelPosition: 'auto'`）** を経て、商用ライブラリに迫る実用性と先進的な設計を兼ね備えたプロダクションレディなOSSとして結実しています。
 
 矩形範囲選択（ラバーバンド選択）、タスク進捗率の直感的ドラッグ編集、全体を見渡すミニマップ、文字やバーが連動するフォント倍率スケーリング（`fontScale`）、スクロール制御メソッド、クリティカルパスの自動ハイライト、高解像度 PNG / PDF / Excel エクスポートなど、商用ライブラリに匹敵する実用機能を網羅したプロダクションレディなOSSとして結実しています。
 
