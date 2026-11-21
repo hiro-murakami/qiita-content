@@ -42,7 +42,7 @@ https://moguchart-core.vercel.app
 **moguchart-core / MoguChart の関連記事はこちら**
 
 - **コアライブラリの全体紹介**: [フレームワークに縛られないガントチャートを作った — Web Components製「moguchart-core」の紹介](https://qiita.com/hiroyuki_m/items/0e4859951a9f652c26c3)
-- **マルチカラムデータグリッド編（ペア記事）**: スプレッドシート風WBSテーブル・インライン編集・TSVコピペの設計については別記事で解説しています（※公開後にURLを差し替え）
+- **マルチカラムデータグリッド編（ペア記事）**: [Web Components製ガントチャート「moguchart-core」にスプレッドシート風マルチカラムデータグリッドを実装した話](https://qiita.com/hiroyuki_m/items/940db6eaa92d54398407)
 - **Webアプリ正式リリース＆最新機能**: [【祝 v1.0】無料でここまで動く！WBS・サマリー自動集計に対応したWebガントチャート「MoguChart」を正式リリースしました](https://qiita.com/hiroyuki_m/items/47f635a93c5e9d831b5a)
 :::
 
@@ -409,7 +409,7 @@ const runStrictSchedule = () => {
 - ハード制約としての `SNET` / `FNLT`（ドラッグ中の侵入禁止シェード＆自動クランプ）と、ソフト指標としてのドラッグ可能な `deadline`（超過バッジ表示）の使い分け
 - 起点操作から全後続タスクの連鎖更新までを1回の `Cmd+Z` で戻せる単一トランザクション Undo / Redo
 
-本エンジンは、私が開発・運営している無料 Web ガントチャートアプリ **「[MoguChart（moguchart.jp）](https://moguchart.jp)」**（最新 v1.10.1）の本番環境でも毎日稼働しています（登録不要のゲストログインですぐにお試しいただけます）。また、左ペインの **「スプレッドシート風マルチカラムデータグリッド」** の設計についてもペア記事として公開していますので、ぜひ合わせてご覧ください！
+本エンジンは、私が開発・運営している無料 Web ガントチャートアプリ **「[MoguChart（moguchart.jp）](https://moguchart.jp)」**（最新 v1.10.1）の本番環境でも毎日稼働しています（登録不要のゲストログインですぐにお試しいただけます）。また、左ペインの **[「スプレッドシート風マルチカラムデータグリッド」の設計記事](https://qiita.com/hiroyuki_m/items/940db6eaa92d54398407)** もペア記事として公開していますので、ぜひ合わせてご覧ください！
 
 ## 参考リンク
 
