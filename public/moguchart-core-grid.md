@@ -26,9 +26,9 @@ agreed_posting_campaign_term: false
 
 - 「ダイアログをいちいち開かずに、セルを直接ダブルクリックして `Tab` / `Enter` キーで連続入力したい」
 - 「Excel や Google スプレッドシートで作った日程表をそのまま矩形範囲でコピー＆ペーストしたい」
-- 「WBS の親子階層を崩さずに、開始日順や期限順でソートしたい」
+- 「列が増えて横スクロールしても WBS 番号やタスク名は左端にピン留め固定し、WBS の親子階層を崩さずにソートや検索フィルタをかけたい」
 
-個人開発しているフレームワーク非依存・MITライセンスの Web Components 製ガントチャートライブラリ **「[@mogura/moguchart-core](https://github.com/hiro-murakami/moguchart-core)」** では、v1.5.0 から最新 **v1.9.0** にかけて、外部のテーブルライブラリに一切依存しない **「マルチカラムデータグリッド」** をフルスクラッチで実装しました（コア全体のバンドルサイズは **約 72KB gzipped** を維持）。
+個人開発しているフレームワーク非依存・MITライセンスの Web Components 製ガントチャートライブラリ **「[@mogura/moguchart-core](https://github.com/hiro-murakami/moguchart-core)」** では、v1.5.0 から最新 **v1.10.0** にかけて、外部のテーブルライブラリや日時ライブラリにも一切依存しない（`lit` ピア依存のみの外部ランタイム依存ゼロ・コア全体 **約 98KB gzipped**） **「マルチカラムデータグリッド ＆ WBS階層維持フィルタ」** をフルスクラッチで実装しました。
 
 https://github.com/hiro-murakami/moguchart-core
 
@@ -48,25 +48,25 @@ https://moguchart-core.vercel.app
 
 ---
 
-## アーキテクチャ：DOM層と純粋関数モジュール `grid.ts` の分離
+## アーキテクチャ：`GridController` と純粋関数モジュール `grid.ts` / `filter.ts` の分離
 
 ガントチャートの左ペインにあるグリッドは、単なる独立した表ではありません。セルを1つ書き換えれば右ペインのタスクバーや親階層の WBS サマリーバー、最下部の集計フッターが連動して変化し、さらに `Cmd+Z` 1回で元に戻せる（Undo / Redo）必要があります。
 
-見通しよく保守・テストできるよう、`moguchart-core` では **Lit コンポーネント層（描画・DOMイベント制御）** と **`src/core/grid.ts`（DOM非依存の純粋関数群）** を明確に分離しています。
+見通しよく保守・テストできるよう、`moguchart-core` では **Lit コンポーネント＆ `GridController` 層（2ペインDOM描画・イベント・WAI-ARIA制御）** と **`src/core/grid.ts` / `src/core/filter.ts`（DOM非依存の純粋関数群）** を明確に分離しています。
 
 ```mermaid
 flowchart TB
-    subgraph UI ["Lit Web Components 層 (DOM / イベント)"]
-        Header["コーナー＆カラムヘッダー<br>・列幅リサイズ / 列D&D並び替え<br>・ソート切替 (▲ / ▼ / 解除)"]
-        Cells["行グリッドセル (縦仮想スクロール連動)<br>・インライン編集 / Tab・Enter移動<br>・矩形範囲選択 / Ctrl+C・Ctrl+V"]
+    subgraph UI ["Lit Web Components & GridController 層 (DOM / WAI-ARIA treegrid)"]
+        Header["コーナー＆カラムヘッダー (2ペイン分割)<br>・左固定列 (pinned) / 列幅リサイズ / 列D&D並び替え<br>・ソート切替 (▲ / ▼ / 解除・aria-sort)"]
+        Cells["行グリッドセル (縦仮想スクロール連動)<br>・インライン編集 / Tab・Enter移動 (preventScroll)<br>・矩形範囲選択 / Ctrl+C・Ctrl+V"]
         Footer["スティッキー集計フッター (.grid-footer)"]
     end
 
-    subgraph Core ["純粋ロジック層 (src/core/grid.ts)"]
-        Normalize["normalizeGridColumns / reorderGridColumns<br>・粒度別タイトル・幅・エディタ自動解決"]
+    subgraph Core ["純粋ロジック層 (src/core/grid.ts & filter.ts)"]
+        Normalize["normalizeGridColumns / partitionGridColumns / reorderGridColumns<br>・粒度別タイトル自動解決 / 左固定・スクロール列分割"]
         ValueFmt["getGridCellValue / formatGridCellValue<br>・排他的終了日の補正 / サマリー集計"]
         EditNav["isGridCellEditable / applyGridCellEdit<br>・findAdjacentEditableCell (読取専用スキップ)"]
-        SortTsv["sortGridRowsHierarchically / calculateGridFooterSummary<br>・formatGridRangeToTsv / sanitizeSpreadsheetFormula"]
+        SortTsv["sortGridRowsHierarchically / evaluateRowFilter / calculateGridFooterSummary<br>・WBS階層維持ソート＆フィルタ / formatGridRangeToTsv / 数式サニタイズ"]
     end
 
     Header --> Normalize
@@ -78,7 +78,7 @@ flowchart TB
     EditNav -->|"HistoryManager 経由で状態反映"| Cells
 ```
 
-計算・変換ロジックをすべて純粋関数として切り出したことで、ブラウザ環境なしの単体テスト（Vitest）でエッジケースを高速に検証できるほか、利用者側からも `formatGridRangeToTsv` や `sortGridRowsHierarchically` などのユーティリティ関数を直接 import して活用できます。
+計算・変換ロジックをすべて純粋関数として切り出したことで、ブラウザ環境なしの単体テスト（Vitest）でエッジケースを高速に検証できるほか、利用者側からも `partitionGridColumns` や `evaluateRowFilter`、`formatGridRangeToTsv`、`sortGridRowsHierarchically` などのユーティリティ関数を直接 import して活用できます。
 
 ---
 
@@ -151,8 +151,8 @@ const option: GanttChartOption = {
     cellSelection: true,  // 矩形セル範囲選択＆TSVコピペを有効化
     width: 640,           // 左ペイン全体の初期表示幅（スプリッターで伸縮可能）
     columns: [
-      { id: 'wbs', width: 60 },
-      { id: 'name', width: 200 }, // ツリー開閉トグル＋階層インデントを自動内包
+      { id: 'wbs', width: 60, pinned: 'left', reorderable: false }, // 横スクロール時も左端へ固定 (v1.10.0)
+      { id: 'name', width: 200, pinned: 'left' }, // 左端固定＋ツリー開閉トグル・階層インデントを自動内包
       {
         id: 'assignee',
         title: '担当者',
@@ -228,13 +228,17 @@ chart.option = option
 - **月単位モード（`pxPerMonth` 指定時）**: 見出し `開始月` / 表記 `2026/6` / エディタ `'month'`
 - **時間単位モード（`showTime: true` 時）**: 見出し `開始日時`（列幅も `100px → 130px` へ自動拡張）/ 表記 `2026/06/01 09:30` / エディタ `'datetime'`
 
-### ③ 仮想スクロールと共存する独立横スクロール同期 ＆ 列D&D並び替え
+### ③ 独立横スクロール同期・左端ピン留め固定（`pinned: 'left'`）＆ 列D&D並び替え
 
 表示カラムが増えて合計幅が左ペイン枠を超えた場合、右側のタイムラインとは独立して**左ペイン内だけを横スクロール**できる必要があります。しかし、ヘッダー（`<gantt-calendar>` 側コーナー領域）と各行セル（`<gantt-row>` 群）、固定フッター（`.grid-footer`）は縦仮想スクロールの都合上、別々のDOMコンテナに分かれています。
 
 `moguchart-core` ではグリッド横スクロール量（`gridScrollLeft`）を単一状態として一元管理し、トラックパッドの横スワイプや `Shift + ホイール`、ヘッダー上のホイール操作を捕捉して全コンテナへ同一フレーム内で同期反映することで、**1px のラグもズレもない横スクロール** を実現しています。
 
-また、カラムヘッダーをドラッグ＆ドロップして列順序を入れ替える機能（`column-reorder` イベント）も備えており、ドラッグ中はカレンダーヘッダーから全可視行まで貫く青い縦インジケーター（`.drop-target-left` / `.drop-target-right`）が表示されます。
+さらに **v1.10.0** では、スプレッドシートの「列の固定」にあたる **左端ピン留め固定カラム（`GanttColumn.pinned: 'left' | true`）** に対応しました。
+
+- **2ペイン分割描画（`partitionGridColumns`）**: 可視カラムを「左固定グループ（`pinnedColumns`）」と「スクロールグループ（`scrollableColumns`）」に分割し、スクロールグループ側にのみ `gridScrollLeft` オフセットを適用することで、WBS番号やタスク名を常時左端に固定表示したまま右側の開始日・期限・担当者列だけを滑らかに横スクロールできます。
+- **グループ境界を守る列D&D並び替え**: カラムヘッダーをドラッグ＆ドロップして列順序を入れ替える際（`column-reorder` イベント）、青い縦インジケーターを表示しつつ、固定グループとスクロールグループを跨ぐドロップは自動的に抑止してレイアウト整合性を保ちます。
+- **Excel ウィンドウ枠固定との自動連動**: 公式 Excel エクスポートプラグイン（`@mogura/moguchart-plugin-excel` v1.10.0）と併用すると、`chart.option.grid.columns` のピン留め列数を自動検出し（または `frozenColumns` オプションで明示指定）、出力される Excel シートの **ウィンドウ枠固定（`xSplit`）** へそのまま反映されます。
 
 ---
 
@@ -301,9 +305,9 @@ const customTagColumn: GanttColumn = {
 
 ---
 
-## 4. 階層維持ソート・固定集計フッター・TSVコピペ（v1.9.0）
+## 4. 階層維持ソート・フィルタリング・固定集計フッター・TSVコピペ（v1.9.0〜v1.10.0）
 
-v1.9.0 では、スプレッドシートとしての実用性を決定づける3つの機能を実装しました。
+v1.9.0〜v1.10.0 では、スプレッドシートとしての実用性を決定づけるソート・集計・TSV連携、ならびに WBS ツリー構造と調和するフィルタリング＆アクセシビリティ機能を実装しました。
 
 ### ① WBS階層を壊さないソート（`sortGridRowsHierarchically`）
 
@@ -332,6 +336,25 @@ v1.9.0 では、スプレッドシートとしての実用性を決定づける3
 複数セルへの一括ペーストは **`HistoryManager` に1つのバッチコマンドとして記録** されるため、`Cmd+Z` 1回でペースト前の状態にまとめて戻せます。
 
 ![cell-selection-tsv.gif](https://raw.githubusercontent.com/hiro-murakami/qiita-content/main/images/moguchart-core-grid/cell-selection-tsv.gif)
+
+### ④ WBS階層を維持するフィルタリング・検索エンジン ＆ WAI-ARIA `treegrid` 対応（v1.10.0）
+
+行数が増えてくると「担当者名やキーワードで検索したい」「期限超過（`overdue`）のタスクだけを抜き出したい」というニーズが生まれます。しかし、ソートと同様にフラットな配列へ単純なフィルタをかけると、ヒットした詳細タスクの親行（大工程・中工程）が消えてしまい、「どのフェーズの作業なのか」という文脈が失われてしまいます。
+
+v1.10.0 で新設した **`src/core/filter.ts`（`option.filter` / `chart.setFilter()`）** では、グリッド列の値（`getGridCellValue`）も含めた複合検索と WBS ツリー構造の維持を両立しています。
+
+```typescript
+// 宣言的オプション (option.filter) または命令的メソッドで絞り込み
+const result = chart.setFilter({
+  query: '田中',              // 行名・タスク名・WBSコード・可視グリッド列（担当者など）を横断部分一致検索
+  status: 'overdue',          // 'all' | 'incomplete' | 'completed' | 'overdue' | 'inProgress'
+  mode: 'hide',               // 'hide'（祖先行を残して非一致行を隠す）| 'dim'（全行表示のまま非一致を減光）
+  autoExpandMatches: true,    // 一致した子孫を持つ折りたたみ中の親行を自動で一時展開
+})
+console.log(`一致: ${result.matchedRowCount} 行 / 表示: ${result.visibleRowCount} 行`)
+```
+
+また、業務アプリへの埋め込み品質を高めるため、セル操作やエディタ起動時のフォーカス処理に `focus({ preventScroll: true })` を徹底して親ページ全体の意図せぬスクロールジャンプを防止したほか、チャートホストに `role="treegrid"`、列ヘッダーに `role="columnheader"` / `aria-sort`、各行に `role="row"` / `aria-level` / `aria-expanded` / `aria-selected` を付与する標準 **WAI-ARIA アクセシビリティ** にも対応しています。
 
 ---
 
@@ -392,6 +415,9 @@ export function WbsGridGantt({ initialRows, option }: { initialRows: GanttRow[];
       onColumnSort={(e) => {
         console.log('ソート状態:', e.detail.sortState)
       }}
+      onFilterChange={(e) => {
+        console.log(`フィルタ適用: ${e.detail.result.matchedRowCount} 件一致`)
+      }}
       style={{ height: '600px', width: '100%' }}
     />
   )
@@ -402,14 +428,14 @@ export function WbsGridGantt({ initialRows, option }: { initialRows: GanttRow[];
 
 ## まとめ
 
-`@mogura/moguchart-core` のマルチカラムデータグリッドは、**外部グリッド依存ゼロ・コア全体約 72KB (gzipped)** という軽量さを保ちながら、以下の機能をワンパッケージで提供します。
+`@mogura/moguchart-core`（最新 v1.10.0）のマルチカラムデータグリッドは、**`lit` ピア依存のみの外部ランタイム依存ゼロ・コア全体約 98KB (gzipped)**（Node16 / NodeNext 厳密 ESM 対応）という軽量さを保ちながら、以下の機能をワンパッケージで提供します。
 
-- `option.grid` による組み込みカラム＆自由なカスタムカラム定義
-- 排他的終了日時（翌日 `00:00`）の人間向け補正、日/月/時間モードへの自動適応、1px もズレない独立横スクロール同期
-- カスタム DOM エディタ対応と、読み取り専用セルを自動スキップする `Tab` / `Enter` 連続セル編集
-- WBS階層を壊さないソート、二重計上を防ぐ固定集計フッター、数式インジェクション対策付きの矩形セル TSV コピペ
+- `option.grid` による組み込みカラム＆自由なカスタムカラム定義、および `role="treegrid"` 準拠の WAI-ARIA アクセシビリティ対応
+- 排他的終了日時（翌日 `00:00`）の人間向け補正、日/月/時間モードへの自動適応、左端ピン留め固定列（`pinned: 'left'` ＆ Excel 枠固定自動連動）と 1px もズレない独立横スクロール同期
+- カスタム DOM エディタ対応と、読み取り専用セルを自動スキップする `Tab` / `Enter` 連続セル編集（親ページスクロール抑止対応）
+- WBS階層を壊さないソート＆横断検索フィルタ（`setFilter`）、二重計上を防ぐ固定集計フッター、数式インジェクション対策付きの矩形セル TSV コピペ
 
-なお、本グリッド機能は私が開発・運営している無料 Web ガントチャートアプリ **「[MoguChart（moguchart.jp）](https://moguchart.jp)」** の本番環境でもフル稼働しています（登録不要のゲストログインですぐに試せます）。さらにグリッド上で日付や稼働日を編集した際、後続タスクを営業日ベースで自動連鎖移動させる **「自動スケジューリングエンジン」** については、ペアとなる別記事で詳しく解説していますので、ぜひ合わせてご覧ください！
+なお、本グリッド機能は私が開発・運営している無料 Web ガントチャートアプリ **「[MoguChart（moguchart.jp）](https://moguchart.jp)」**（最新 v1.10.1）の本番環境でもフル稼働しています（登録不要のゲストログインですぐに試せます）。さらにグリッド上で日付や稼働日を編集した際、後続タスクを営業日ベースで自動連鎖移動させる **「自動スケジューリングエンジン」** については、ペアとなる別記事で詳しく解説していますので、ぜひ合わせてご覧ください！
 
 ## 参考リンク
 

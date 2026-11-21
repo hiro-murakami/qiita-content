@@ -22,13 +22,13 @@ agreed_posting_campaign_term: false
 
 ガントチャートライブラリを自作・導入した際、「タイムライン上でバーをドラッグでき、タスク間に矢印（依存関係線）を引ける」ところまでは比較的スムーズに辿り着けます。
 
-しかし、実際のプロジェクト管理で使い始めると、すぐに**「手作業でのリスケジュール地獄」**に直面します。
+しかし、実際のプロジェクト管理で使い始めると、すぐに **「手作業でのリスケジュール地獄」** に直面します。
 
 - 先行タスクが2日遅れたとき、後続に連なる20件のタスクを1つずつマウスでずらすのが辛い
 - 単純に同じ日数だけ後ろへずらすと、**土日・祝日や自社定休日を跨いだときに「実稼働日数」が減ってしまう**
 - 「先行タスクの開始2日後から並行着手したい（SS＋ラグ）」「部材納品日の6月10日より前には着手できない（SNET制約）」「目標デッドラインを超過したら一目でわかるようにしたい」といった実務ルールを表現できない
 
-個人開発しているフレームワーク非依存・MITライセンスの Web Components 製ガントチャートライブラリ **「[@mogura/moguchart-core](https://github.com/hiro-murakami/moguchart-core)」** では、v1.6.0 から最新 **v1.9.0** にかけて、これらを包括的に解決する **「自動スケジューリングエンジン」** と **「スケジュール制約・デッドライン機構」** を実装しました。
+個人開発しているフレームワーク非依存・外部ランタイム依存ゼロ（`lit` ピア依存のみ）・MITライセンスの Web Components 製ガントチャートライブラリ **「[@mogura/moguchart-core](https://github.com/hiro-murakami/moguchart-core)」** では、v1.6.0 から最新 **v1.10.0** にかけて、これらを包括的に解決する **「自動スケジューリングエンジン」**、**「スケジュール制約・デッドライン機構」**、および **「依存関係編集ポップオーバー ＆ 更新API」** を実装しました。
 
 https://github.com/hiro-murakami/moguchart-core
 
@@ -59,6 +59,7 @@ flowchart TB
     subgraph Triggers ["スケジュール変更の起点"]
         Drag["タスクバーのD&D移動 / リサイズ<br>(複数タスク一括移動・Shift+矢印キー含む)"]
         GridEdit["データグリッドでのセル編集 / TSV貼付<br>(startDate / endDate / duration / workingDays)"]
+        DepEdit["依存関係ポップオーバー編集 /<br>chart.updateDependency()"]
         Manual["プログラム実行<br>chart.autoSchedule()"]
     end
 
@@ -74,6 +75,7 @@ flowchart TB
 
     Drag --> Cascade
     GridEdit --> Cascade
+    DepEdit --> Cascade
     Manual --> Cascade
     Holiday --> Cascade
     Cascade -->|"変更があった行のみイミュータブル更新"| Wbs
@@ -165,6 +167,8 @@ const option: GanttChartOption = {
     autoSchedule: true,        // 操作時に後続タスクを自動カスケード更新
     scheduleMode: 'push-only', // 'push-only'（逆転時のみ押し出し）| 'strict'（常時厳密追従）
     respectMovable: true,      // movable: 'none' でロックされたタスクは移動対象から除外
+    enableEditPopover: true,   // ダブルクリックや編集ボタンで種別・ラグ編集ポップオーバーを表示 (v1.10.0)
+    showEditButton: true,      // 接続線選択時に線上に編集（鉛筆）ボタンを表示 (v1.10.0)
   },
   constraint: {
     enabled: true,
@@ -193,6 +197,9 @@ import { propagateAutoSchedule } from '@mogura/moguchart-core'
 
 // パターンA: チャートインスタンスのメソッドから実行（Undo/Redo履歴にも自動記録）
 const updatedIds = chart.autoSchedule(['api'], { mode: 'strict' })
+
+// 依存関係の種別・ラグをプログラムから更新（autoSchedule有効時は後続タスクも自動再計算＆Undo記録）
+chart.updateDependency('api', 'fe', { type: 'SS', lagDays: 3 })
 
 // パターンB: 純粋関数としてデータ配列を直接計算（DOM非依存）
 const result = propagateAutoSchedule(rows, ['api'], {
@@ -228,16 +235,23 @@ flowchart LR
 
 トポロジカル順に各タスクを評価する際、すべての先行タスクから要求される開始時刻（`computeRequiredStartMs`）の最大値（`Math.max`）を求めます。
 
-| タイプ | 意味 | 接続端点（コネクタ） | 後続タスクの要求開始時刻（カレンダー基準の基本式） |
-| :--- | :--- | :--- | :--- |
-| **`FS`** (Finish-to-Start) | 先行終了 → 後続開始 | 右端 `end` → 左端 `start` | `predEndMs + lagMs` |
-| **`SS`** (Start-to-Start) | 先行開始 → 後続開始 | 左端 `start` → 左端 `start` | `predStartMs + lagMs` |
-| **`FF`** (Finish-to-Finish) | 先行終了 → 後続終了 | 右端 `end` → 右端 `end` | `predEndMs + lagMs - succDurationMs` |
-| **`SF`** (Start-to-Finish) | 先行開始 → 後続終了 | 左端 `start` → 右端 `end` | `predStartMs + lagMs - succDurationMs` |
+| タイプ                      | 意味                | 接続端点（コネクタ）        | 後続タスクの要求開始時刻（カレンダー基準の基本式） |
+| :-------------------------- | :------------------ | :-------------------------- | :------------------------------------------------- |
+| **`FS`** (Finish-to-Start)  | 先行終了 → 後続開始 | 右端 `end` → 左端 `start`   | `predEndMs + lagMs`                                |
+| **`SS`** (Start-to-Start)   | 先行開始 → 後続開始 | 左端 `start` → 左端 `start` | `predStartMs + lagMs`                              |
+| **`FF`** (Finish-to-Finish) | 先行終了 → 後続終了 | 右端 `end` → 右端 `end`     | `predEndMs + lagMs - succDurationMs`               |
+| **`SF`** (Start-to-Finish)  | 先行開始 → 後続終了 | 左端 `start` → 右端 `end`   | `predStartMs + lagMs - succDurationMs`             |
 
 ここで `lag` は分単位で正の値（遅延ラグ）だけでなく **負の値（前倒しリード：たとえば先行終了の1日前からオーバーラップ着手する `FS` + `lag: -1440`）** も指定可能です。
 
 UI 上でもタスクバーの左右両端にコネクタ丸印を備えており、**「左端から左端へドラッグして繋げば `SS`」「右端から右端へ繋げば `FF`」** と `endpointsToDependencyType()` が自動判定し、直角折れ線（`orthogonal`）やベジェ曲線（`curve`）のSVGパスも正しい端点からルーティングされます。
+
+### 接続線上でのダイレクト編集ポップオーバー ＆ 独自ダイアログ連携（v1.10.0）
+
+一度引いた接続線の種別やラグ期間を後から微調整したい場面に向け、v1.10.0 では **組み込み依存関係編集ポップオーバー** と **線上編集ボタン** を実装しました。
+
+- **その場で種別・ラグを変更**: 接続線をダブルクリックするか、接続線をクリック選択した際に削除（`×`）ボタンと並んで表示される **編集（鉛筆）ボタン** を押すとポップオーバーが開き、種別（`FS` / `SS` / `FF` / `SF`）やラグ／リード値（日・時間・月などの表示スケールに応じた単位へ自動適応）を変更・削除できます。確定時には `dependency-update` イベントが発火し、後続タスクの自動スケジューリング結果（`affectedTasks`）も含めて1件の `'dependency-update'` コマンドとして Undo / Redo に記録されます。
+- **ホストアプリ独自ダイアログへの柔軟な委譲**: 本番アプリ側でリッチな専用モーダルを使いたい場合は、`enableEditPopover: false` と `showEditButton: true` を組み合わせる（またはキャンセル可能な `dependency-edit` イベントで `e.preventDefault()` を呼ぶ）ことで、線上の鉛筆ボタン UI だけを活かしつつ独自ダイアログを起動できます（ダイアログ終了時は `chart.clearDependencySelection()` で選択ハイライトを解除可能）。
 
 ### `push-only` と `strict` の違い
 
@@ -279,10 +293,10 @@ UI 上でもタスクバーの左右両端にコネクタ丸印を備えてお�
 
 実務の工程表では、タスク間の前後関係とは別に「外部要因による日付条件」が頻繁に登場します。v1.9.0 では、性質の異なる2つの機能を導入しました。
 
-| 機能 | プロパティ | 役割・スケジューリングへの影響 |
-| :--- | :--- | :--- |
-| **スケジュール制約**<br>(Constraint) | `constraintType: 'SNET' \| 'FNLT'`<br>`constraintDate: Date` | **「絶対に越えられない境界（ハード制約）」**。<br>自動スケジューリングでも手動ドラッグでも境界内に強制拘束・クランプする。 |
-| **デッドライン**<br>(Deadline) | `deadline: Date` | **「目標期限と遅延の可視化（ソフト指標）」**。<br>スケジュール自体は止めず、期限を超過した際に赤枠＋超過バッジ（`+3d`）で警告する。 |
+| 機能                                 | プロパティ                                                   | 役割・スケジューリングへの影響                                                                                                      |
+| :----------------------------------- | :----------------------------------------------------------- | :---------------------------------------------------------------------------------------------------------------------------------- |
+| **スケジュール制約**<br>(Constraint) | `constraintType: 'SNET' \| 'FNLT'`<br>`constraintDate: Date` | **「絶対に越えられない境界（ハード制約）」**。<br>自動スケジューリングでも手動ドラッグでも境界内に強制拘束・クランプする。          |
+| **デッドライン**<br>(Deadline)       | `deadline: Date`                                             | **「目標期限と遅延の可視化（ソフト指標）」**。<br>スケジュール自体は止めず、期限を超過した際に赤枠＋超過バッジ（`+3d`）で警告する。 |
 
 ### ① `propagateAutoSchedule` への制約統合
 
@@ -320,7 +334,12 @@ UI 上でもタスクバーの左右両端にコネクタ丸印を備えてお�
 <script setup lang="ts">
 import { ref } from 'vue'
 import { GanttChart, type GanttChartInstance } from '@mogura/moguchart-vue'
-import type { GanttChartOption, GanttRow, TaskDeadlineChangeEventDetail } from '@mogura/moguchart-core'
+import type {
+  DependencyUpdateEventDetail,
+  GanttChartOption,
+  GanttRow,
+  TaskDeadlineChangeEventDetail,
+} from '@mogura/moguchart-core'
 
 const props = defineProps<{
   initialRows: GanttRow[]
@@ -335,9 +354,18 @@ const handleRowsChange = (detail: { rows: GanttRow[] }) => {
   rows.value = detail.rows
 }
 
+// 依存関係ポップオーバーや updateDependency() による種別・ラグ変更を検知 (v1.10.0)
+const handleDependencyUpdate = (detail: DependencyUpdateEventDetail) => {
+  console.log(
+    `依存更新: ${detail.sourceTaskId} -> ${detail.targetTaskId}`,
+    detail.dependency,
+    `連鎖更新タスク数: ${detail.affectedTasks?.length ?? 0}`,
+  )
+}
+
 // デッドラインマーカーのドラッグ変更を検知
 const handleDeadlineChange = (detail: TaskDeadlineChangeEventDetail) => {
-  console.log(`タスク ${detail.task.id} の期限を変更:`, detail.newDeadline)
+  console.log(`タスク ${detail.task.id} の期限を変更:`, detail.originalDeadline, '->', detail.deadline)
 }
 
 // ボタンから全依存関係を厳密追従モードで一括再計算
@@ -361,6 +389,7 @@ const runStrictSchedule = () => {
       :option="option"
       style="height: 600px; width: 100%"
       @rows-change="handleRowsChange"
+      @dependency-update="handleDependencyUpdate"
       @task-deadline-change="handleDeadlineChange"
     />
   </div>
@@ -371,15 +400,16 @@ const runStrictSchedule = () => {
 
 ## まとめ
 
-`@mogura/moguchart-core` の自動スケジューリングエンジンは、単なる「矢印の描画」にとどまらず、実務のプロジェクト管理で求められる複雑な制約条件をシンプルかつ高速に処理できるよう設計しました。
+`@mogura/moguchart-core`（最新 v1.10.0：`lit` ピア依存のみの外部ランタイム依存ゼロ・約 98KB gzipped・Node16 / NodeNext 厳密 ESM 対応）の自動スケジューリングエンジンは、単なる「矢印の描画」にとどまらず、実務のプロジェクト管理で求められる複雑な制約条件をシンプルかつ高速に処理できるよう設計しました。
 
 - `FS` / `SS` / `FF` / `SF` ＋ 分単位ラグ・リードの4種依存関係（文字列IDと完全後方互換、コネクタ端点から自動判定）
+- 接続線上の編集（鉛筆）ボタン ＆ 組み込み編集ポップオーバーによる種別・ラグの対話的更新と `updateDependency()` API（独自ダイアログへの委譲にも対応）
 - BFS 下流抽出 ＋ Kahn法トポロジカルソート（`O(V + E)`）による、合流依存・循環依存に強い安全なカスケード計算
 - カスタム定休日曜日・祝日を跨いだ際の「実稼働日数維持」スナップ＆逆算ロジック
 - ハード制約としての `SNET` / `FNLT`（ドラッグ中の侵入禁止シェード＆自動クランプ）と、ソフト指標としてのドラッグ可能な `deadline`（超過バッジ表示）の使い分け
 - 起点操作から全後続タスクの連鎖更新までを1回の `Cmd+Z` で戻せる単一トランザクション Undo / Redo
 
-本エンジンは、私が開発・運営している無料 Web ガントチャートアプリ **「[MoguChart（moguchart.jp）](https://moguchart.jp)」** の本番環境でも毎日稼働しています（登録不要のゲストログインですぐにお試しいただけます）。また、左ペインの **「スプレッドシート風マルチカラムデータグリッド」** の設計についてもペア記事として公開していますので、ぜひ合わせてご覧ください！
+本エンジンは、私が開発・運営している無料 Web ガントチャートアプリ **「[MoguChart（moguchart.jp）](https://moguchart.jp)」**（最新 v1.10.1）の本番環境でも毎日稼働しています（登録不要のゲストログインですぐにお試しいただけます）。また、左ペインの **「スプレッドシート風マルチカラムデータグリッド」** の設計についてもペア記事として公開していますので、ぜひ合わせてご覧ください！
 
 ## 参考リンク
 
