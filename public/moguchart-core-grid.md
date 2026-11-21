@@ -42,7 +42,7 @@ https://moguchart-core.vercel.app
 **moguchart-core / MoguChart の関連記事はこちら**
 
 - **コアライブラリの全体紹介**: [フレームワークに縛られないガントチャートを作った — Web Components製「moguchart-core」の紹介](https://qiita.com/hiroyuki_m/items/0e4859951a9f652c26c3)
-- **自動スケジューリング編（ペア記事）**: 自動スケジューリングエンジン（FS/SS/FF/SF・営業日計算・SNET/FNLT制約）の設計については別記事で詳しく解説しています（※公開後にURLを差し替え）
+- **自動スケジューリング編（ペア記事）**: [Web Components製ガントチャート「moguchart-core」に営業日・スケジュール制約対応の自動スケジューリングエンジンを実装した話](https://qiita.com/hiroyuki_m/items/f6bb16637e7dd4b5fedd)
 - **Webアプリ正式リリース＆最新機能**: [【祝 v1.0】無料でここまで動く！WBS・サマリー自動集計に対応したWebガントチャート「MoguChart」を正式リリースしました](https://qiita.com/hiroyuki_m/items/47f635a93c5e9d831b5a)
 :::
 
@@ -435,7 +435,7 @@ export function WbsGridGantt({ initialRows, option }: { initialRows: GanttRow[];
 - カスタム DOM エディタ対応と、読み取り専用セルを自動スキップする `Tab` / `Enter` 連続セル編集（親ページスクロール抑止対応）
 - WBS階層を壊さないソート＆横断検索フィルタ（`setFilter`）、二重計上を防ぐ固定集計フッター、数式インジェクション対策付きの矩形セル TSV コピペ
 
-なお、本グリッド機能は私が開発・運営している無料 Web ガントチャートアプリ **「[MoguChart（moguchart.jp）](https://moguchart.jp)」**（最新 v1.10.1）の本番環境でもフル稼働しています（登録不要のゲストログインですぐに試せます）。さらにグリッド上で日付や稼働日を編集した際、後続タスクを営業日ベースで自動連鎖移動させる **「自動スケジューリングエンジン」** については、ペアとなる別記事で詳しく解説していますので、ぜひ合わせてご覧ください！
+なお、本グリッド機能は私が開発・運営している無料 Web ガントチャートアプリ **「[MoguChart（moguchart.jp）](https://moguchart.jp)」**（最新 v1.10.1）の本番環境でもフル稼働しています（登録不要のゲストログインですぐに試せます）。さらにグリッド上で日付や稼働日を編集した際、後続タスクを営業日ベースで自動連鎖移動させる **[「自動スケジューリングエンジン」の解説記事](https://qiita.com/hiroyuki_m/items/f6bb16637e7dd4b5fedd)** もペア記事として公開していますので、ぜひ合わせてご覧ください！
 
 ## 参考リンク
 
